@@ -7,15 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		742A11892D02892100710FE6 /* GroceryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742A11882D02892100710FE6 /* GroceryItem.swift */; };
 		74AE34B72CEC1D5F009645CD /* DataFrameworkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34B62CEC1D5F009645CD /* DataFrameworkApp.swift */; };
-		74AE34B92CEC1D5F009645CD /* ContentView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34B82CEC1D5F009645CD /* ContentView2.swift */; };
 		74AE34BB2CEC1D61009645CD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74AE34BA2CEC1D61009645CD /* Assets.xcassets */; };
 		74AE34BE2CEC1D61009645CD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74AE34BD2CEC1D61009645CD /* Preview Assets.xcassets */; };
 		74AE34C82CEC1D62009645CD /* DataFrameworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34C72CEC1D62009645CD /* DataFrameworkTests.swift */; };
 		74AE34D22CEC1D62009645CD /* DataFrameworkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34D12CEC1D62009645CD /* DataFrameworkUITests.swift */; };
 		74AE34D42CEC1D62009645CD /* DataFrameworkUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34D32CEC1D62009645CD /* DataFrameworkUITestsLaunchTests.swift */; };
-		74AE34E42CEC1EA4009645CD /* ToDoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34E32CEC1EA4009645CD /* ToDoItem.swift */; };
-		74AE34E62CEC268E009645CD /* ItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34E52CEC268E009645CD /* ItemRow.swift */; };
 		74D11E982CFFB88100C1DF04 /* GroceryList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E972CFFB88100C1DF04 /* GroceryList.swift */; };
 		74D11E9A2CFFB8C600C1DF04 /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */; };
 		74D11E9C2CFFB8D800C1DF04 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */; };
@@ -33,9 +31,7 @@
 		74FEB6ED2CFE8E4F0057523D /* ToDoListWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6EC2CFE8E4F0057523D /* ToDoListWidget.swift */; };
 		74FEB6EF2CFE8E530057523D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74FEB6EE2CFE8E530057523D /* Assets.xcassets */; };
 		74FEB6F32CFE8E530057523D /* ToDoListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		74FEB6FA2CFE94D30057523D /* ToDoItemPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6F92CFE94D30057523D /* ToDoItemPage.swift */; };
 		74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */; };
-		74FEB6FD2CFE988E0057523D /* ToDoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AE34E32CEC1EA4009645CD /* ToDoItem.swift */; };
 		74FEB6FF2CFE9F930057523D /* ModelContainerStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */; };
 		74FEB7002CFE9FB40057523D /* ModelContainerStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */; };
 /* End PBXBuildFile section */
@@ -87,9 +83,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		742A11882D02892100710FE6 /* GroceryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroceryItem.swift; sourceTree = "<group>"; };
 		74AE34B32CEC1D5F009645CD /* DataFramework.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DataFramework.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		74AE34B62CEC1D5F009645CD /* DataFrameworkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameworkApp.swift; sourceTree = "<group>"; };
-		74AE34B82CEC1D5F009645CD /* ContentView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView2.swift; sourceTree = "<group>"; };
 		74AE34BA2CEC1D61009645CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		74AE34BD2CEC1D61009645CD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		74AE34C32CEC1D62009645CD /* DataFrameworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DataFrameworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,8 +93,6 @@
 		74AE34CD2CEC1D62009645CD /* DataFrameworkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DataFrameworkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		74AE34D12CEC1D62009645CD /* DataFrameworkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameworkUITests.swift; sourceTree = "<group>"; };
 		74AE34D32CEC1D62009645CD /* DataFrameworkUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameworkUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		74AE34E32CEC1EA4009645CD /* ToDoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoItem.swift; sourceTree = "<group>"; };
-		74AE34E52CEC268E009645CD /* ItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ItemRow.swift; path = DataFramework/ItemRow.swift; sourceTree = "<group>"; };
 		74D11E972CFFB88100C1DF04 /* GroceryList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroceryList.swift; sourceTree = "<group>"; };
 		74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
 		74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -118,7 +112,6 @@
 		74FEB6EE2CFE8E530057523D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		74FEB6F02CFE8E530057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74FEB6F82CFE90CC0057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		74FEB6F92CFE94D30057523D /* ToDoItemPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoItemPage.swift; sourceTree = "<group>"; };
 		74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassWidgetView.swift; sourceTree = "<group>"; };
 		74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelContainerStandard.swift; path = DataFramework/ModelContainerStandard.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -170,8 +163,8 @@
 			isa = PBXGroup;
 			children = (
 				74D11E9F2CFFB96B00C1DF04 /* mainView.swift */,
-				74AE34E52CEC268E009645CD /* ItemRow.swift */,
 				74D11E9D2CFFB8FE00C1DF04 /* GroceryListManager.swift */,
+				742A11882D02892100710FE6 /* GroceryItem.swift */,
 				74AE34B52CEC1D5F009645CD /* DataFramework */,
 				74AE34C62CEC1D62009645CD /* DataFrameworkTests */,
 				74AE34D02CEC1D62009645CD /* DataFrameworkUITests */,
@@ -202,9 +195,6 @@
 				74D11E972CFFB88100C1DF04 /* GroceryList.swift */,
 				74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */,
 				74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */,
-				74AE34E32CEC1EA4009645CD /* ToDoItem.swift */,
-				74AE34B82CEC1D5F009645CD /* ContentView2.swift */,
-				74FEB6F92CFE94D30057523D /* ToDoItemPage.swift */,
 				74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */,
 				74FEB6DE2CFE4CF30057523D /* Secrets.xcconfig */,
 				74AE34BA2CEC1D61009645CD /* Assets.xcassets */,
@@ -461,17 +451,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74AE34B92CEC1D5F009645CD /* ContentView2.swift in Sources */,
 				74D11E9E2CFFB8FE00C1DF04 /* GroceryListManager.swift in Sources */,
+				742A11892D02892100710FE6 /* GroceryItem.swift in Sources */,
 				74D11E9A2CFFB8C600C1DF04 /* RecipeDetailView.swift in Sources */,
-				74FEB6FA2CFE94D30057523D /* ToDoItemPage.swift in Sources */,
 				74AE34B72CEC1D5F009645CD /* DataFrameworkApp.swift in Sources */,
 				74D11E982CFFB88100C1DF04 /* GroceryList.swift in Sources */,
-				74AE34E42CEC1EA4009645CD /* ToDoItem.swift in Sources */,
 				74D11E9C2CFFB8D800C1DF04 /* ContentView.swift in Sources */,
 				74FEB6FF2CFE9F930057523D /* ModelContainerStandard.swift in Sources */,
 				74D11EA02CFFB96B00C1DF04 /* mainView.swift in Sources */,
-				74AE34E62CEC268E009645CD /* ItemRow.swift in Sources */,
 				74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -509,7 +496,6 @@
 				74FEB7002CFE9FB40057523D /* ModelContainerStandard.swift in Sources */,
 				74FEB6EB2CFE8E4F0057523D /* ToDoListWidgetBundle.swift in Sources */,
 				74FEB6ED2CFE8E4F0057523D /* ToDoListWidget.swift in Sources */,
-				74FEB6FD2CFE988E0057523D /* ToDoItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

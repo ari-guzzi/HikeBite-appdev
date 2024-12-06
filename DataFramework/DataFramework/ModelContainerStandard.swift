@@ -8,13 +8,14 @@ import SwiftData
 import SwiftUI
 
 extension ModelContainer {
+
     static var standard: ModelContainer {
         let config = ModelConfiguration(
             isStoredInMemoryOnly: false,
             groupContainer: .automatic
         )
         let container = try! ModelContainer(
-            for: ToDoItem.self,
+            for: GroceryItem.self,
             configurations: config
         )
         return container

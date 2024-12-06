@@ -33,19 +33,3 @@ class GroceryListManager: ObservableObject {
         }
     }
 }
-
-@Model
-class GroceryItem: Identifiable {
-    let id: UUID
-    var name: String
-    var isCompleted: Bool
-    var isRecAdd: Bool
-
-    init(id: UUID = UUID(), name: String, isCompleted: Bool, isRecAdd: Bool = false) {
-        self.id = id
-        self.name = name
-        self.isCompleted = isCompleted
-        self.isRecAdd = isRecAdd
-    }
-}
-

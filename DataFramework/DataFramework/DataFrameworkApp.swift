@@ -15,10 +15,10 @@ struct DataFrameworkApp: App {
             MainView()
                 .environmentObject(GroceryListManager())
         }
-//        .modelContainer(
-//            for: ToDoItem.self,
-//            inMemory: true,
-//            isAutosaveEnabled: true
-//        )
+        .modelContainer(
+            for: GroceryItem.self,
+            inMemory: true,
+            isAutosaveEnabled: true
+        )
     }
 }
