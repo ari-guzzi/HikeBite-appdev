@@ -9,12 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct GroceryList: View {
-    @EnvironmentObject var groceryListManager: GroceryListManager
+    //@EnvironmentObject var groceryListManager: GroceryListManager
     @Environment(\.modelContext) private var modelContext
-
+    
     var body: some View {
         List {
-            ForEach(groceryListManager.items) { item in
+            ForEach([GroceryItem]()) { item in
+//            ForEach(groceryListManager.items) { item in
                 HStack {
                     if item.isCompleted {
                         Text(item.name)
@@ -26,7 +27,7 @@ struct GroceryList: View {
                     }
                     Spacer()
                     Button {
-                        groceryListManager.toggleCompleted(for: item)
+                        //groceryListManager.toggleCompleted(for: item)
                     } label: {
                         Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
                             .foregroundColor(.green)
@@ -34,7 +35,7 @@ struct GroceryList: View {
                     }
                 }
             }
-            .onDelete(perform: groceryListManager.deleteItems)
+            //.onDelete(perform: groceryListManager.deleteItems)
         }
         .navigationTitle("Grocery List")
     }

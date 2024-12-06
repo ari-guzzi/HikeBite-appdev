@@ -13,12 +13,13 @@ struct DataFrameworkApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-                .environmentObject(GroceryListManager())
+                //.environmentObject(GroceryListManager())
         }
         .modelContainer(
-            for: GroceryItem.self,
-            inMemory: true,
-            isAutosaveEnabled: true
+            .standard
+        )
+        .modelContainer(
+            .ingredientContainer
         )
     }
 }

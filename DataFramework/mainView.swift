@@ -14,13 +14,13 @@ struct MainView: View {
                 .tabItem {
                     Label("Recipes", systemImage: "book.fill")
                 }
-                .environmentObject(GroceryListManager())
+                //.environmentObject(GroceryListManager())
 
             GroceryList()
                 .tabItem {
                     Label("Grocery List", systemImage: "cart.fill")
                 }
-                .environmentObject(GroceryListManager())
+                //.environmentObject(GroceryListManager())
         }
     }
 }
