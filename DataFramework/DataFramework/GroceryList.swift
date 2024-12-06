@@ -10,7 +10,8 @@ import SwiftData
 
 struct GroceryList: View {
     @EnvironmentObject var groceryListManager: GroceryListManager
-    
+    @Environment(\.modelContext) private var modelContext
+
     var body: some View {
         List {
             ForEach(groceryListManager.items) { item in

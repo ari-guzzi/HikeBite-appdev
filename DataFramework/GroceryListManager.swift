@@ -11,7 +11,8 @@ import SwiftData
 
 class GroceryListManager: ObservableObject {
     @Published var items: [GroceryItem] = []
-
+    @Environment(\.modelContext) private var modelContext
+    
     func toggleCompleted(for item: GroceryItem) {
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
         items[index].isCompleted.toggle()

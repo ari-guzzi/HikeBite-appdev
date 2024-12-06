@@ -156,13 +156,13 @@ struct IngredientWidget: Codable {
 
 @Model
 class Ingredient: Codable, Identifiable {
-    //var id: UUID = UUID()
+    var id: UUID = UUID()
     var name: String
     var image: String
     var amount: Amount
 
     enum CodingKeys: String, CodingKey {
-        case name, image, amount
+        case id, name, image, amount
     }
 
     required init(name: String, image: String, amount: Amount) {
@@ -173,7 +173,7 @@ class Ingredient: Codable, Identifiable {
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        //id = try container.decode(UUID.self, forKey: .id)
+        id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         image = try container.decode(String.self, forKey: .image)
         amount = try container.decode(Amount.self, forKey: .amount)
@@ -181,7 +181,7 @@ class Ingredient: Codable, Identifiable {
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        //try container.encode(id, forKey: .id)
+        try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(image, forKey: .image)
         try container.encode(amount, forKey: .amount)

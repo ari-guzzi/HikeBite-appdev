@@ -33,7 +33,6 @@
 		74FEB6F32CFE8E530057523D /* ToDoListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */; };
 		74FEB6FF2CFE9F930057523D /* ModelContainerStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */; };
-		74FEB7002CFE9FB40057523D /* ModelContainerStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,7 +163,6 @@
 			children = (
 				74D11E9F2CFFB96B00C1DF04 /* mainView.swift */,
 				74D11E9D2CFFB8FE00C1DF04 /* GroceryListManager.swift */,
-				742A11882D02892100710FE6 /* GroceryItem.swift */,
 				74AE34B52CEC1D5F009645CD /* DataFramework */,
 				74AE34C62CEC1D62009645CD /* DataFrameworkTests */,
 				74AE34D02CEC1D62009645CD /* DataFrameworkUITests */,
@@ -192,6 +190,7 @@
 			children = (
 				74FEB6F82CFE90CC0057523D /* Info.plist */,
 				74AE34B62CEC1D5F009645CD /* DataFrameworkApp.swift */,
+				742A11882D02892100710FE6 /* GroceryItem.swift */,
 				74D11E972CFFB88100C1DF04 /* GroceryList.swift */,
 				74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */,
 				74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */,
@@ -493,7 +492,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74FEB7002CFE9FB40057523D /* ModelContainerStandard.swift in Sources */,
 				74FEB6EB2CFE8E4F0057523D /* ToDoListWidgetBundle.swift in Sources */,
 				74FEB6ED2CFE8E4F0057523D /* ToDoListWidget.swift in Sources */,
 			);

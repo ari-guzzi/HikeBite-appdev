@@ -10,16 +10,16 @@ import SwiftUI
 import SwiftData
 
 struct ClassWidgetView: View {
-    @Query private var items: [ToDoItem]
+    @Query private var items: [GroceryItem]
     
     //var entry: Provider.Entry
     
     var body: some View {
         VStack(alignment: .leading) {
-            ForEach(items) { item in
-                Label(item.title, systemImage: "smallcircle.filled.circle");
+//            ForEach(items) { item in
+//                Label(item.title, systemImage: "smallcircle.filled.circle");
                 
-            }
+//            }
         }
     }
 }
