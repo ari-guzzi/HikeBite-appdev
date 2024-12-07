@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    //@EnvironmentObject var groceryListManager: GroceryListManager
     @State private var searchText = ""
     @State private var results = [Result]()
     var apiKey: String? {

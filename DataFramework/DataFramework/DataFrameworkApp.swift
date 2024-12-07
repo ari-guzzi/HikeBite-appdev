@@ -13,13 +13,9 @@ struct DataFrameworkApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-                //.environmentObject(GroceryListManager())
         }
         .modelContainer(
             .standard
-        )
-        .modelContainer(
-            .ingredientContainer
         )
     }
 }

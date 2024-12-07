@@ -13,13 +13,13 @@ class GroceryItem: Identifiable {
     let id: UUID
     var name: String
     var isCompleted: Bool
-    var isRecAdd: Bool
+    var isRecentlyAdd: Bool
 
-    init(id: UUID = UUID(), name: String, isCompleted: Bool, isRecAdd: Bool = false) {
+    init(id: UUID = UUID(), name: String, isCompleted: Bool, isRecentlyAdd: Bool = false) {
         self.id = id
         self.name = name
         self.isCompleted = isCompleted
-        self.isRecAdd = isRecAdd
+        self.isRecentlyAdd = isRecentlyAdd
     }
 }
 

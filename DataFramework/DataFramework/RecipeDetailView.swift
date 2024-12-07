@@ -10,13 +10,14 @@ import SwiftData
 
 struct RecipeDetailView: View {
     var recipe: Result
-    @State private var ingredients: [Ingredient] = []
+    @State private var ingredients: [IngredientPlain] = []
     @State private var recipeDetail: RecipeDetail?
+    @Query private var items: [GroceryItem]
     var apiKey: String? {
         Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
     }
     @Environment(\.modelContext) private var modelContext
-    //@EnvironmentObject var groceryListManager: GroceryListManager
+
     var body: some View {
         VStack {
             ScrollView {
@@ -39,11 +40,10 @@ struct RecipeDetailView: View {
                     Text("Ingredients:")
                         .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                         .font(.title2)
-                    
                     ForEach(ingredients) { ingredient in
                         viewIngredients(ingredient: ingredient)
                     }
-                    if let recipeDetail = recipeDetail {
+                    if let recipeDetail {
                         viewRecipeDetails(recipeDetail: recipeDetail)
                     } else {
                         Text("Loading instructions...")
@@ -67,7 +67,7 @@ struct RecipeDetailView: View {
             return
         }
         URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
+            if let error {
                 print("HTTP request failed: \(error)")
                 return
             }
@@ -76,8 +76,9 @@ struct RecipeDetailView: View {
                 return
             }
             do {
+                print("about to decode JSON") // this line never happens
                 //this line is what's making it crash
-                let decodedResponse = try JSONDecoder().decode(IngredientWidget.self, from: data)
+                let decodedResponse = try JSONDecoder().decode(IngredientArrayPlain.self, from: data)
                 DispatchQueue.main.async {
                     self.ingredients = decodedResponse.ingredients
                 }
@@ -89,7 +90,7 @@ struct RecipeDetailView: View {
         let basicUrl = "https://api.spoonacular.com/recipes/"
         let recipeDetailUrl = URL(string: "\(basicUrl)\(recipe.id)/information?apiKey=\(apiKey)")
         URLSession.shared.dataTask(with: recipeDetailUrl!) { data, _, error in
-            if let error = error {
+            if let error {
                 print("Error fetching recipe details: \(error)")
                 return
             }
@@ -101,7 +102,6 @@ struct RecipeDetailView: View {
                 let recipeDetail = try JSONDecoder().decode(RecipeDetail.self, from: data)
                 DispatchQueue.main.async {
                     self.recipeDetail = recipeDetail
-                    print("Recipe Instructions: \(recipeDetail.instructions)")
                 }
             } catch {
                 print("Decoding error: \(error)")
@@ -109,7 +109,7 @@ struct RecipeDetailView: View {
         }.resume()
     }
     @ViewBuilder
-    func viewIngredients(ingredient: Ingredient) -> some View {
+    func viewIngredients(ingredient: IngredientPlain) -> some View {
         let ingredientUSVal = ingredient.amount.us.value
         let ingredientUSUnit = ingredient.amount.us.unit
         let capIngredName = ingredient.name.capitalized
@@ -122,17 +122,16 @@ struct RecipeDetailView: View {
             }
             Spacer()
             Button {
-                modelContext.insert(ingredient)
-//                DispatchQueue.main.async {
-//                    self.groceryListManager.addIngredient("\(ingredientUSVal) \(ingredientUSUnit) of \(capIngredName)")
-//                }
+                let newGroceryItem = GroceryItem(
+                    name: "\(ingredientUSVal) \(ingredientUSUnit) of \(capIngredName)", isCompleted: false
+                    )
+                modelContext.insert(newGroceryItem)
             } label: {
                 let ingredName = "\(ingredientUSVal) \(ingredientUSUnit) of \(capIngredName)"
-                //Image(systemName: groceryListManager.items.first {
-                //    $0.name == "\(ingredName)"
-//                }?.isRecAdd ?? false ? "checkmark.circle.fill" : "plus.circle")
-//                    .foregroundColor(.green)
-//                    .accessibilityLabel("Add to grocery list")
+                let existsInGroceryList = items.contains { $0.name == ingredName }
+
+                   Image(systemName: existsInGroceryList ? "checkmark.circle.fill" : "plus.circle")
+                       .foregroundColor(.green)
             }
         }
         .padding()
@@ -151,99 +150,10 @@ struct RecipeDetailView: View {
         }
     }
 }
-
-//struct IngredientWidget: Codable {
-//    let ingredients: [Ingredient]
-//    
-//}
-
-@Model
-class IngredientWidget: Codable {
-    let ingredients: [Ingredient]
-
-    init(ingredients: [Ingredient]) {
-        self.ingredients = ingredients
-    }
-
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        ingredients = try container.decode([Ingredient].self, forKey: .ingredients)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(ingredients, forKey: .ingredients)
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case ingredients
-    }
+#Preview {
+    RecipeDetailView(recipe: Result.example)
 }
-
-@Model
-class Ingredient: Codable, Identifiable {
-    var id: UUID? = UUID()
-    var name: String
-    var image: String
-    var amount: Amount
-
-    enum CodingKeys: String, CodingKey {
-        case id, name, image, amount
-    }
-
-    required init(name: String, image: String, amount: Amount) {
-        self.name = name
-        self.image = image
-        self.amount = amount
-    }
-
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try? container.decode(UUID.self, forKey: .id) ?? UUID()
-        name = try container.decode(String.self, forKey: .name)
-        image = try container.decode(String.self, forKey: .image)
-        amount = try container.decode(Amount.self, forKey: .amount)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(name, forKey: .name)
-        try container.encode(image, forKey: .image)
-        try container.encode(amount, forKey: .amount)
-    }
-}
-
-struct Amount: Codable {
-    let metric: Measurement
-    let us: Measurement // swiftlint:disable:this identifier_name
-}
-
-struct Measurement: Codable {
-    let unit: String
-    let value: Double
-}
-struct RecipeDetail: Codable {
-    let id: Int
-    let title: String
-    let readyInMinutes: Int
-    let servings: Int
-    let image: String
-    let instructions: String
-    var cleanedInstructions: String {
-        instructions.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
-    }
-}
-
-struct RecipeDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            RecipeDetailView(recipe: Result.example)
-                //.environmentObject(GroceryListManager())
-        }
-    }
-}
-
+// as an example for the preview instead of calling the API
 extension Result {
     static var example: Result {
         Result(
