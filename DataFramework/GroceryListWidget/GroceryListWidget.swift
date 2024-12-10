@@ -43,18 +43,8 @@ struct GroceryListWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        Text("Add Ingredient!🥑")
+        Text("View Grocery List 🛒")
             .font(.title)
-            .padding()
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.green.opacity(0.3), Color.blue.opacity(0.8)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .clipShape(Capsule())
-            .shadow(color: .gray, radius: 15, x: 0, y: 5)
             .padding()
     }
 }

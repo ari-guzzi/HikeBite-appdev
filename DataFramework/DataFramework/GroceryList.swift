@@ -55,6 +55,7 @@ struct GroceryList: View {
                         let formatter = formattedDate(from: date.date)
                         Text("Date Completed: \(formatter)")
                             .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
                 } else {
                     Text(item.name)
