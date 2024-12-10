@@ -38,7 +38,7 @@ struct RecipeDetailView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     Text("Ingredients:")
-                        .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                        .fontWeight(.bold)
                         .font(.title2)
                     ForEach(ingredients) { ingredient in
                         viewIngredients(ingredient: ingredient)
