@@ -14,7 +14,7 @@ extension ModelContainer {
             isStoredInMemoryOnly: false,
             groupContainer: .automatic
         )
-        let container = try! ModelContainer( // swiftlint:disable:this force-try
+        let container = try! ModelContainer( // swiftlint:disable:this force_try
             for: GroceryItem.self,
             configurations: config
                 )

@@ -29,13 +29,6 @@
 		74D11EAC2CFFC0A200C1DF04 /* GroceryListWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11EAB2CFFC0A200C1DF04 /* GroceryListWidget.swift */; };
 		74D11EAE2CFFC0A600C1DF04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74D11EAD2CFFC0A600C1DF04 /* Assets.xcassets */; };
 		74D11EB22CFFC0A600C1DF04 /* GroceryListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74D11EA52CFFC0A100C1DF04 /* GroceryListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		74FEB6E62CFE8E4F0057523D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74FEB6E52CFE8E4F0057523D /* WidgetKit.framework */; };
-		74FEB6E82CFE8E4F0057523D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74FEB6E72CFE8E4F0057523D /* SwiftUI.framework */; };
-		74FEB6EB2CFE8E4F0057523D /* ToDoListWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6EA2CFE8E4F0057523D /* ToDoListWidgetBundle.swift */; };
-		74FEB6ED2CFE8E4F0057523D /* ToDoListWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6EC2CFE8E4F0057523D /* ToDoListWidget.swift */; };
-		74FEB6EF2CFE8E530057523D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74FEB6EE2CFE8E530057523D /* Assets.xcassets */; };
-		74FEB6F32CFE8E530057523D /* ToDoListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */; };
 		74FEB6FF2CFE9F930057523D /* ModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainer.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,13 +54,6 @@
 			remoteGlobalIDString = 74D11EA42CFFC0A100C1DF04;
 			remoteInfo = GroceryListWidgetExtension;
 		};
-		74FEB6F12CFE8E530057523D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 74AE34AB2CEC1D5F009645CD /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 74FEB6E22CFE8E4F0057523D;
-			remoteInfo = ToDoListWidgetExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -78,7 +64,6 @@
 			dstSubfolderSpec = 13;
 			files = (
 				74D11EB22CFFC0A600C1DF04 /* GroceryListWidgetExtension.appex in Embed Foundation Extensions */,
-				74FEB6F32CFE8E530057523D /* ToDoListWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,15 +96,9 @@
 		74D11EAD2CFFC0A600C1DF04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		74D11EAF2CFFC0A600C1DF04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74FEB6DE2CFE4CF30057523D /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
-		74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ToDoListWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74FEB6E52CFE8E4F0057523D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		74FEB6E72CFE8E4F0057523D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		74FEB6EA2CFE8E4F0057523D /* ToDoListWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoListWidgetBundle.swift; sourceTree = "<group>"; };
-		74FEB6EC2CFE8E4F0057523D /* ToDoListWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDoListWidget.swift; sourceTree = "<group>"; };
-		74FEB6EE2CFE8E530057523D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		74FEB6F02CFE8E530057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74FEB6F82CFE90CC0057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassWidgetView.swift; sourceTree = "<group>"; };
 		74FEB6FE2CFE9F930057523D /* ModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelContainer.swift; path = DataFramework/ModelContainer.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -154,15 +133,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		74FEB6E02CFE8E4F0057523D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				74FEB6E82CFE8E4F0057523D /* SwiftUI.framework in Frameworks */,
-				74FEB6E62CFE8E4F0057523D /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -173,7 +143,6 @@
 				74AE34B52CEC1D5F009645CD /* DataFramework */,
 				74AE34C62CEC1D62009645CD /* DataFrameworkTests */,
 				74AE34D02CEC1D62009645CD /* DataFrameworkUITests */,
-				74FEB6E92CFE8E4F0057523D /* ToDoListWidget */,
 				74D11EA82CFFC0A200C1DF04 /* GroceryListWidget */,
 				74FEB6E42CFE8E4F0057523D /* Frameworks */,
 				74AE34B42CEC1D5F009645CD /* Products */,
@@ -186,7 +155,6 @@
 				74AE34B32CEC1D5F009645CD /* DataFramework.app */,
 				74AE34C32CEC1D62009645CD /* DataFrameworkTests.xctest */,
 				74AE34CD2CEC1D62009645CD /* DataFrameworkUITests.xctest */,
-				74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */,
 				74D11EA52CFFC0A100C1DF04 /* GroceryListWidgetExtension.appex */,
 			);
 			name = Products;
@@ -259,18 +227,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		74FEB6E92CFE8E4F0057523D /* ToDoListWidget */ = {
-			isa = PBXGroup;
-			children = (
-				74FEB6EA2CFE8E4F0057523D /* ToDoListWidgetBundle.swift */,
-				74FEB6EC2CFE8E4F0057523D /* ToDoListWidget.swift */,
-				74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */,
-				74FEB6EE2CFE8E530057523D /* Assets.xcassets */,
-				74FEB6F02CFE8E530057523D /* Info.plist */,
-			);
-			path = ToDoListWidget;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -287,7 +243,6 @@
 			);
 			dependencies = (
 				743083352D051032007718C6 /* PBXTargetDependency */,
-				74FEB6F22CFE8E530057523D /* PBXTargetDependency */,
 				74D11EB12CFFC0A600C1DF04 /* PBXTargetDependency */,
 			);
 			name = DataFramework;
@@ -348,23 +303,6 @@
 			productReference = 74D11EA52CFFC0A100C1DF04 /* GroceryListWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		74FEB6E22CFE8E4F0057523D /* ToDoListWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 74FEB6F42CFE8E530057523D /* Build configuration list for PBXNativeTarget "ToDoListWidgetExtension" */;
-			buildPhases = (
-				74FEB6DF2CFE8E4F0057523D /* Sources */,
-				74FEB6E02CFE8E4F0057523D /* Frameworks */,
-				74FEB6E12CFE8E4F0057523D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ToDoListWidgetExtension;
-			productName = ToDoListWidgetExtension;
-			productReference = 74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -389,9 +327,6 @@
 					74D11EA42CFFC0A100C1DF04 = {
 						CreatedOnToolsVersion = 15.4;
 					};
-					74FEB6E22CFE8E4F0057523D = {
-						CreatedOnToolsVersion = 15.4;
-					};
 				};
 			};
 			buildConfigurationList = 74AE34AE2CEC1D5F009645CD /* Build configuration list for PBXProject "DataFramework" */;
@@ -413,7 +348,6 @@
 				74AE34B22CEC1D5F009645CD /* DataFramework */,
 				74AE34C22CEC1D62009645CD /* DataFrameworkTests */,
 				74AE34CC2CEC1D62009645CD /* DataFrameworkUITests */,
-				74FEB6E22CFE8E4F0057523D /* ToDoListWidgetExtension */,
 				74D11EA42CFFC0A100C1DF04 /* GroceryListWidgetExtension */,
 			);
 		};
@@ -451,14 +385,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		74FEB6E12CFE8E4F0057523D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				74FEB6EF2CFE8E530057523D /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -476,7 +402,6 @@
 				74FEB6FF2CFE9F930057523D /* ModelContainer.swift in Sources */,
 				7430832E2D04F575007718C6 /* Measurement.swift in Sources */,
 				74D11EA02CFFB96B00C1DF04 /* MainView.swift in Sources */,
-				74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */,
 				7430832C2D04F56E007718C6 /* Amount.swift in Sources */,
 				743083322D04FDF3007718C6 /* IngredientArrayPlain.swift in Sources */,
 			);
@@ -508,15 +433,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		74FEB6DF2CFE8E4F0057523D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				74FEB6EB2CFE8E4F0057523D /* ToDoListWidgetBundle.swift in Sources */,
-				74FEB6ED2CFE8E4F0057523D /* ToDoListWidget.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -538,11 +454,6 @@
 			isa = PBXTargetDependency;
 			target = 74D11EA42CFFC0A100C1DF04 /* GroceryListWidgetExtension */;
 			targetProxy = 74D11EB02CFFC0A600C1DF04 /* PBXContainerItemProxy */;
-		};
-		74FEB6F22CFE8E530057523D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 74FEB6E22CFE8E4F0057523D /* ToDoListWidgetExtension */;
-			targetProxy = 74FEB6F12CFE8E530057523D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -854,58 +765,6 @@
 			};
 			name = Release;
 		};
-		74FEB6F52CFE8E530057523D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ToDoListWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ToDoListWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AG.DataFramework.ToDoListWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		74FEB6F62CFE8E530057523D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ToDoListWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ToDoListWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AG.DataFramework.ToDoListWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -950,15 +809,6 @@
 			buildConfigurations = (
 				74D11EB42CFFC0A600C1DF04 /* Debug */,
 				74D11EB52CFFC0A600C1DF04 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		74FEB6F42CFE8E530057523D /* Build configuration list for PBXNativeTarget "ToDoListWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				74FEB6F52CFE8E530057523D /* Debug */,
-				74FEB6F62CFE8E530057523D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

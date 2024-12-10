@@ -16,18 +16,7 @@ struct GroceryList: View {
             Text("To Buy")
             List {
                 ForEach(items.filter { !$0.isCompleted}) { item in
-                    HStack {
-                        Text(item.name)
-                            .foregroundColor(.black)
-                        Spacer()
-                        Button {
-                            item.isCompleted.toggle()
-                        } label: {
-                            Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
-                                .foregroundColor(.green)
-                                .accessibilityLabel("Toggle Item Completion")
-                        }
-                    }
+                    groceryItemView(item: item)
                 }
                 .onDelete(perform: deleteItems)
             }
@@ -36,29 +25,8 @@ struct GroceryList: View {
                 .padding()
             List {
                 ForEach(items.filter { $0.isCompleted}) { item in
-                    HStack {
-                        VStack {
-                            Text(item.name)
-                                .strikethrough()
-                                .foregroundColor(.gray)
-                            if let date = item.completionDate {
-                                let formatter = formattedDate(from: date.date)
-                                Text("Date Completed: \(formatter)")
-                            }
-                        }
-                        Spacer()
-                        Button {
-                            let itemDate = ItemDate()
-                            item.completionDate = itemDate
-                            item.isCompleted.toggle()
-                        } label: {
-                            Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
-                                .foregroundColor(.green)
-                                .accessibilityLabel("Toggle Item Completion")
-                        }
-                    }
+                    groceryItemView(item: item)
                 }
-                .onDelete(perform: deleteItems)
             }
             .navigationTitle("Grocery List")
         }
@@ -79,19 +47,26 @@ struct GroceryList: View {
     func groceryItemView(item: GroceryItem) -> some View {
         HStack {
             VStack {
-                Text(item.name)
-                    .strikethrough()
-                    .foregroundColor(.gray)
-                if let date = item.completionDate {
-                    let formatter = formattedDate(from: date.date)
-                    Text("Date Completed: \(formatter)")
+                if item.isCompleted {
+                    Text(item.name)
+                        .strikethrough()
+                        .foregroundColor(.gray)
+                    if let date = item.completionDate {
+                        let formatter = formattedDate(from: date.date)
+                        Text("Date Completed: \(formatter)")
+                            .font(.subheadline)
+                    }
+                } else {
+                    Text(item.name)
                 }
             }
             Spacer()
             Button {
-                let itemDate = ItemDate()
-                item.completionDate = itemDate
                 item.isCompleted.toggle()
+                if item.isCompleted {
+                    let itemDate = ItemDate()
+                    item.completionDate = itemDate
+                }
             } label: {
                 Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
                     .foregroundColor(.green)

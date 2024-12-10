@@ -15,7 +15,7 @@
 			<string>com.AG.DataFramework</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>todolist</string>
+				<string>groceryList</string>
 			</array>
 		</dict>
 	</array>
