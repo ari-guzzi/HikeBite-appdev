@@ -5,52 +5,101 @@
 //  Created by Ari Guzzi on 12/3/24.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct GroceryList: View {
     @Query private var items: [GroceryItem]
     @Environment(\.modelContext) private var modelContext
-    
     var body: some View {
-        List {
-            ForEach(items) { item in
-                HStack {
-                    if item.isCompleted {
-                        Text(item.name)
-                            .strikethrough()
-                            .foregroundColor(.gray)
-                    } else {
+        VStack {
+            Text("To Buy")
+            List {
+                ForEach(items.filter { !$0.isCompleted}) { item in
+                    HStack {
                         Text(item.name)
                             .foregroundColor(.black)
-                    }
-                    Spacer()
-                    Button {
-                        toggleCompletion(for: item)
-                    } label: {
-                        Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
-                            .foregroundColor(.green)
-                            .accessibilityLabel("Toggle Item Completion")
+                        Spacer()
+                        Button {
+                            item.isCompleted.toggle()
+                        } label: {
+                            Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
+                                .foregroundColor(.green)
+                                .accessibilityLabel("Toggle Item Completion")
+                        }
                     }
                 }
+                .onDelete(perform: deleteItems)
             }
-            .onDelete(perform: deleteItems)
+            Spacer()
+            Text("Completed")
+                .padding()
+            List {
+                ForEach(items.filter { $0.isCompleted}) { item in
+                    HStack {
+                        VStack {
+                            Text(item.name)
+                                .strikethrough()
+                                .foregroundColor(.gray)
+                            if let date = item.completionDate {
+                                let formatter = formattedDate(from: date.date)
+                                Text("Date Completed: \(formatter)")
+                            }
+                        }
+                        Spacer()
+                        Button {
+                            let itemDate = ItemDate()
+                            item.completionDate = itemDate
+                            item.isCompleted.toggle()
+                        } label: {
+                            Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
+                                .foregroundColor(.green)
+                                .accessibilityLabel("Toggle Item Completion")
+                        }
+                    }
+                }
+                .onDelete(perform: deleteItems)
+            }
+            .navigationTitle("Grocery List")
         }
-        .navigationTitle("Grocery List")
     }
-    private func toggleCompletion(for item: GroceryItem) {
-            item.isCompleted.toggle()
-            try? modelContext.save()
-        }
     private func deleteItems(at offsets: IndexSet) {
-            for index in offsets {
-                let item = items[index]
-                modelContext.delete(item)
+        for index in offsets {
+            let item = items[index]
+            modelContext.delete(item)
             }
-            try? modelContext.save()
+        try? modelContext.save()
+    }
+    func formattedDate(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    func groceryItemView(item: GroceryItem) -> some View {
+        HStack {
+            VStack {
+                Text(item.name)
+                    .strikethrough()
+                    .foregroundColor(.gray)
+                if let date = item.completionDate {
+                    let formatter = formattedDate(from: date.date)
+                    Text("Date Completed: \(formatter)")
+                }
+            }
+            Spacer()
+            Button {
+                let itemDate = ItemDate()
+                item.completionDate = itemDate
+                item.isCompleted.toggle()
+            } label: {
+                Image(systemName: item.isCompleted ? "checkmark.circle" : "circle")
+                    .foregroundColor(.green)
+                    .accessibilityLabel("Toggle Item Completion")
+            }
         }
+    }
 }
-//
-//#Preview {
+// #Preview {
 //    GroceryList()
-//}
+// }

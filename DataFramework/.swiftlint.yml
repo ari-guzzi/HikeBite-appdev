@@ -1,0 +1,21 @@
+disabled_rules:
+  - trailing_comma
+  - blanket_disable_command
+  - todo
+
+opt_in_rules:
+  - duplicate_imports
+  - sorted_imports
+  - file_name
+  - unused_private_declaration
+  - trailing_closure
+  - implicit_return
+  - closure_end_indentation
+  - indentation_width
+
+force_try:
+  severity: warning
+
+analyzer_rules:
+  - unused_import
+  - unused_declaration

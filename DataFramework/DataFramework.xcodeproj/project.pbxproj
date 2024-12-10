@@ -22,7 +22,7 @@
 		74D11E982CFFB88100C1DF04 /* GroceryList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E972CFFB88100C1DF04 /* GroceryList.swift */; };
 		74D11E9A2CFFB8C600C1DF04 /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */; };
 		74D11E9C2CFFB8D800C1DF04 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */; };
-		74D11EA02CFFB96B00C1DF04 /* mainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E9F2CFFB96B00C1DF04 /* mainView.swift */; };
+		74D11EA02CFFB96B00C1DF04 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11E9F2CFFB96B00C1DF04 /* MainView.swift */; };
 		74D11EA62CFFC0A200C1DF04 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74FEB6E52CFE8E4F0057523D /* WidgetKit.framework */; };
 		74D11EA72CFFC0A200C1DF04 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74FEB6E72CFE8E4F0057523D /* SwiftUI.framework */; };
 		74D11EAA2CFFC0A200C1DF04 /* GroceryListWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D11EA92CFFC0A200C1DF04 /* GroceryListWidgetBundle.swift */; };
@@ -36,7 +36,7 @@
 		74FEB6EF2CFE8E530057523D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74FEB6EE2CFE8E530057523D /* Assets.xcassets */; };
 		74FEB6F32CFE8E530057523D /* ToDoListWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74FEB6E32CFE8E4F0057523D /* ToDoListWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */; };
-		74FEB6FF2CFE9F930057523D /* ModelContainerStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */; };
+		74FEB6FF2CFE9F930057523D /* ModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FEB6FE2CFE9F930057523D /* ModelContainer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,7 +104,7 @@
 		74D11E972CFFB88100C1DF04 /* GroceryList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroceryList.swift; sourceTree = "<group>"; };
 		74D11E992CFFB8C600C1DF04 /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
 		74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		74D11E9F2CFFB96B00C1DF04 /* mainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainView.swift; sourceTree = "<group>"; };
+		74D11E9F2CFFB96B00C1DF04 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		74D11EA52CFFC0A100C1DF04 /* GroceryListWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GroceryListWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74D11EA92CFFC0A200C1DF04 /* GroceryListWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroceryListWidgetBundle.swift; sourceTree = "<group>"; };
 		74D11EAB2CFFC0A200C1DF04 /* GroceryListWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroceryListWidget.swift; sourceTree = "<group>"; };
@@ -120,7 +120,7 @@
 		74FEB6F02CFE8E530057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74FEB6F82CFE90CC0057523D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		74FEB6FB2CFE98170057523D /* ClassWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassWidgetView.swift; sourceTree = "<group>"; };
-		74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelContainerStandard.swift; path = DataFramework/ModelContainerStandard.swift; sourceTree = SOURCE_ROOT; };
+		74FEB6FE2CFE9F930057523D /* ModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelContainer.swift; path = DataFramework/ModelContainer.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,7 +169,7 @@
 		74AE34AA2CEC1D5F009645CD = {
 			isa = PBXGroup;
 			children = (
-				74D11E9F2CFFB96B00C1DF04 /* mainView.swift */,
+				74D11E9F2CFFB96B00C1DF04 /* MainView.swift */,
 				74AE34B52CEC1D5F009645CD /* DataFramework */,
 				74AE34C62CEC1D62009645CD /* DataFrameworkTests */,
 				74AE34D02CEC1D62009645CD /* DataFrameworkUITests */,
@@ -206,7 +206,7 @@
 				7430832F2D04FDE1007718C6 /* IngredientPlain.swift */,
 				743083312D04FDF3007718C6 /* IngredientArrayPlain.swift */,
 				74D11E9B2CFFB8D800C1DF04 /* ContentView.swift */,
-				74FEB6FE2CFE9F930057523D /* ModelContainerStandard.swift */,
+				74FEB6FE2CFE9F930057523D /* ModelContainer.swift */,
 				74FEB6DE2CFE4CF30057523D /* Secrets.xcconfig */,
 				74AE34BA2CEC1D61009645CD /* Assets.xcassets */,
 				74AE34BC2CEC1D61009645CD /* Preview Content */,
@@ -286,6 +286,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				743083352D051032007718C6 /* PBXTargetDependency */,
 				74FEB6F22CFE8E530057523D /* PBXTargetDependency */,
 				74D11EB12CFFC0A600C1DF04 /* PBXTargetDependency */,
 			);
@@ -402,6 +403,9 @@
 				Base,
 			);
 			mainGroup = 74AE34AA2CEC1D5F009645CD;
+			packageReferences = (
+				743083332D051000007718C6 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+			);
 			productRefGroup = 74AE34B42CEC1D5F009645CD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -469,9 +473,9 @@
 				74D11E9C2CFFB8D800C1DF04 /* ContentView.swift in Sources */,
 				7430832A2D04F52F007718C6 /* RecipeDetail.swift in Sources */,
 				743083302D04FDE2007718C6 /* IngredientPlain.swift in Sources */,
-				74FEB6FF2CFE9F930057523D /* ModelContainerStandard.swift in Sources */,
+				74FEB6FF2CFE9F930057523D /* ModelContainer.swift in Sources */,
 				7430832E2D04F575007718C6 /* Measurement.swift in Sources */,
-				74D11EA02CFFB96B00C1DF04 /* mainView.swift in Sources */,
+				74D11EA02CFFB96B00C1DF04 /* MainView.swift in Sources */,
 				74FEB6FC2CFE98170057523D /* ClassWidgetView.swift in Sources */,
 				7430832C2D04F56E007718C6 /* Amount.swift in Sources */,
 				743083322D04FDF3007718C6 /* IngredientArrayPlain.swift in Sources */,
@@ -516,6 +520,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		743083352D051032007718C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 743083342D051032007718C6 /* SwiftLintBuildToolPlugin */;
+		};
 		74AE34C52CEC1D62009645CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 74AE34B22CEC1D5F009645CD /* DataFramework */;
@@ -956,6 +964,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		743083332D051000007718C6 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.57.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		743083342D051032007718C6 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 743083332D051000007718C6 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 74AE34AB2CEC1D5F009645CD /* Project object */;
 }

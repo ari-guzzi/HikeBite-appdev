@@ -5,8 +5,8 @@
 //  Created by Ari Guzzi on 12/3/24.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
@@ -21,7 +21,7 @@ struct ContentView: View {
         VStack {
             NavigationView {
                 List(results, id: \.id) { item in
-                    NavigationLink(destination: RecipeDetailView(recipe: item)){
+                    NavigationLink(destination: RecipeDetailView(recipe: item)) {
                         VStack(alignment: .center) {
                             Text(item.title)
                                 .fontWeight(.bold)

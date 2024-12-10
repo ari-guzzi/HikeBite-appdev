@@ -5,8 +5,8 @@
 //  Created by Ari Guzzi on 12/3/24.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct RecipeDetailView: View {
     var recipe: Result
@@ -76,8 +76,6 @@ struct RecipeDetailView: View {
                 return
             }
             do {
-                print("about to decode JSON") // this line never happens
-                //this line is what's making it crash
                 let decodedResponse = try JSONDecoder().decode(IngredientArrayPlain.self, from: data)
                 DispatchQueue.main.async {
                     self.ingredients = decodedResponse.ingredients
@@ -130,8 +128,8 @@ struct RecipeDetailView: View {
                 let ingredName = "\(ingredientUSVal) \(ingredientUSUnit) of \(capIngredName)"
                 let existsInGroceryList = items.contains { $0.name == ingredName }
 
-                   Image(systemName: existsInGroceryList ? "checkmark.circle.fill" : "plus.circle")
-                       .foregroundColor(.green)
+                Image(systemName: existsInGroceryList ? "checkmark.circle.fill" : "plus.circle")
+                    .foregroundColor(.green)
             }
         }
         .padding()
@@ -164,4 +162,3 @@ extension Result {
         )
     }
 }
-

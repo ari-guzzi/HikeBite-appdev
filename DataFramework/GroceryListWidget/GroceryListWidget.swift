@@ -52,20 +52,14 @@ struct GroceryListWidgetEntryView : View {
         }
     }
 }
-
+@available(iOS 17, *)
 struct GroceryListWidget: Widget {
     let kind: String = "GroceryListWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                GroceryListWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                GroceryListWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+            GroceryListWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("My Widget")
         .description("This is an example widget.")

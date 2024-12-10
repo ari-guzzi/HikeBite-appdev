@@ -1,5 +1,5 @@
 //
-//  mainView.swift
+//  MainView.swift
 //  DataFramework
 //
 //  Created by Ari Guzzi on 12/3/24.
