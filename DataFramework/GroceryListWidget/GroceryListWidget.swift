@@ -43,9 +43,12 @@ struct GroceryListWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        Text("View Grocery List 🛒")
-            .font(.title)
-            .padding()
+        VStack {
+            Text("View Grocery List 🛒")
+                .font(.title)
+                .padding()
+        }
+        .widgetURL(URL(string: "todo://navigate"))
     }
 }
 @available(iOS 17, *)
