@@ -114,7 +114,7 @@ struct RecipeDetailView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("\(ingredient.name.capitalized)")
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                    .fontWeight(.bold)
                 Text("\(String(format: "%.1f", ingredient.amount.us.value)) \(ingredient.amount.us.unit)")
                     .font(.caption)
             }
@@ -133,7 +133,7 @@ struct RecipeDetailView: View {
             }
         }
         .padding()
-        .border(/*@START_MENU_TOKEN@*/Color(hue: 1.0, saturation: 0.023, brightness: 0.907)/*@END_MENU_TOKEN@*/)
+        .border(Color(hue: 1.0, saturation: 0.023, brightness: 0.907))
     }
     func viewRecipeDetails(recipeDetail: RecipeDetail) -> some View {
         VStack {
