@@ -1,9 +1,10 @@
 //
-//  ModelContainerStandard.swift
-//  DataFramework
+//  ModelContainer.swift
+//  HikeBite
 //
-//  Created by Ari Guzzi on 12/2/24.
+//  Created by Ari Guzzi on 1/13/25.
 //
+
 import SwiftData
 import SwiftUI
 

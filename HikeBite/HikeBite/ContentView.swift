@@ -1,10 +1,9 @@
 //
 //  ContentView.swift
-//  DataFramework
+//  HikeBite
 //
-//  Created by Ari Guzzi on 12/3/24.
+//  Created by Ari Guzzi on 1/13/25.
 //
-
 import SwiftData
 import SwiftUI
 

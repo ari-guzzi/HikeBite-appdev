@@ -1,13 +1,13 @@
 //
-//  DataFrameworkUITestsLaunchTests.swift
-//  DataFrameworkUITests
+//  HikeBiteUITestsLaunchTests.swift
+//  HikeBiteUITests
 //
-//  Created by Ari Guzzi on 11/18/24.
+//  Created by Ari Guzzi on 1/13/25.
 //
 
 import XCTest
 
-final class DataFrameworkUITestsLaunchTests: XCTestCase {
+final class HikeBiteUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
@@ -17,6 +17,7 @@ final class DataFrameworkUITestsLaunchTests: XCTestCase {
         continueAfterFailure = false
     }
 
+    @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
         app.launch()

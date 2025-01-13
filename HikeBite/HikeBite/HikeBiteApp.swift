@@ -1,15 +1,14 @@
 //
-//  DataFrameworkApp.swift
-//  DataFramework
+//  HikeBiteApp.swift
+//  HikeBite
 //
-//  Created by Ari Guzzi on 11/18/24.
+//  Created by Ari Guzzi on 1/13/25.
 //
 
-import SwiftData
 import SwiftUI
 
 @main
-struct DataFrameworkApp: App {
+struct HikeBiteApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()

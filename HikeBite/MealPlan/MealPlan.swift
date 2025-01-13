@@ -1,8 +1,8 @@
 //
-//  GroceryListWidget.swift
-//  GroceryListWidget
+//  MealPlan.swift
+//  MealPlan
 //
-//  Created by Ari Guzzi on 12/3/24.
+//  Created by Ari Guzzi on 1/13/25.
 //
 
 import WidgetKit
@@ -39,7 +39,7 @@ struct SimpleEntry: TimelineEntry {
     let emoji: String
 }
 
-struct GroceryListWidgetEntryView : View {
+struct MealPlanEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
@@ -52,12 +52,12 @@ struct GroceryListWidgetEntryView : View {
     }
 }
 @available(iOS 17, *)
-struct GroceryListWidget: Widget {
-    let kind: String = "GroceryListWidget"
+struct MealPlan: Widget {
+    let kind: String = "MealPlan"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            GroceryListWidgetEntryView(entry: entry)
+            MealPlanEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("My Widget")
@@ -66,7 +66,7 @@ struct GroceryListWidget: Widget {
 }
 
 #Preview(as: .systemSmall) {
-    GroceryListWidget()
+    MealPlan()
 } timeline: {
     SimpleEntry(date: .now, emoji: "😀")
     SimpleEntry(date: .now, emoji: "🤩")
