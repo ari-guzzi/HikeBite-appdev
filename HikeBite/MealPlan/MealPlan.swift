@@ -44,11 +44,13 @@ struct MealPlanEntryView : View {
 
     var body: some View {
         VStack {
-            Text("View Grocery List 🛒")
-                .font(.title)
-                .padding()
+            HStack(alignment: .center) {
+                Text("View Meal Plan")
+                    .font(.title)
+                Image(systemName: "figure.hiking")
+            }
         }
-        .widgetURL(URL(string: "todo://navigate"))
+        .widgetURL(URL(string: "MealPlan://navigate"))
     }
 }
 @available(iOS 17, *)
@@ -60,8 +62,8 @@ struct MealPlan: Widget {
             MealPlanEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("Open MealPlan")
+        .description("This is a widget that links to mealplan page.")
     }
 }
 
