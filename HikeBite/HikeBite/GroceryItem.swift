@@ -9,7 +9,7 @@ import SwiftUI
 
 @Model
 class GroceryItem: Identifiable {
-    let id: UUID
+    var id: UUID
     var name: String
     var isCompleted: Bool
     var isRecentlyAdd: Bool

@@ -57,28 +57,36 @@ struct ContentView: View {
     }
     func fetchData(searchQuery: String = "", diet: String = "") {
         guard let apiKey = apiKey,
-            let baseURL = baseURL,
-            var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
+              let baseURL = baseURL,
+              var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
         else {
             print("Invalid URL or API key missing")
             return
-            }
-        var queryItems = [URLQueryItem(name: "apiKey", value: apiKey)]
+        }
+
+        var queryItems = [URLQueryItem]()
         if !searchQuery.isEmpty {
             queryItems.append(URLQueryItem(name: "query", value: searchQuery))
         }
+        if !diet.isEmpty {
+            queryItems.append(URLQueryItem(name: "diet", value: diet))
+        }
         components.queryItems = queryItems
+
         guard let url = components.url else {
             print("Invalid URL components")
             return
         }
+
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")
+        request.setValue("spoonacular-recipe-food-nutrition-v1.p.rapidapi.com", forHTTPHeaderField: "X-RapidAPI-Host")
         request.httpMethod = "GET"
 
         URLSession.shared.dataTask(with: request) { data, _, error in
             guard let data = data else {
-                print("No data received")
+                print("No data received: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
 
