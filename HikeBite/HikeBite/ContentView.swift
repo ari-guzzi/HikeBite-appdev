@@ -57,8 +57,8 @@ struct ContentView: View {
     }
     func fetchData(searchQuery: String = "", diet: String = "") {
         guard let apiKey = apiKey,
-              let baseURL = baseURL,
-              var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
+        let baseURL = baseURL,
+        var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
         else {
             print("Invalid URL or API key missing")
             return
