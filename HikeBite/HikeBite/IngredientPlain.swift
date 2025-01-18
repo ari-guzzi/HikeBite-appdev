@@ -7,12 +7,12 @@
 import SwiftUI
 
 struct IngredientPlain: Codable, Identifiable {
-    var id: UUID = UUID()
+    var id: UUID = UUID() // Unique ID for SwiftUI ForEach
     let name: String
-    let image: String
-    let amount: Amount
+    let amount: Double
+    let unit: String
 
     enum CodingKeys: String, CodingKey {
-        case name, image, amount
+        case name, amount, unit
     }
 }

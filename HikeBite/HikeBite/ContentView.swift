@@ -4,7 +4,9 @@
 //
 //  Created by Ari Guzzi on 1/13/25.
 //
-import SwiftData
+import Firebase
+import FirebaseFirestore
+import FirebaseStorage
 import SwiftUI
 
 struct ContentView: View {
@@ -28,11 +30,13 @@ struct ContentView: View {
                                 .multilineTextAlignment(.center)
                             AsyncImage(url: URL(string: item.image)) { image in
                                 image.resizable()
-                                    .aspectRatio(contentMode: .fit)
+                                    .scaledToFill() // Ensures the image fills the view without distortion
+                                    .frame(width: 200, height: 100) // Fixed size for all images
+                                    .clipped() // Crops the overflowing part to fit the frame
                             } placeholder: {
                                 ProgressView()
                             }
-                            .frame(height: 120)
+                            .frame(width: 200, height: 100) // Ensure placeholder matches the image size
                             .cornerRadius(10)
                         }
                     }
@@ -55,50 +59,67 @@ struct ContentView: View {
             fetchData()
         }
     }
-    func fetchData(searchQuery: String = "", diet: String = "") {
-        guard let apiKey = apiKey,
-        let baseURL = baseURL,
-        var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
-        else {
-            print("Invalid URL or API key missing")
-            return
-        }
-
-        var queryItems = [URLQueryItem]()
+    func fetchData(searchQuery: String = "") {
+        print("hello")
+        FirebaseApp.configure()
+        // FirebaseConfiguration.shared.setLoggerLevel(.debug)
+        let dbse = Firestore.firestore()
+        // Start Firestore query
+        var query: Query = dbse.collection("Recipes")
         if !searchQuery.isEmpty {
-            queryItems.append(URLQueryItem(name: "query", value: searchQuery))
-        }
-        if !diet.isEmpty {
-            queryItems.append(URLQueryItem(name: "diet", value: diet))
-        }
-        components.queryItems = queryItems
-
-        guard let url = components.url else {
-            print("Invalid URL components")
-            return
+            query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
+                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
 
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")
-        request.setValue("spoonacular-recipe-food-nutrition-v1.p.rapidapi.com", forHTTPHeaderField: "X-RapidAPI-Host")
-        request.httpMethod = "GET"
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data else {
-                print("No data received: \(error?.localizedDescription ?? "Unknown error")")
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching recipes: \(error.localizedDescription)")
                 return
             }
 
-            do {
-                let reqResponse = try JSONDecoder().decode(RecipeSearch.self, from: data)
-                DispatchQueue.main.async {
-                    self.results = reqResponse.results
-                }
-            } catch {
-                print("Decoding error: \(error)")
+            guard let documents = snapshot?.documents else {
+                print("No recipes found")
+                return
             }
-        }.resume()
+            var fetchedRecipes: [Result] = []
+
+            let group = DispatchGroup() // Use a dispatch group to manage async tasks
+
+            for document in documents {
+                let data = document.data()
+                var result = Result(
+                    id: document.documentID,
+                    title: data["title"] as? String ?? "",
+                    image: "", // Placeholder for the resolved image URL
+                    imageType: data["imageType"] as? String ?? "jpeg",
+                    needStove: data["needStove"] as? Bool ?? false,
+                    ingredients: (data["ingredients"] as? [[String: Any]] ?? []).compactMap { ingredientData in
+                        guard
+                            let name = ingredientData["name"] as? String,
+                            let amount = ingredientData["amount"] as? Double,
+                            let unit = ingredientData["unit"] as? String
+                        else {
+                            return nil
+                        }
+                        return IngredientPlain(name: name, amount: amount, unit: unit)
+                    }
+                )
+                if let imagePath = data["image"] as? String {
+                    group.enter()
+                    getDownloadURL(for: imagePath) { url in
+                        result.image = url ?? "https://example.com/placeholder.jpg"
+                        fetchedRecipes.append(result)
+                        group.leave()
+                    }
+                } else {
+                    result.image = "https://example.com/placeholder.jpg"
+                    fetchedRecipes.append(result)
+                }
+            }
+            group.notify(queue: .main) {
+                self.results = fetchedRecipes
+            }
+        }
     }
 }
 
@@ -112,14 +133,29 @@ struct RecipeSearch: Codable {
     let totalResults: Int
 }
 
-struct Result: Codable {
-    let id: Int
+struct Result: Codable, Identifiable {
+    let id: String
     let title: String
-    let image: String
+    var image: String
     let imageType: String
+    let needStove: Bool
+    let ingredients: [IngredientPlain]
 }
 
 struct SupportInfo: Codable {
     let url: String
     let text: String
+}
+
+func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
+    let storageRef = Storage.storage().reference(forURL: storagePath)
+    storageRef.downloadURL { url, error in
+        if let error = error {
+            print("Error getting download URL for \(storagePath): \(error.localizedDescription)")
+            completion(nil)
+        } else if let url = url {
+            print("Download URL for \(storagePath): \(url.absoluteString)")
+            completion(url.absoluteString)
+        }
+    }
 }
