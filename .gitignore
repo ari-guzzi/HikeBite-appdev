@@ -338,3 +338,5 @@ iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/xcode,swift,macos,visualstudiocode,python,carthage,cocoapods
 *.xcconfig
+# Ignore GoogleService-Info.plist
+GoogleService-Info.plist

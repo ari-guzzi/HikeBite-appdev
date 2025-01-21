@@ -56,35 +56,36 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            fetchData()
+            print("ContentView appeared")
+            if FirebaseApp.app() != nil {
+                fetchData()
+                print("Firebase is configured and fetchData called")
+            } else {
+                print("Firebase is not configured")
+            }
         }
     }
     func fetchData(searchQuery: String = "") {
         print("hello")
-        FirebaseApp.configure()
+        // FirebaseApp.configure()
         // FirebaseConfiguration.shared.setLoggerLevel(.debug)
         let dbse = Firestore.firestore()
-        // Start Firestore query
         var query: Query = dbse.collection("Recipes")
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
                          .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
-
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching recipes: \(error.localizedDescription)")
                 return
             }
-
             guard let documents = snapshot?.documents else {
                 print("No recipes found")
                 return
             }
             var fetchedRecipes: [Result] = []
-
             let group = DispatchGroup() // Use a dispatch group to manage async tasks
-
             for document in documents {
                 let data = document.data()
                 var result = Result(
@@ -139,7 +140,7 @@ struct Result: Codable, Identifiable {
     var image: String
     let imageType: String
     let needStove: Bool
-    let ingredients: [IngredientPlain]
+    var ingredients: [IngredientPlain]
 }
 
 struct SupportInfo: Codable {
@@ -151,10 +152,8 @@ func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> 
     let storageRef = Storage.storage().reference(forURL: storagePath)
     storageRef.downloadURL { url, error in
         if let error = error {
-            print("Error getting download URL for \(storagePath): \(error.localizedDescription)")
             completion(nil)
         } else if let url = url {
-            print("Download URL for \(storagePath): \(url.absoluteString)")
             completion(url.absoluteString)
         }
     }

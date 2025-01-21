@@ -8,11 +8,13 @@ import SwiftUI
 
 struct IngredientPlain: Codable, Identifiable {
     var id: UUID = UUID() // Unique ID for SwiftUI ForEach
-    let name: String
+    var name: String
     let amount: Double
     let unit: String
-
+    var detail: IngredientDetail?
+    
     enum CodingKeys: String, CodingKey {
-        case name, amount, unit
+        case name, amount, unit, detail
     }
 }
+

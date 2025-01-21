@@ -5,6 +5,7 @@
 //  Created by Ari Guzzi on 1/13/25.
 //
 import Firebase
+import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
@@ -22,6 +23,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct HikeBiteApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
             MainView()
