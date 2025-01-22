@@ -11,10 +11,8 @@ import SwiftUI
 struct RecipeDetailView: View {
     var recipe: Result
     @Environment(\.modelContext) private var modelContext
-    // @State private var ingredients: [IngredientPlain] = []
-    @State private var recipeDetail: RecipeDetail?
-    @Query private var items: [GroceryItem]
     @State private var mutableIngredients: [IngredientPlain] = []
+    @Query private var items: [GroceryItem]
     var apiKey: String? {
         Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
     }
@@ -67,26 +65,34 @@ struct RecipeDetailView: View {
                 .padding()
             }
         }
+        .onAppear {
+            mutableIngredients = recipe.ingredients // Initialize mutableIngredients
+            fetchDetailsForIngredients()
+        }
     }
+
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>) -> some View {
-        var formattedAmount = String(format: "%.1f", ingredient.wrappedValue.amount)
-        var ingredientName = ingredient.name
+        let formattedAmount = String(format: "%.1f", ingredient.wrappedValue.amount)
+        let ingredientName = ingredient.wrappedValue.name.capitalized
 
         HStack {
             VStack(alignment: .leading) {
                 // Display name and amount
-                Text(ingredient.wrappedValue.name.capitalized)
+                Text(ingredientName)
                     .fontWeight(.bold)
-                Text("\(String(format: "%.1f", ingredient.wrappedValue.amount)) \(ingredient.wrappedValue.unit)")
+                Text("\(formattedAmount) \(ingredient.wrappedValue.unit)")
                     .font(.caption)
-
                 // Display fetched details
                 if let detail = ingredient.wrappedValue.detail {
-                    Text("Calories: \(String(format: "%.1f", detail.calories)) kcal")
-                        .font(.caption)
-                    Text("Weight: \(String(format: "%.1f", detail.weight)) g")
-                        .font(.caption)
+                    if let nutrients = detail.nutrition?.nutrients {
+                        let calories = nutrients.first(where: { $0.name.lowercased() == "calories" })?.amount ?? 0.0
+                        let weight = nutrients.first(where: { $0.name.lowercased() == "weight" })?.amount ?? 0.0
+                        Text("Calories: \(String(format: "%.1f", calories)) kcal")
+                            .font(.caption)
+                        Text("Weight: \(String(format: "%.1f", weight)) g")
+                            .font(.caption)
+                    }
                 } else {
                     Text("Fetching details...")
                         .font(.caption)
@@ -94,18 +100,17 @@ struct RecipeDetailView: View {
                 }
             }
             Spacer()
-
             // Add to Grocery List Button
             Button {
                 let newGroceryItem = GroceryItem(
                     id: UUID(),
-                    name: "\(String(format: "%.1f", ingredient.wrappedValue.amount)) \(ingredient.wrappedValue.unit) of \(ingredient.wrappedValue.name.capitalized)",
+                    name: "\(formattedAmount) \(ingredient.wrappedValue.unit) of \(ingredientName)",
                     isCompleted: false
                 )
                 modelContext.insert(newGroceryItem)
             } label: {
                 let existsInGroceryList = items.contains {
-                    $0.name == "\(String(format: "%.1f", ingredient.wrappedValue.amount)) \(ingredient.wrappedValue.unit) of \(ingredient.wrappedValue.name.capitalized)"
+                    $0.name == "\(formattedAmount) \(ingredient.wrappedValue.unit) of \(ingredientName)"
                 }
                 Image(systemName: existsInGroceryList ? "checkmark.circle.fill" : "plus.circle")
                     .foregroundColor(.green)
@@ -113,11 +118,13 @@ struct RecipeDetailView: View {
         }
         .padding()
         .border(Color.gray.opacity(0.3))
-        .onAppear {
-            mutableIngredients = recipe.ingredients
-            fetchIngredientDetails(for: ingredient.wrappedValue) { detail in
+    }
+    private func fetchDetailsForIngredients() {
+        for index in mutableIngredients.indices {
+            let ingredient = mutableIngredients[index]
+            fetchIngredientDetails(for: ingredient) { detail in
                 DispatchQueue.main.async {
-                    if let index = mutableIngredients.firstIndex(where: { $0.name == ingredient.wrappedValue.name }) {
+                    if let detail = detail {
                         mutableIngredients[index].detail = detail
                     }
                 }
@@ -138,7 +145,6 @@ struct RecipeDetailView: View {
             completion(nil)
             return
         }
-
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")
@@ -151,13 +157,11 @@ struct RecipeDetailView: View {
                 completion(nil)
                 return
             }
-
             guard let data = data else {
                 print("No data received")
                 completion(nil)
                 return
             }
-
             do {
                 let searchResponse = try JSONDecoder().decode(IngredientSearchResponse.self, from: data)
                 guard let firstResult = searchResponse.results.first else {
@@ -178,15 +182,14 @@ struct RecipeDetailView: View {
             }
         }.resume()
     }
-
     func fetchIngredientInformation(id: Int, amount: Double, unit: String, completion: @escaping (IngredientDetail?) -> Void) {
         guard let apiKey = apiKey else {
             print("API key missing")
             completion(nil)
             return
         }
-        
         let detailUrl = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/food/ingredients/\(id)/information?amount=\(amount)&unit=\(unit)"
+        print("Requesting: \(detailUrl)")
         guard let url = URL(string: detailUrl) else {
             print("Invalid URL for ingredient details")
             completion(nil)
@@ -214,6 +217,12 @@ struct RecipeDetailView: View {
 
             do {
                 let ingredientDetail = try JSONDecoder().decode(IngredientDetail.self, from: data)
+                print("Parsed Ingredient Detail: \(ingredientDetail)")
+                if let nutrients = ingredientDetail.nutrition?.nutrients {
+                    let calories = nutrients.first(where: { $0.name.lowercased() == "calories" })?.amount ?? 0.0
+                    let weight = nutrients.first(where: { $0.name.lowercased() == "weight" })?.amount ?? 0.0
+                    print("Calories: \(calories), Weight: \(weight)")
+                }
                 completion(ingredientDetail)
             } catch {
                 print("Decoding error for ingredient details: \(error)")
@@ -221,27 +230,7 @@ struct RecipeDetailView: View {
             }
         }.resume()
     }
-
 }
-//#Preview {
-//    RecipeDetailView(recipe: Result.example)
-//}
-//// as an example for the preview instead of calling the API
-//extension Result {
-//    static var example: Result {
-//        Result(
-//            id: "1",
-//            title: "PBJ Wrap",
-//            image: "gs://hikebite-48dbe.firebasestorage.app/pbjwrap.jpg",
-//            imageType: "jpeg",
-//            needStove: false,
-//            ingredients: [
-//                { name: "Tortilla", amount: 70, unit: "g" },
-//                { name: "Peanut Butter", amount: 5, unit: "tbsp" },
-//                { name: "Jelly", amount: 5, unit: "tbsp" }
-//        )
-//    }
-//}
 
 struct IngredientSearchResponse: Codable {
     let results: [IngredientSearchResult]
@@ -251,12 +240,18 @@ struct IngredientSearchResult: Codable {
     let id: Int
     var name: String
 }
+//struct IngredientDetail: Codable {
+//    let calories: Double
+//    let weight: Double
+//    let nutrients: [Nutrient]
+//}
 struct IngredientDetail: Codable {
-    let calories: Double
-    let weight: Double
-    let nutrients: [Nutrient]
+    let nutrition: NutritionInfo?
 }
 
+struct NutritionInfo: Codable {
+    let nutrients: [Nutrient]
+}
 struct Nutrient: Codable {
     let name: String
     let amount: Double
