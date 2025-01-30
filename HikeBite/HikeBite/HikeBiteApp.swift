@@ -5,6 +5,7 @@
 //  Created by Ari Guzzi on 1/13/25.
 //
 import Firebase
+import FirebaseAppCheck
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
@@ -17,6 +18,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory()) // Debug mode
         return true
     }
 }

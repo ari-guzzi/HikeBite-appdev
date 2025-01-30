@@ -10,15 +10,17 @@
 		7415CD1E2D3C2184008C36E1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD1D2D3C2184008C36E1 /* FirebaseAnalytics */; settings = {ATTRIBUTES = (Weak, ); }; };
 		7415CD202D3C2184008C36E1 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD1F2D3C2184008C36E1 /* FirebaseAnalyticsOnDeviceConversion */; settings = {ATTRIBUTES = (Weak, ); }; };
 		7415CD222D3C2184008C36E1 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD212D3C2184008C36E1 /* FirebaseAnalyticsWithoutAdIdSupport */; settings = {ATTRIBUTES = (Weak, ); }; };
-		7415CD242D3C2184008C36E1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD232D3C2184008C36E1 /* FirebaseAppCheck */; settings = {ATTRIBUTES = (Weak, ); }; };
+		7415CD242D3C2184008C36E1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD232D3C2184008C36E1 /* FirebaseAppCheck */; settings = {ATTRIBUTES = (Required, ); }; };
 		7415CD262D3C2184008C36E1 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD252D3C2184008C36E1 /* FirebaseAppDistribution-Beta */; settings = {ATTRIBUTES = (Weak, ); }; };
 		7415CD282D3C3DF3008C36E1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD272D3C3DF3008C36E1 /* FirebaseFirestore */; };
 		7415CD2A2D3C3E18008C36E1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD292D3C3E18008C36E1 /* FirebaseCore */; };
 		7415CD2C2D3C3F15008C36E1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2B2D3C3F15008C36E1 /* FirebaseAuth */; };
 		7415CD2E2D3C3F22008C36E1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2D2D3C3F22008C36E1 /* FirebaseStorage */; };
+		742C8A0A2D4C3A2200DB92CC /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 742C8A092D4C3A2200DB92CC /* FirebaseAppCheck */; };
 		74505E1F2D35D9E600474952 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E1E2D35D9E500474952 /* WidgetKit.framework */; };
 		74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E202D35D9E600474952 /* SwiftUI.framework */; };
 		74505E2E2D35D9E900474952 /* MealPlanExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74505E1C2D35D9E500474952 /* MealPlanExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		74727A962D4C414100E8D7FC /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74727A952D4C414100E8D7FC /* APIManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +68,7 @@
 		74505E1C2D35D9E500474952 /* MealPlanExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealPlanExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74505E1E2D35D9E500474952 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		74505E202D35D9E600474952 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		74727A952D4C414100E8D7FC /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -135,6 +138,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				742C8A0A2D4C3A2200DB92CC /* FirebaseAppCheck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +164,7 @@
 		7400E0F82D35CE190013D1FC = {
 			isa = PBXGroup;
 			children = (
+				74727A952D4C414100E8D7FC /* APIManager.swift */,
 				7400E1032D35CE1A0013D1FC /* HikeBite */,
 				7400E1142D35CE1D0013D1FC /* HikeBiteTests */,
 				7400E11E2D35CE1D0013D1FC /* HikeBiteUITests */,
@@ -244,6 +249,7 @@
 			);
 			name = HikeBiteTests;
 			packageProductDependencies = (
+				742C8A092D4C3A2200DB92CC /* FirebaseAppCheck */,
 			);
 			productName = HikeBiteTests;
 			productReference = 7400E1112D35CE1D0013D1FC /* HikeBiteTests.xctest */;
@@ -382,6 +388,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74727A962D4C414100E8D7FC /* APIManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -846,6 +853,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7415CD1C2D3C2184008C36E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		742C8A092D4C3A2200DB92CC /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7415CD1C2D3C2184008C36E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 		74505E342D35DE6F00474952 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;

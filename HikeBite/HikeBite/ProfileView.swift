@@ -9,10 +9,18 @@ import SwiftUI
 
 struct ProfileView: View {
     var body: some View {
-        VStack {
-            ProfileNameView()
-            UpcomingTripsView()
-            PreviousTripsView()
+        NavigationStack {
+            VStack {
+                ProfileNameView()
+                NavigationLink(destination: GroceryList()) {
+                    Label("Grocery List", systemImage: "cart.fill")
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                }
+                UpcomingTripsView()
+                PreviousTripsView()
+            }
         }
     }
 }

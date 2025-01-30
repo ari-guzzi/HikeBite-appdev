@@ -11,30 +11,30 @@ struct MainView: View {
     @State private var selectedTab: Int = 0
     var body: some View {
         TabView(selection: $selectedTab) {
-            PlansView()
-                .tabItem {
-                    Label("Plans", systemImage: "list.bullet.rectangle.fill")
-                }
-                .tag(0)
-            ContentView()
-                .tabItem {
-                    Label("Recipes", systemImage: "book.fill")
-                }
-                .tag(1)
-            GroceryList()
-                .tabItem {
-                    Label("Grocery List", systemImage: "cart.fill")
-                }
-                .tag(2)
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
+                }
+                .tag(0)
+            Templates()
+                .tabItem {
+                    Label("Templates", systemImage: "newspaper")
+                }
+                .tag(1)
+            PlansView()
+                .tabItem {
+                    Label("Trips", systemImage: "list.bullet.rectangle.fill")
+                }
+                .tag(2)
+            ContentView()
+                .tabItem {
+                    Label("Meals", systemImage: "book.fill")
                 }
                 .tag(3)
         }
         .onOpenURL { url in
             if url.host == "navigate" {
-                selectedTab = 3
+                selectedTab = 2
             }
         }
     }
