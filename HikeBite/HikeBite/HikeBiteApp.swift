@@ -30,6 +30,6 @@ struct HikeBiteApp: App {
         WindowGroup {
             MainView()
         }
-        .modelContainer(for: GroceryItem.self)
+        .modelContainer(for: [GroceryItem.self, MealEntry.self])
     }
 }

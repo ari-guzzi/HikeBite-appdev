@@ -79,11 +79,16 @@ struct RecipeDetailView: View {
             fetchDetailsForIngredients()
         }
     }
-
-    // Save meal to SwiftData
     private func addRecipeToPlan() {
         let newMealEntry = MealEntry(day: selectedDay, meal: selectedMeal, recipeTitle: recipe.title)
         modelContext.insert(newMealEntry)
+
+        do {
+            try modelContext.save()  // Make sure to save explicitly
+            print("✅ Meal successfully saved: \(newMealEntry.recipeTitle) for \(newMealEntry.day), \(newMealEntry.meal)")
+        } catch {
+            print("❌ Failed to save meal entry: \(error.localizedDescription)")
+        }
     }
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>) -> some View {
