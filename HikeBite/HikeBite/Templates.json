@@ -1,0 +1,29 @@
+[
+    {
+        "id": "1",
+        "name": "Wolfgang's Peanut-Butter Trip!",
+        "meals": {
+            "Day1": {
+                "breakfast": "1",
+                "lunch": "1",
+                "dinner": "1"
+            },
+            "Day2": {
+                "breakfast": "1",
+                "lunch": "1",
+                "dinner": "1"
+            }
+        }
+    },
+    {
+        "id": "2",
+        "name": "Will's Oatmeal Adventure",
+        "meals": {
+            "Day1": {
+                "breakfast": "2",
+                "lunch": "2",
+                "dinner": "2"
+            }
+        }
+    }
+]
