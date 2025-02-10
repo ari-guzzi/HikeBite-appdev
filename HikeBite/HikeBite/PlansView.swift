@@ -14,15 +14,20 @@ struct PlansView: View {
     @State private var mealEntriesState: [MealEntry] = []
     @State private var mealToSwap: MealEntry?
     @State private var showingSwapSheet = false
-
-    let days = ["Day 1", "Day 2", "Day 3"]
+    @State private var showCreatePlanSheet = false
+    var tripName: String
+    var numberOfDays: Int
+    var tripDate: Date
+    var days: [String] {
+        (1...numberOfDays).map { "Day \($0)" }
+    }
 
     var body: some View {
         VStack {
             HStack {
                 Spacer()
                 Button {
-                    print("Create a new plan")
+                    showCreatePlanSheet = true
                 } label: {
                     HStack {
                         Text("Create New Plan")
@@ -42,7 +47,7 @@ struct PlansView: View {
                     .scaledToFit()
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
-                Text("Really Really Really Really Really Really Really Long Trip Name")
+                Text(tripName)
                     .font(.title)
                     .foregroundColor(Color.white)
                     .multilineTextAlignment(.center)
@@ -52,12 +57,12 @@ struct PlansView: View {
 
             ScrollView {
                 ForEach(days, id: \.self) { day in
-                    let mealsForThisDay = mealsForDay(day: day) // ✅ Move filtering outside loop
+                    let mealsForThisDay = mealsForDay(day: day)
                     Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
                         DaysView(
                             mealsForDay: mealsForThisDay,
-                            deleteMeal: deleteMeal,   // ✅ Pass delete function
-                            swapMeal: { meal in       // ✅ Pass swap function
+                            deleteMeal: deleteMeal,
+                            swapMeal: { meal in
                                 mealToSwap = meal
                                 showingSwapSheet = true
                             }
@@ -67,16 +72,37 @@ struct PlansView: View {
             }
         }
         .onAppear {
+            print("📌 PlansView loaded with trip: \(tripName)")
             fetchMeals()
         }
         .onChange(of: mealEntries) {
             mealEntriesState = mealEntries
             print("🔄 Meal entries updated. Found: \(mealEntriesState.count) meals.")
         }
+        .sheet(isPresented: $showCreatePlanSheet) {
+            CreatePlanView { name, days, date in
+                saveNewPlan(name: name, days: days, date: date)
+            }
+        }
         .sheet(isPresented: $showingSwapSheet) {
             if let mealToSwap = mealToSwap {
                 SwapMealView(mealToSwap: mealToSwap, dismiss: { showingSwapSheet = false })
             }
+        }
+    }
+    private func saveNewPlan(name: String, days: Int, date: Date) {
+        let newTrip = Trip(name: name, days: days, date: date)
+        modelContext.insert(newTrip)  // ✅ Insert into SwiftData
+
+        do {
+            try modelContext.save()  // ✅ Save changes
+            print("✅ New trip saved successfully")
+        } catch {
+            print("❌ Failed to save trip: \(error.localizedDescription)")
+        }
+
+        DispatchQueue.main.async {
+            showCreatePlanSheet = false  // ✅ Close the sheet AFTER saving
         }
     }
 
@@ -104,12 +130,6 @@ struct PlansView: View {
         }
     }
 }
-
-#Preview {
-    PlansView()
-}
-
-
 struct FoodListView: View {
     var meals: [MealEntry]
 
@@ -165,19 +185,14 @@ struct DaysView: View {
                 VStack {
                     ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
                         HStack {
-                            // ❌ Delete button (left)
                             Button(action: { deleteMeal(meal) }) {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(.red)
                                     .padding(.trailing, 10)
                             }
-
-                            // 🥘 Meal name
                             Text(meal.recipeTitle)
                                 .font(.body)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                            // 🔄 Swap button (right)
                             Button(action: { swapMeal(meal) }) {
                                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                                     .foregroundColor(.blue)
@@ -196,4 +211,3 @@ struct DaysView: View {
             .foregroundColor(.black)
     }
 }
-

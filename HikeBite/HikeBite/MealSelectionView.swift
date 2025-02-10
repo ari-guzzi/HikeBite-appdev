@@ -59,4 +59,3 @@ struct MealSelectionView: View {
         }
     }
 }
-

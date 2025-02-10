@@ -11,7 +11,6 @@ struct MealPlanTemplate: Identifiable, Codable {
     var id: String
     var name: String
     var meals: [String: [String: String]]
-    
     // This won't be included in JSON decoding
     var mealNames: [String: [String: String]] = [:]
 
@@ -19,4 +18,3 @@ struct MealPlanTemplate: Identifiable, Codable {
         case id, name, meals // Exclude mealNames from Codable
     }
 }
-

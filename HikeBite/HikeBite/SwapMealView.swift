@@ -4,8 +4,8 @@
 //
 //  Created by Ari Guzzi on 2/1/25.
 //
-import SwiftUI
 import FirebaseFirestore
+import SwiftUI
 
 struct SwapMealView: View {
     @Environment(\.modelContext) private var modelContext

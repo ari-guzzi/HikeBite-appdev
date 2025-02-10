@@ -27,17 +27,14 @@ struct RecipeDetailView: View {
         VStack {
             ScrollView {
                 VStack(alignment: .leading) {
-                    // Recipe Title
                     Text(recipe.title)
                         .frame(maxWidth: .infinity, alignment: .center).font(.title).fontWeight(.bold).padding(.top)
-                    // Recipe Image
                     AsyncImage(url: URL(string: recipe.image)) { image in
                         image.resizable().scaledToFit()
                     } placeholder: {
                         ProgressView()
                     }
                     .frame(height: 200).cornerRadius(10).padding()
-                    // Needs Stove
                     if recipe.needStove {
                         Text("Requires a stove!")
                             .font(.headline)
@@ -46,7 +43,6 @@ struct RecipeDetailView: View {
                         Text("No stove required.")
                             .font(.headline).padding(.vertical, 4)
                     }
-                    // Ingredients Section
                     Text("Ingredients:")
                         .fontWeight(.bold).font(.title2).padding(.vertical)
                     ForEach(mutableIngredients.indices, id: \.self) { index in
@@ -55,7 +51,6 @@ struct RecipeDetailView: View {
                 }
                 .navigationTitle("Recipe Details").navigationBarTitleDisplayMode(.inline).padding()
             }
-            // "Add to My Plan" Button
             Button(action: {
                 showAddToPlanSheet = true
             }) {

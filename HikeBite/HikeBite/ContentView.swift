@@ -73,7 +73,7 @@ struct ContentView: View {
         var query: Query = dbse.collection("Recipes")
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
-                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
+                .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
         query.getDocuments { snapshot, error in
             if let error = error {

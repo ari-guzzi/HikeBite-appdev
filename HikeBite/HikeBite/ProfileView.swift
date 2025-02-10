@@ -4,30 +4,75 @@
 //
 //  Created by Ari Guzzi on 1/17/25.
 //
-
+import SwiftData
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var trips: [Trip]
+    var upcomingTrips: [Trip] {
+        trips.filter { $0.date >= Date() }
+    }
+    var previousTrips: [Trip] {
+        trips.filter { $0.date < Date() }
+    }
     var body: some View {
         NavigationStack {
             VStack {
                 ProfileNameView()
-                NavigationLink(destination: GroceryList()) {
-                    Label("Grocery List", systemImage: "cart.fill")
+                if trips.isEmpty {
+                    Text("No trips yet. Create a new one!")
+                        .foregroundColor(.gray)
                         .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
+                } else {
+                    ScrollView {
+                        if !upcomingTrips.isEmpty {
+                            Text("Upcoming Trips")
+                                .font(.largeTitle)
+                                .padding(.leading, 20)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    ForEach(upcomingTrips) { trip in
+                                        TripCardView(trip: trip)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        if !previousTrips.isEmpty {
+                            Text("Previous Trips")
+                                .font(.largeTitle)
+                                .padding(.leading, 20)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            List(previousTrips) { trip in
+                                NavigationLink(destination: PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date)) {
+                                    VStack(alignment: .leading) {
+                                        Text(trip.name).font(.headline)
+                                        Text(trip.date.formatted(date: .long, time: .omitted))
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                            .frame(height: 250)
+                        }
+                    }
                 }
-                UpcomingTripsView()
-                PreviousTripsView()
+            }
+        }
+        .onAppear {
+            print("🔄 ProfileView refreshed - Found \(trips.count) trips.")
+        }
+    }
+        func forceRefresh() {
+            Task {
+                try? await Task.sleep(nanoseconds: 200_000_000)  // 0.2s delay
+                print("🔄 Forcing ProfileView to refresh - Found \(trips.count) trips.")
             }
         }
     }
-}
 
-#Preview {
-    ProfileView()
-}
 struct ProfileNameView: View {
     var body: some View {
         VStack(spacing: 0) {
@@ -120,5 +165,37 @@ struct PreviousTripsView: View {
             .listStyle(PlainListStyle())
         }
         .edgesIgnoringSafeArea(.all)
+    }
+}
+
+struct TripCardView: View {
+    var trip: Trip
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Image("backpacking")  // Replace with dynamic image if available
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 150.0, height: 150)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+            VStack(alignment: .center, spacing: 5) {
+                Text(trip.name)
+                    .font(.caption)
+                    .foregroundColor(.black)
+                    .frame(width: 150, alignment: .center)
+                Text(trip.date.formatted(date: .long, time: .omitted))
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+                    .frame(width: 150, alignment: .center)
+            }
+            .padding(.vertical, 8)
+            .frame(width: 150)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 3)
+        .padding(.bottom, 10)
     }
 }

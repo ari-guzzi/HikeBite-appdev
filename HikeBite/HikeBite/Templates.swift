@@ -142,9 +142,6 @@ struct TemplatePreviewView: View {
             mealNames = updatedMealNames // Update UI once all meals are fetched
         }
     }
-
-
-
     func addToUserPlans(template: MealPlanTemplate) {
         let db = Firestore.firestore()
         let newPlan = template

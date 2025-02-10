@@ -12,9 +12,7 @@ struct IngredientPlain: Codable, Identifiable {
     let amount: Double
     let unit: String
     var detail: IngredientDetail?
-    
     enum CodingKeys: String, CodingKey {
         case name, amount, unit, detail
     }
 }
-
