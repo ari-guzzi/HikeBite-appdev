@@ -10,6 +10,7 @@ import SwiftUI
 struct MealSelectionView: View {
     @Binding var selectedDay: String
     @Binding var selectedMeal: String
+    @Binding var servings: Int
     var onSave: () -> Void
 
     let days = ["Day 1", "Day 2", "Day 3"]
@@ -35,7 +36,20 @@ struct MealSelectionView: View {
                 }
                 .pickerStyle(MenuPickerStyle())
                 .padding()
-
+                HStack {
+                    Text("Servings: \(servings)")
+                        .font(.headline)
+                    Spacer()
+                    Button(action: { if servings > 1 { servings -= 1 } }) {
+                        Image(systemName: "minus.circle")
+                            .foregroundColor(.red)
+                    }
+                    Button(action: { servings += 1 }) {
+                        Image(systemName: "plus.circle")
+                            .foregroundColor(.green)
+                    }
+                }
+                .padding()
                 Button(action: {
                     onSave()
                     dismiss()

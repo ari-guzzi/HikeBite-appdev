@@ -20,7 +20,7 @@
 		74505E1F2D35D9E600474952 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E1E2D35D9E500474952 /* WidgetKit.framework */; };
 		74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E202D35D9E600474952 /* SwiftUI.framework */; };
 		74505E2E2D35D9E900474952 /* MealPlanExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74505E1C2D35D9E500474952 /* MealPlanExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		74727A962D4C414100E8D7FC /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74727A952D4C414100E8D7FC /* APIManager.swift */; };
+		74FB19482D5FDCCE005E31C9 /* TripManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FB19472D5FDCCE005E31C9 /* TripManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +68,7 @@
 		74505E1C2D35D9E500474952 /* MealPlanExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealPlanExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74505E1E2D35D9E500474952 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		74505E202D35D9E600474952 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		74727A952D4C414100E8D7FC /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
+		74FB19472D5FDCCE005E31C9 /* TripManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -164,7 +164,7 @@
 		7400E0F82D35CE190013D1FC = {
 			isa = PBXGroup;
 			children = (
-				74727A952D4C414100E8D7FC /* APIManager.swift */,
+				74FB19472D5FDCCE005E31C9 /* TripManager.swift */,
 				7400E1032D35CE1A0013D1FC /* HikeBite */,
 				7400E1142D35CE1D0013D1FC /* HikeBiteTests */,
 				7400E11E2D35CE1D0013D1FC /* HikeBiteUITests */,
@@ -388,7 +388,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74727A962D4C414100E8D7FC /* APIManager.swift in Sources */,
+				74FB19482D5FDCCE005E31C9 /* TripManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -570,7 +570,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HikeBite/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6Q2A6ZM89D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HikeBite/Info.plist;
@@ -602,7 +602,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HikeBite/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6Q2A6ZM89D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HikeBite/Info.plist;

@@ -9,17 +9,21 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var trips: [Trip]  // ✅ Fetch saved trips
-
+    @StateObject private var tripManager = TripManager()
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
+    @State private var selectedTrip: Trip? {
+        didSet {
+            if selectedTrip != nil {
+                selectedTab = 2
+            }
+        }
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            ProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person.fill")
-                }
+            ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab)
+                .tabItem { Label("Profile", systemImage: "person") }
                 .tag(0)
 
             Templates()
@@ -27,28 +31,27 @@ struct MainView: View {
                     Label("Templates", systemImage: "newspaper")
                 }
                 .tag(1)
-
-            if let latestTrip = trips.last {
-                PlansView(tripName: latestTrip.name, numberOfDays: latestTrip.days, tripDate: latestTrip.date)
-                    .tabItem {
-                        Label("Trips", systemImage: "list.bullet.rectangle.fill")
-                    }
-                    .tag(2)
-            } else {
-                Button("Create a Trip") {
-                    showCreateTrip = true
+            Group {
+                if let trip = selectedTrip {
+                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date)
+                        .id(selectedTrip?.name)
+                } else {
+                    Text("Select a trip from Profile")
                 }
-                .tabItem {
-                    Label("Trips", systemImage: "list.bullet.rectangle.fill")
-                }
-                .tag(2)
             }
+            .tabItem {
+                Label("Trips", systemImage: "list.bullet.rectangle.fill")
+            }
+            .tag(2)
 
             ContentView()
                 .tabItem {
                     Label("Meals", systemImage: "book.fill")
                 }
                 .tag(3)
+        }
+        .onAppear {
+            tripManager.fetchTrips(modelContext: modelContext)
         }
         .sheet(isPresented: $showCreateTrip) {
             CreatePlanView { name, days, date in
@@ -57,14 +60,9 @@ struct MainView: View {
                 Task {
                     do {
                         try modelContext.save()
-                        print("✅ Trip successfully saved")
-                        let fetchedTrips: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
-                        print("📂 All trips in SwiftData: \(fetchedTrips.count)")
-                        for trip in fetchedTrips {
-                            print("📌 Trip: \(trip.name), \(trip.days) days, Date: \(trip.date)")
-                        }
-                        try? await Task.sleep(nanoseconds: 200_000_000)
+                        tripManager.fetchTrips(modelContext: modelContext)  // ✅ Refresh trips
                         DispatchQueue.main.async {
+                            selectedTrip = newTrip
                             selectedTab = 2
                             showCreateTrip = false
                         }
@@ -75,8 +73,4 @@ struct MainView: View {
             }
         }
     }
-}
-
-#Preview {
-    MainView()
 }

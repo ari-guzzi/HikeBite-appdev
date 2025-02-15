@@ -15,9 +15,9 @@ struct PlansView: View {
     @State private var mealToSwap: MealEntry?
     @State private var showingSwapSheet = false
     @State private var showCreatePlanSheet = false
-    var tripName: String
-    var numberOfDays: Int
-    var tripDate: Date
+    @State var tripName: String
+    @State var numberOfDays: Int
+    @State var tripDate: Date
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
@@ -91,18 +91,30 @@ struct PlansView: View {
         }
     }
     private func saveNewPlan(name: String, days: Int, date: Date) {
-        let newTrip = Trip(name: name, days: days, date: date)
-        modelContext.insert(newTrip)  // ✅ Insert into SwiftData
-
         do {
+            // 🔍 Fetch trips BEFORE saving
+            let tripsBeforeSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
+            print("📂 Trips before saving: \(tripsBeforeSave.count)")
+
+            // ✅ Create and insert new trip
+            let newTrip = Trip(name: name, days: days, date: date)
+            modelContext.insert(newTrip)
+
             try modelContext.save()  // ✅ Save changes
             print("✅ New trip saved successfully")
+
+            // 🔍 Fetch trips AFTER saving
+            let tripsAfterSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
+            print("📂 Trips after saving: \(tripsAfterSave.count)")
+            for trip in tripsAfterSave {
+                print("📌 Trip Name: \(trip.name) - \(trip.days) days - Date: \(trip.date)")
+            }
         } catch {
             print("❌ Failed to save trip: \(error.localizedDescription)")
         }
 
         DispatchQueue.main.async {
-            showCreatePlanSheet = false  // ✅ Close the sheet AFTER saving
+            showCreatePlanSheet = false
         }
     }
 
@@ -119,7 +131,6 @@ struct PlansView: View {
     private func mealsForDay(day: String) -> [MealEntry] {
         return mealEntriesState.filter { $0.day == day }
     }
-
     private func fetchMeals() {
         do {
             let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
@@ -190,7 +201,7 @@ struct DaysView: View {
                                     .foregroundColor(.red)
                                     .padding(.trailing, 10)
                             }
-                            Text(meal.recipeTitle)
+                            Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
                                 .font(.body)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Button(action: { swapMeal(meal) }) {
@@ -205,7 +216,6 @@ struct DaysView: View {
                 .padding(.horizontal)
             }
         }
-
         Rectangle()
             .frame(width: 300, height: 1.0)
             .foregroundColor(.black)

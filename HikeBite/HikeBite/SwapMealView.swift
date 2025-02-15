@@ -30,14 +30,6 @@ struct SwapMealView: View {
                             swapMeal(with: recipe.title)
                         } label: {
                             HStack {
-                                AsyncImage(url: URL(string: recipe.image)) { image in
-                                    image.resizable().scaledToFit()
-                                } placeholder: {
-                                    Image(systemName: "photo")
-                                }
-                                .frame(width: 40, height: 40)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-
                                 Text(recipe.title)
                                     .padding()
                             }
@@ -79,40 +71,66 @@ struct SwapMealView: View {
                 isLoading = false
                 return
             }
+
             guard let documents = snapshot?.documents else {
                 print("No recipes found")
                 isLoading = false
                 return
             }
 
-            // Parse documents into Result objects
-            var fetchedRecipes: [Result] = []
-            for document in documents {
-                let data = document.data()
-                let recipe = Result(
-                    id: document.documentID,
-                    title: data["title"] as? String ?? "Unknown Recipe",
-                    image: data["image"] as? String ?? "https://example.com/placeholder.jpg",
-                    imageType: data["imageType"] as? String ?? "jpeg",
-                    needStove: data["needStove"] as? Bool ?? false,
-                    ingredients: (data["ingredients"] as? [[String: Any]] ?? []).compactMap { ingredientData in
-                        guard
-                            let name = ingredientData["name"] as? String,
-                            let amount = ingredientData["amount"] as? Double,
-                            let unit = ingredientData["unit"] as? String
-                        else {
-                            return nil
-                        }
-                        return IngredientPlain(name: name, amount: amount, unit: unit)
-                    }
-                )
-                fetchedRecipes.append(recipe)
+            let recipes = documents.compactMap { doc -> Result? in
+                try? doc.data(as: Result.self)
             }
 
             DispatchQueue.main.async {
-                self.recipes = fetchedRecipes
+                self.recipes = recipes
                 self.isLoading = false
             }
         }
     }
+
+//    private func fetchRecipesFromFirebase() {
+//        let db = Firestore.firestore()
+//        db.collection("Recipes").getDocuments { snapshot, error in
+//            if let error = error {
+//                print("Error fetching recipes: \(error.localizedDescription)")
+//                isLoading = false
+//                return
+//            }
+//            guard let documents = snapshot?.documents else {
+//                print("No recipes found")
+//                isLoading = false
+//                return
+//            }
+//
+//            // Parse documents into Result objects
+//            var fetchedRecipes: [Result] = []
+//            for document in documents {
+//                let data = document.data()
+//                let recipe = Result(
+//                    id: document.documentID,
+//                    title: data["title"] as? String ?? "Unknown Recipe",
+//                    image: data["image"] as? String ?? "https://example.com/placeholder.jpg",
+//                    imageType: data["imageType"] as? String ?? "jpeg",
+//                    needStove: data["needStove"] as? Bool ?? false,
+//                    ingredients: (data["ingredients"] as? [[String: Any]] ?? []).compactMap { ingredientData in
+//                        guard
+//                            let name = ingredientData["name"] as? String,
+//                            let amount = ingredientData["amount"] as? Double,
+//                            let unit = ingredientData["unit"] as? String
+//                        else {
+//                            return nil
+//                        }
+//                        return IngredientPlain(name: name, amount: amount, unit: unit)
+//                    }
+//                )
+//                fetchedRecipes.append(recipe)
+//            }
+//
+//            DispatchQueue.main.async {
+//                self.recipes = fetchedRecipes
+//                self.isLoading = false
+//            }
+//        }
+//    }
 }

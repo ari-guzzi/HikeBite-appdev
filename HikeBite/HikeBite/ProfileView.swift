@@ -9,18 +9,30 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var trips: [Trip]
+    @ObservedObject var tripManager: TripManager
+    @Binding var selectedTrip: Trip?
+    @Binding var selectedTab: Int
+
     var upcomingTrips: [Trip] {
-        trips.filter { $0.date >= Date() }
+        let now = Date()
+        let upcoming = tripManager.trips.filter { $0.date >= now }
+        print("⏳ Filtering upcoming trips: \(upcoming.count) found")
+        return upcoming
     }
+
     var previousTrips: [Trip] {
-        trips.filter { $0.date < Date() }
+        let now = Date()
+        let past = tripManager.trips.filter { $0.date < now }
+        print("⏳ Filtering previous trips: \(past.count) found")
+        return past
     }
+
     var body: some View {
         NavigationStack {
             VStack {
                 ProfileNameView()
-                if trips.isEmpty {
+
+                if tripManager.trips.isEmpty {
                     Text("No trips yet. Create a new one!")
                         .foregroundColor(.gray)
                         .padding()
@@ -30,23 +42,27 @@ struct ProfileView: View {
                             Text("Upcoming Trips")
                                 .font(.largeTitle)
                                 .padding(.leading, 20)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 10) {
-                                    ForEach(upcomingTrips) { trip in
-                                        TripCardView(trip: trip)
-                                    }
+                            HStack(spacing: 10) {
+                            List(upcomingTrips) { trip in
+                                Button(action: {
+                                    selectedTrip = trip
+                                    selectedTab = 2
+                                }) {
+                                    TripCardView(trip: trip)
                                 }
-                                .padding(.horizontal)
+                                }
                             }
+                            .frame(height: 250)  // Keeps List at a fixed height
                         }
                         if !previousTrips.isEmpty {
                             Text("Previous Trips")
                                 .font(.largeTitle)
                                 .padding(.leading, 20)
-                                .frame(maxWidth: .infinity, alignment: .leading)
                             List(previousTrips) { trip in
-                                NavigationLink(destination: PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date)) {
+                                Button(action: {
+                                    selectedTrip = trip
+                                    selectedTab = 2
+                                }) {
                                     VStack(alignment: .leading) {
                                         Text(trip.name).font(.headline)
                                         Text(trip.date.formatted(date: .long, time: .omitted))
@@ -62,17 +78,11 @@ struct ProfileView: View {
             }
         }
         .onAppear {
-            print("🔄 ProfileView refreshed - Found \(trips.count) trips.")
+            print("🔄 ProfileView appeared. Fetching trips...")
+            tripManager.fetchTrips(modelContext: modelContext)
         }
     }
-        func forceRefresh() {
-            Task {
-                try? await Task.sleep(nanoseconds: 200_000_000)  // 0.2s delay
-                print("🔄 Forcing ProfileView to refresh - Found \(trips.count) trips.")
-            }
-        }
-    }
-
+}
 struct ProfileNameView: View {
     var body: some View {
         VStack(spacing: 0) {

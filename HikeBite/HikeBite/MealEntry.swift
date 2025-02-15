@@ -13,10 +13,12 @@ class MealEntry {
     var day: String
     var meal: String
     var recipeTitle: String
+    var servings: Int
 
-    init(day: String, meal: String, recipeTitle: String) {
+    init(day: String, meal: String, recipeTitle: String, servings: Int) {
         self.day = day
         self.meal = meal
         self.recipeTitle = recipeTitle
+        self.servings = servings
     }
 }

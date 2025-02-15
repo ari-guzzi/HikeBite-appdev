@@ -12,15 +12,10 @@ import SwiftUI
 struct ContentView: View {
     @State private var searchText = ""
     @State private var results = [Result]()
-    var apiKey: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
-    }
-    var baseURL: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
-    }
+    
     var body: some View {
-        VStack {
-            NavigationView {
+        NavigationView {
+            VStack {
                 List(results, id: \.id) { item in
                     NavigationLink(destination: RecipeDetailView(recipe: item)) {
                         VStack(alignment: .center) {
@@ -28,16 +23,6 @@ struct ContentView: View {
                                 .fontWeight(.bold)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .multilineTextAlignment(.center)
-                            AsyncImage(url: URL(string: item.image)) { image in
-                                image.resizable()
-                                    .scaledToFill() // Ensures the image fills the view without distortion
-                                    .frame(width: 200, height: 100) // Fixed size for all images
-                                    .clipped() // Crops the overflowing part to fit the frame
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(width: 200, height: 100) // Ensure placeholder matches the image size
-                            .cornerRadius(10)
                         }
                     }
                 }
@@ -65,64 +50,74 @@ struct ContentView: View {
             }
         }
     }
+    /// Fetches recipes from Firestore, with optional search query
     func fetchData(searchQuery: String = "") {
-        print("hello")
-        // FirebaseApp.configure()
-        // FirebaseConfiguration.shared.setLoggerLevel(.debug)
-        let dbse = Firestore.firestore()
-        var query: Query = dbse.collection("Recipes")
+        print("Fetching recipes...")
+        let db = Firestore.firestore()
+        var query: Query = db.collection("Recipes")
+
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
                 .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
+
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching recipes: \(error.localizedDescription)")
                 return
             }
+
             guard let documents = snapshot?.documents else {
                 print("No recipes found")
                 return
             }
+
             var fetchedRecipes: [Result] = []
-            let group = DispatchGroup() // Use a dispatch group to manage async tasks
+
             for document in documents {
                 let data = document.data()
-                var result = Result(
-                    id: document.documentID,
-                    title: data["title"] as? String ?? "",
-                    image: "", // Placeholder for the resolved image URL
-                    imageType: data["imageType"] as? String ?? "jpeg",
-                    needStove: data["needStove"] as? Bool ?? false,
-                    ingredients: (data["ingredients"] as? [[String: Any]] ?? []).compactMap { ingredientData in
-                        guard
-                            let name = ingredientData["name"] as? String,
-                            let amount = ingredientData["amount"] as? Double,
-                            let unit = ingredientData["unit"] as? String
-                        else {
-                            return nil
-                        }
-                        return IngredientPlain(name: name, amount: amount, unit: unit)
-                    }
-                )
-                if let imagePath = data["image"] as? String {
-                    group.enter()
-                    getDownloadURL(for: imagePath) { url in
-                        result.image = url ?? "https://example.com/placeholder.jpg"
-                        fetchedRecipes.append(result)
-                        group.leave()
-                    }
-                } else {
-                    result.image = "https://example.com/placeholder.jpg"
-                    fetchedRecipes.append(result)
+                
+                // Ensure required fields exist
+                guard let title = data["title"] as? String,
+                      let filter = data["filter"] as? [String],
+                      let ingredientsArray = data["ingredients"] as? [[String: Any]] else {
+                    print("❌ Skipping document \(document.documentID) due to missing required fields")
+                    continue
                 }
+
+                // Convert ingredients safely
+                var ingredients: [IngredientPlain] = []
+                
+                for ingredientData in ingredientsArray {
+                    if let name = ingredientData["name"] as? String,
+                       let amount = ingredientData["amount"] as? Double,
+                       let unit = ingredientData["unit"] as? String,
+                       let calories = ingredientData["calories"] as? Int,
+                       let weight = ingredientData["weight"] as? Int {
+                        
+                        let ingredient = IngredientPlain(name: name, amount: amount,  unit: unit, calories: calories, weight: weight)
+                        ingredients.append(ingredient)
+                    } else {
+                        print("⚠️ Skipping ingredient in \(document.documentID) due to missing fields: \(ingredientData)")
+                    }
+                }
+
+                let result = Result(
+                    id: document.documentID,
+                    title: title,
+                    filter: filter,
+                    ingredients: ingredients
+                )
+                fetchedRecipes.append(result)
             }
-            group.notify(queue: .main) {
+
+            DispatchQueue.main.async {
                 self.results = fetchedRecipes
             }
         }
     }
 }
+
 
 #Preview {
     ContentView()
@@ -132,15 +127,6 @@ struct RecipeSearch: Codable {
     let offset, number: Int?
     let results: [Result]
     let totalResults: Int
-}
-
-struct Result: Codable, Identifiable {
-    let id: String
-    let title: String
-    var image: String
-    let imageType: String
-    let needStove: Bool
-    var ingredients: [IngredientPlain]
 }
 
 struct SupportInfo: Codable {
