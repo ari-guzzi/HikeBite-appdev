@@ -12,7 +12,10 @@ import SwiftUI
 
 class TemplateViewModel: ObservableObject {
     @Published var templates: [MealPlanTemplate] = []
-
+    var fetchMeals: () -> Void
+    init(fetchMeals: @escaping () -> Void) {
+        self.fetchMeals = fetchMeals
+    }
     func loadTemplatesFromJSON() {
         if let url = Bundle.main.url(forResource: "Templates", withExtension: "json") {
             do {
@@ -22,7 +25,7 @@ class TemplateViewModel: ObservableObject {
 
                 DispatchQueue.main.async {
                     self.templates = loadedTemplates
-                    print("✅ Loaded templates:", self.templates) // Debugging output
+                    print("✅ Loaded templates:", self.templates)
                 }
             } catch {
                 print("❌ Error decoding JSON:", error.localizedDescription)
@@ -35,15 +38,20 @@ class TemplateViewModel: ObservableObject {
 }
 
 struct Templates: View {
-    @StateObject var viewModel = TemplateViewModel()
+    @StateObject var viewModel: TemplateViewModel
     @State private var selectedTemplate: MealPlanTemplate?
+    @Binding var selectedTrip: Trip?
+    init(selectedTrip: Binding<Trip?>, fetchMeals: @escaping () -> Void) {
+        _selectedTrip = selectedTrip
+        _viewModel = StateObject(wrappedValue: TemplateViewModel(fetchMeals: fetchMeals))
+    }
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 16) {
                     ForEach(viewModel.templates) { template in
                         Button {
-                            selectedTemplate = template // Open preview when clicked
+                            selectedTemplate = template
                         } label: {
                             VStack {
                                 Image(systemName: "photo") // Placeholder for meal plan image
@@ -68,20 +76,18 @@ struct Templates: View {
                 viewModel.loadTemplatesFromJSON()
             }
             .sheet(item: $selectedTemplate) { template in
-                TemplatePreviewView(template: template)
+                TemplatePreviewView(template: template, selectedTrip: selectedTrip, fetchMeals: viewModel.fetchMeals)
             }
         }
     }
 }
 
-#Preview {
-    Templates()
-}
-
 struct TemplatePreviewView: View {
     var template: MealPlanTemplate
     @State private var mealNames: [String: [String: String]] = [:] // Stores meal names
-
+    @State private var showPlanSelection = false
+    var selectedTrip: Trip?
+    var fetchMeals: () -> Void
     var body: some View {
         VStack {
             Text(template.name).font(.largeTitle)
@@ -96,7 +102,7 @@ struct TemplatePreviewView: View {
                 }
             }
             Button {
-                addToUserPlans(template: template)
+                showPlanSelection = true
             } label: {
                 Label("Add to My Plans", systemImage: "plus")
                     .padding()
@@ -105,6 +111,10 @@ struct TemplatePreviewView: View {
                     .cornerRadius(8)
             }
             .padding()
+            .sheet(isPresented: $showPlanSelection) {
+                PlanSelectionView(template: template, selectedTrip: selectedTrip, fetchMeals: fetchMeals)
+            }
+
         }
         .onAppear {
             fetchMealNames()

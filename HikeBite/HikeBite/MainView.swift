@@ -12,6 +12,7 @@ struct MainView: View {
     @StateObject private var tripManager = TripManager()
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
+    @State private var mealEntriesState: [MealEntry] = []
     @State private var selectedTrip: Trip? {
         didSet {
             if selectedTrip != nil {
@@ -26,17 +27,20 @@ struct MainView: View {
                 .tabItem { Label("Profile", systemImage: "person") }
                 .tag(0)
 
-            Templates()
+            Templates(selectedTrip: $selectedTrip, fetchMeals: fetchMeals)
                 .tabItem {
                     Label("Templates", systemImage: "newspaper")
                 }
                 .tag(1)
             Group {
                 if let trip = selectedTrip {
-                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date)
+                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date, selectedTrip: trip, modelContext: modelContext)
+                        .id(UUID())
                         .id(selectedTrip?.name)
                 } else {
-                    Text("Select a trip from Profile")
+                    Button("Create a Trip") {
+                        showCreateTrip = true
+                    }
                 }
             }
             .tabItem {
@@ -44,7 +48,7 @@ struct MainView: View {
             }
             .tag(2)
 
-            ContentView()
+            ContentView(selectedTrip: $selectedTrip)
                 .tabItem {
                     Label("Meals", systemImage: "book.fill")
                 }
@@ -71,6 +75,15 @@ struct MainView: View {
                     }
                 }
             }
+        }
+    }
+    private func fetchMeals() {
+        do {
+            let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
+            mealEntriesState = fetchedMeals
+            print("✅ Meals successfully loaded: \(mealEntriesState.count)")
+        } catch {
+            print("❌ Failed to load meals: \(error.localizedDescription)")
         }
     }
 }

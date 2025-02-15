@@ -31,7 +31,15 @@ struct ProfileView: View {
         NavigationStack {
             VStack {
                 ProfileNameView()
-
+                NavigationLink(destination: GroceryList()) {
+                    Text("View Grocery List")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
                 if tripManager.trips.isEmpty {
                     Text("No trips yet. Create a new one!")
                         .foregroundColor(.gray)

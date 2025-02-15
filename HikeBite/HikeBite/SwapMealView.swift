@@ -12,8 +12,8 @@ struct SwapMealView: View {
     var mealToSwap: MealEntry
     var dismiss: () -> Void
 
-    @State private var recipes: [Result] = [] // Store fetched recipes
-    @State private var isLoading = true       // Track loading state
+    @State private var recipes: [Result] = []
+    @State private var isLoading = true
 
     var body: some View {
         NavigationView {
@@ -23,7 +23,7 @@ struct SwapMealView: View {
                     .padding()
 
                 if isLoading {
-                    ProgressView("Loading recipes...") // Show loading spinner
+                    ProgressView("Loading recipes...")
                 } else {
                     List(recipes, id: \.id) { recipe in
                         Button {
@@ -44,93 +44,55 @@ struct SwapMealView: View {
                 }
             }
             .onAppear {
+                print("🛠️ SwapMealView appeared. Fetching recipes...")
                 fetchRecipesFromFirebase()
+            }
+            .onChange(of: recipes) { newRecipes in
+                if !newRecipes.isEmpty {
+                    print("🔄 Recipes updated: \(newRecipes.count) found")
+                    isLoading = false  // Hide spinner once recipes are available
+                }
             }
         }
     }
 
-    // Swap the meal with a new one
     private func swapMeal(with newTitle: String) {
         mealToSwap.recipeTitle = newTitle
-
         do {
             try modelContext.save()
-            print("Swapped \(mealToSwap.recipeTitle) with \(newTitle)")
+            print("✅ Swapped \(mealToSwap.recipeTitle) with \(newTitle)")
             dismiss()
         } catch {
-            print("Error swapping meal: \(error.localizedDescription)")
+            print("❌ Error swapping meal: \(error.localizedDescription)")
         }
     }
 
-    // Fetch recipes from Firebase Firestore
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
         db.collection("Recipes").getDocuments { snapshot, error in
             if let error = error {
-                print("Error fetching recipes: \(error.localizedDescription)")
-                isLoading = false
+                print("❌ Error fetching recipes: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    isLoading = false
+                }
                 return
             }
 
             guard let documents = snapshot?.documents else {
-                print("No recipes found")
-                isLoading = false
+                print("⚠️ No recipes found")
+                DispatchQueue.main.async {
+                    isLoading = false
+                }
                 return
             }
 
-            let recipes = documents.compactMap { doc -> Result? in
+            let fetchedRecipes = documents.compactMap { doc -> Result? in
                 try? doc.data(as: Result.self)
             }
 
             DispatchQueue.main.async {
-                self.recipes = recipes
-                self.isLoading = false
+                self.recipes = fetchedRecipes
             }
         }
     }
-
-//    private func fetchRecipesFromFirebase() {
-//        let db = Firestore.firestore()
-//        db.collection("Recipes").getDocuments { snapshot, error in
-//            if let error = error {
-//                print("Error fetching recipes: \(error.localizedDescription)")
-//                isLoading = false
-//                return
-//            }
-//            guard let documents = snapshot?.documents else {
-//                print("No recipes found")
-//                isLoading = false
-//                return
-//            }
-//
-//            // Parse documents into Result objects
-//            var fetchedRecipes: [Result] = []
-//            for document in documents {
-//                let data = document.data()
-//                let recipe = Result(
-//                    id: document.documentID,
-//                    title: data["title"] as? String ?? "Unknown Recipe",
-//                    image: data["image"] as? String ?? "https://example.com/placeholder.jpg",
-//                    imageType: data["imageType"] as? String ?? "jpeg",
-//                    needStove: data["needStove"] as? Bool ?? false,
-//                    ingredients: (data["ingredients"] as? [[String: Any]] ?? []).compactMap { ingredientData in
-//                        guard
-//                            let name = ingredientData["name"] as? String,
-//                            let amount = ingredientData["amount"] as? Double,
-//                            let unit = ingredientData["unit"] as? String
-//                        else {
-//                            return nil
-//                        }
-//                        return IngredientPlain(name: name, amount: amount, unit: unit)
-//                    }
-//                )
-//                fetchedRecipes.append(recipe)
-//            }
-//
-//            DispatchQueue.main.async {
-//                self.recipes = fetchedRecipes
-//                self.isLoading = false
-//            }
-//        }
-//    }
 }

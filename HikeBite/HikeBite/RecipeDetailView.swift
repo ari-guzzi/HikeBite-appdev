@@ -10,6 +10,7 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     var recipe: Result
+    var selectedTrip: Trip?
     @Environment(\.modelContext) private var modelContext
     @State private var mutableIngredients: [IngredientPlain] = []
     @Query private var items: [GroceryItem]
@@ -17,7 +18,6 @@ struct RecipeDetailView: View {
     @State private var showAddToPlanSheet = false
     @State private var selectedDay = "Day 1"
     @State private var selectedMeal = "Breakfast"
-    
     let days = ["Day 1", "Day 2", "Day 3"]
     let meals = ["Breakfast", "Lunch", "Dinner", "Snacks"]
 
@@ -97,12 +97,24 @@ struct RecipeDetailView: View {
     }
 
     private func addRecipeToPlan() {
-        let newMealEntry = MealEntry(day: selectedDay, meal: selectedMeal, recipeTitle: recipe.title, servings: servings)
+        guard let selectedTrip = selectedTrip else {
+            print("❌ No trip selected!")
+            return
+        }
+
+        let newMealEntry = MealEntry(
+            day: selectedDay,
+            meal: selectedMeal,
+            recipeTitle: recipe.title,
+            servings: servings,
+            tripName: selectedTrip.name
+        )
+
         modelContext.insert(newMealEntry)
 
         do {
             try modelContext.save()
-            print("✅ Meal successfully saved: \(newMealEntry.recipeTitle) for \(newMealEntry.day), \(newMealEntry.meal) with \(servings) servings")
+            print("✅ Meal saved to \(selectedTrip.name): \(newMealEntry.recipeTitle) for \(newMealEntry.day), \(newMealEntry.meal) with \(servings) servings")
         } catch {
             print("❌ Failed to save meal entry: \(error.localizedDescription)")
         }

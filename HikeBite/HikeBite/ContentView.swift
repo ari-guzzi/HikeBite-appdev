@@ -12,12 +12,12 @@ import SwiftUI
 struct ContentView: View {
     @State private var searchText = ""
     @State private var results = [Result]()
-    
+    @Binding var selectedTrip: Trip?
     var body: some View {
         NavigationView {
             VStack {
                 List(results, id: \.id) { item in
-                    NavigationLink(destination: RecipeDetailView(recipe: item)) {
+                    NavigationLink(destination: RecipeDetailView(recipe: item, selectedTrip: selectedTrip)) {
                         VStack(alignment: .center) {
                             Text(item.title)
                                 .fontWeight(.bold)
@@ -76,7 +76,6 @@ struct ContentView: View {
 
             for document in documents {
                 let data = document.data()
-                
                 // Ensure required fields exist
                 guard let title = data["title"] as? String,
                       let filter = data["filter"] as? [String],
@@ -86,8 +85,7 @@ struct ContentView: View {
                 }
 
                 // Convert ingredients safely
-                var ingredients: [IngredientPlain] = []
-                
+                var ingredients: [IngredientPlain] = [] 
                 for ingredientData in ingredientsArray {
                     if let name = ingredientData["name"] as? String,
                        let amount = ingredientData["amount"] as? Double,
@@ -118,10 +116,6 @@ struct ContentView: View {
     }
 }
 
-
-#Preview {
-    ContentView()
-}
 
 struct RecipeSearch: Codable {
     let offset, number: Int?

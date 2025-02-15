@@ -10,6 +10,7 @@ import SwiftUI
 
 struct PlansView: View {
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var viewModel: MealEntriesViewModel
     @Query private var mealEntries: [MealEntry]
     @State private var mealEntriesState: [MealEntry] = []
     @State private var mealToSwap: MealEntry?
@@ -18,10 +19,17 @@ struct PlansView: View {
     @State var tripName: String
     @State var numberOfDays: Int
     @State var tripDate: Date
+    var selectedTrip: Trip
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
-
+    init(tripName: String, numberOfDays: Int, tripDate: Date, selectedTrip: Trip, modelContext: ModelContext) {
+        self.tripName = tripName
+        self.numberOfDays = numberOfDays
+        self.tripDate = tripDate
+        self.selectedTrip = selectedTrip
+        _viewModel = StateObject(wrappedValue: MealEntriesViewModel(modelContext: modelContext, tripName: tripName))
+    }
     var body: some View {
         VStack {
             HStack {
@@ -57,7 +65,7 @@ struct PlansView: View {
 
             ScrollView {
                 ForEach(days, id: \.self) { day in
-                    let mealsForThisDay = mealsForDay(day: day)
+                    let mealsForThisDay = viewModel.mealEntries.filter { $0.day == day }
                     Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
                         DaysView(
                             mealsForDay: mealsForThisDay,
@@ -73,11 +81,17 @@ struct PlansView: View {
         }
         .onAppear {
             print("📌 PlansView loaded with trip: \(tripName)")
-            fetchMeals()
+            viewModel.fetchMeals(for: tripName)
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.mealEntriesState = viewModel.mealEntries
+                print("🔄 Meals after update: \(mealEntriesState.count)")
+            }
         }
-        .onChange(of: mealEntries) {
-            mealEntriesState = mealEntries
-            print("🔄 Meal entries updated. Found: \(mealEntriesState.count) meals.")
+        .onChange(of: mealEntries) { newEntries in
+            print("🔄 UI Update Triggered. Found: \(newEntries.count) meals.")
+            mealEntriesState = newEntries.filter { $0.tripName == tripName }
+            print("🔄 Meal entries updated in UI. Found: \(mealEntriesState.count)")
         }
         .sheet(isPresented: $showCreatePlanSheet) {
             CreatePlanView { name, days, date in
@@ -90,20 +104,17 @@ struct PlansView: View {
             }
         }
     }
+    private func mealsForDay(day: String) -> [MealEntry] {
+        return mealEntriesState.filter { $0.day == day && $0.tripName == tripName }
+    }
     private func saveNewPlan(name: String, days: Int, date: Date) {
         do {
-            // 🔍 Fetch trips BEFORE saving
             let tripsBeforeSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
             print("📂 Trips before saving: \(tripsBeforeSave.count)")
-
-            // ✅ Create and insert new trip
             let newTrip = Trip(name: name, days: days, date: date)
             modelContext.insert(newTrip)
-
-            try modelContext.save()  // ✅ Save changes
+            try modelContext.save()
             print("✅ New trip saved successfully")
-
-            // 🔍 Fetch trips AFTER saving
             let tripsAfterSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
             print("📂 Trips after saving: \(tripsAfterSave.count)")
             for trip in tripsAfterSave {
@@ -117,7 +128,6 @@ struct PlansView: View {
             showCreatePlanSheet = false
         }
     }
-
     private func deleteMeal(_ meal: MealEntry) {
         modelContext.delete(meal)
         do {
@@ -127,15 +137,14 @@ struct PlansView: View {
             print("❌ Error deleting meal: \(error.localizedDescription)")
         }
     }
-
-    private func mealsForDay(day: String) -> [MealEntry] {
-        return mealEntriesState.filter { $0.day == day }
-    }
     private func fetchMeals() {
         do {
             let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
-            mealEntriesState = fetchedMeals
-            print("✅ Meals successfully loaded: \(mealEntriesState.count)")
+            let filteredMeals = fetchedMeals.filter { $0.tripName == tripName }
+            DispatchQueue.main.async {
+                mealEntriesState = filteredMeals
+            }
+            print("✅ Meals successfully loaded into state: \(mealEntriesState.count)")
         } catch {
             print("❌ Failed to load meals: \(error.localizedDescription)")
         }
@@ -174,50 +183,53 @@ struct DaysView: View {
 
     var body: some View {
         ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
-            let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType } // ✅ Filtering moved outside loop
-
-            HStack {
-                Image(systemName: "circlebadge.fill")
-                    .foregroundColor(Color.gray)
-                    .padding(.leading)
-
-                Text(mealType)
-                    .font(.title2)
-
-                Spacer()
-            }
-
-            if mealsForThisMealType.isEmpty {
-                Text("No meals yet")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.leading, 40)
-            } else {
-                VStack {
-                    ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
-                        HStack {
-                            Button(action: { deleteMeal(meal) }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.red)
-                                    .padding(.trailing, 10)
-                            }
-                            Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
-                                .font(.body)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Button(action: { swapMeal(meal) }) {
-                                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .padding(.leading, 10)
-                            }
-                        }
-                        .padding(.vertical, 5)
-                    }
+            let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }     
+            VStack(alignment: .leading) {
+                HStack {
+                    Image(systemName: "circlebadge.fill")
+                        .foregroundColor(Color.gray)
+                        .padding(.leading)
+                    Text(mealType)
+                        .font(.title2)
+                    
+                    Spacer()
                 }
-                .padding(.horizontal)
+                
+                if mealsForThisMealType.isEmpty {
+                    Text("No meals yet")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.leading, 40)
+                } else {
+                    VStack {
+                        ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
+                            HStack {
+                                Button(action: { deleteMeal(meal) }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.red)
+                                        .padding(.trailing, 10)
+                                }
+                                Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
+                                    .font(.body)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Button(action: { swapMeal(meal) }) {
+                                    Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .padding(.leading, 10)
+                                }
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
             }
+            .onAppear {
+                print("🔍 DaysView rendering with \(mealsForDay.count) meals")
+            }
+            Rectangle()
+                .frame(width: 300, height: 1.0)
+                .foregroundColor(.black)
         }
-        Rectangle()
-            .frame(width: 300, height: 1.0)
-            .foregroundColor(.black)
     }
 }
