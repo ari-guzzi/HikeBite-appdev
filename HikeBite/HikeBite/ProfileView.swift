@@ -38,21 +38,26 @@ struct ProfileView: View {
                         .padding()
                 } else {
                     ScrollView {
-                        if !upcomingTrips.isEmpty {
-                            Text("Upcoming Trips")
-                                .font(.largeTitle)
-                                .padding(.leading, 20)
-                            HStack(spacing: 10) {
-                            List(upcomingTrips) { trip in
-                                Button(action: {
-                                    selectedTrip = trip
-                                    selectedTab = 2
-                                }) {
-                                    TripCardView(trip: trip)
-                                }
+                        ScrollView {
+                            if !upcomingTrips.isEmpty {
+                                Text("Upcoming Trips")
+                                    .font(.largeTitle)
+                                    .padding(.leading, 20)
+
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 10) {
+                                        ForEach(upcomingTrips) { trip in
+                                            Button(action: {
+                                                selectedTrip = trip
+                                                selectedTab = 2
+                                            }) {
+                                                TripCardView(trip: trip)
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
                                 }
                             }
-                            .frame(height: 250)  // Keeps List at a fixed height
                         }
                         if !previousTrips.isEmpty {
                             Text("Previous Trips")
