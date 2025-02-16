@@ -45,7 +45,9 @@ struct SwapMealView: View {
             }
             .onAppear {
                 print("🛠️ SwapMealView appeared. Fetching recipes...")
-                fetchRecipesFromFirebase()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    fetchRecipesFromFirebase()
+                }
             }
             .onChange(of: recipes) { newRecipes in
                 if !newRecipes.isEmpty {

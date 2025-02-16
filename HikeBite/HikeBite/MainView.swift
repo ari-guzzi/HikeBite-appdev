@@ -34,9 +34,9 @@ struct MainView: View {
                 .tag(1)
             Group {
                 if let trip = selectedTrip {
-                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date, selectedTrip: trip, modelContext: modelContext)
+                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date, selectedTrip: trip, modelContext: modelContext, selectedTab: $selectedTab)
                         .id(UUID())
-                        .id(selectedTrip?.name)
+                        //.id(selectedTrip?.name)
                 } else {
                     Button("Create a Trip") {
                         showCreateTrip = true

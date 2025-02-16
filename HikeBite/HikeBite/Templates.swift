@@ -41,6 +41,7 @@ struct Templates: View {
     @StateObject var viewModel: TemplateViewModel
     @State private var selectedTemplate: MealPlanTemplate?
     @Binding var selectedTrip: Trip?
+    @State private var isShowingPlanSelection = false
     init(selectedTrip: Binding<Trip?>, fetchMeals: @escaping () -> Void) {
         _selectedTrip = selectedTrip
         _viewModel = StateObject(wrappedValue: TemplateViewModel(fetchMeals: fetchMeals))
@@ -52,6 +53,7 @@ struct Templates: View {
                     ForEach(viewModel.templates) { template in
                         Button {
                             selectedTemplate = template
+                            isShowingPlanSelection = true
                         } label: {
                             VStack {
                                 Image(systemName: "photo") // Placeholder for meal plan image
@@ -75,9 +77,16 @@ struct Templates: View {
                 print("📢 TemplatesView appeared! Fetching templates...")
                 viewModel.loadTemplatesFromJSON()
             }
-            .sheet(item: $selectedTemplate) { template in
-                TemplatePreviewView(template: template, selectedTrip: selectedTrip, fetchMeals: viewModel.fetchMeals)
-            }
+            .sheet(isPresented: $isShowingPlanSelection) { // ✅ Pass sheet state
+                            if let selectedTemplate = selectedTemplate {
+                                PlanSelectionView(
+                                    template: selectedTemplate,
+                                    selectedTrip: selectedTrip,
+                                    fetchMeals: viewModel.fetchMeals,
+                                    dismissTemplates: { isShowingPlanSelection = false } // ✅ Dismiss both sheets
+                                )
+                            }
+                        }
         }
     }
 }
@@ -112,9 +121,15 @@ struct TemplatePreviewView: View {
             }
             .padding()
             .sheet(isPresented: $showPlanSelection) {
-                PlanSelectionView(template: template, selectedTrip: selectedTrip, fetchMeals: fetchMeals)
+                PlanSelectionView(
+                    template: template,
+                    selectedTrip: selectedTrip,
+                    fetchMeals: fetchMeals,
+                    dismissTemplates: {
+                        showPlanSelection = false
+                    }
+                )
             }
-
         }
         .onAppear {
             fetchMealNames()

@@ -16,23 +16,37 @@ struct PlansView: View {
     @State private var mealToSwap: MealEntry?
     @State private var showingSwapSheet = false
     @State private var showCreatePlanSheet = false
+    @State private var showDuplicatePlanSheet = false
     @State var tripName: String
     @State var numberOfDays: Int
     @State var tripDate: Date
+    @Binding var selectedTab: Int
     var selectedTrip: Trip
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
-    init(tripName: String, numberOfDays: Int, tripDate: Date, selectedTrip: Trip, modelContext: ModelContext) {
+    init(tripName: String, numberOfDays: Int, tripDate: Date, selectedTrip: Trip, modelContext: ModelContext, selectedTab: Binding<Int>) {
         self.tripName = tripName
         self.numberOfDays = numberOfDays
         self.tripDate = tripDate
         self.selectedTrip = selectedTrip
         _viewModel = StateObject(wrappedValue: MealEntriesViewModel(modelContext: modelContext, tripName: tripName))
+        self._selectedTab = selectedTab
     }
     var body: some View {
         VStack {
             HStack {
+                Button {
+                    showDuplicatePlanSheet = true
+                } label: {
+                    HStack {
+                        Text("Duplicate Plan")
+                            .foregroundColor(.blue)
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(.blue)
+                    }
+                }
+                .padding()
                 Spacer()
                 Button {
                     showCreatePlanSheet = true
@@ -73,7 +87,8 @@ struct PlansView: View {
                             swapMeal: { meal in
                                 mealToSwap = meal
                                 showingSwapSheet = true
-                            }
+                            },
+                            selectedTab: $selectedTab // Pass the binding
                         )
                     }
                 }
@@ -93,6 +108,9 @@ struct PlansView: View {
             mealEntriesState = newEntries.filter { $0.tripName == tripName }
             print("🔄 Meal entries updated in UI. Found: \(mealEntriesState.count)")
         }
+        .sheet(isPresented: $showDuplicatePlanSheet) {
+            DuplicatePlanView(originalTrip: selectedTrip, duplicatePlan: duplicatePlan)
+        }
         .sheet(isPresented: $showCreatePlanSheet) {
             CreatePlanView { name, days, date in
                 saveNewPlan(name: name, days: days, date: date)
@@ -102,6 +120,32 @@ struct PlansView: View {
             if let mealToSwap = mealToSwap {
                 SwapMealView(mealToSwap: mealToSwap, dismiss: { showingSwapSheet = false })
             }
+        }
+    }
+    private func duplicatePlan(name: String, days: Int, date: Date) {
+        do {
+            let newTrip = Trip(name: name, days: days, date: date)
+            modelContext.insert(newTrip)
+            
+            let originalMeals = mealEntriesState.filter { $0.tripName == tripName }
+            
+            for meal in originalMeals {
+                let duplicatedMeal = MealEntry(
+                    day: meal.day,
+                    meal: meal.meal,
+                    recipeTitle: meal.recipeTitle,
+                    servings: meal.servings,
+                    tripName: newTrip.name
+                )
+                modelContext.insert(duplicatedMeal)
+            }
+            
+            try modelContext.save()
+            print("✅ Successfully duplicated plan '\(tripName)' as '\(name)'")
+            
+            showDuplicatePlanSheet = false // Close the duplicate sheet
+        } catch {
+            print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
     private func mealsForDay(day: String) -> [MealEntry] {
@@ -180,7 +224,7 @@ struct DaysView: View {
     var mealsForDay: [MealEntry]
     var deleteMeal: (MealEntry) -> Void
     var swapMeal: (MealEntry) -> Void
-
+    @Binding var selectedTab: Int
     var body: some View {
         ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
             let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }     
@@ -191,10 +235,15 @@ struct DaysView: View {
                         .padding(.leading)
                     Text(mealType)
                         .font(.title2)
-                    
                     Spacer()
+                    Button(action: {
+                        selectedTab = 3 // Switch to Meals Tab
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.title2)
+                    }
                 }
-                
                 if mealsForThisMealType.isEmpty {
                     Text("No meals yet")
                         .font(.caption)
@@ -230,6 +279,41 @@ struct DaysView: View {
             Rectangle()
                 .frame(width: 300, height: 1.0)
                 .foregroundColor(.black)
+        }
+    }
+}
+struct DuplicatePlanView: View {
+    @State private var newPlanName: String = ""
+    @State private var newPlanDays: Int = 3
+    @State private var newPlanDate: Date = Date()
+    var originalTrip: Trip
+    var duplicatePlan: (String, Int, Date) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("New Plan Name")) {
+                    TextField("Enter plan name", text: $newPlanName)
+                }
+
+                Section(header: Text("Number of Days")) {
+                    Stepper("\(newPlanDays) Days", value: $newPlanDays, in: 1...10)
+                }
+
+                Section(header: Text("Start Date")) {
+                    DatePicker("Select Date", selection: $newPlanDate, displayedComponents: .date)
+                }
+            }
+            .navigationTitle("Duplicate Plan")
+            .navigationBarItems(
+                leading: Button("Cancel") { dismiss() },
+                trailing: Button("Duplicate") {
+                    guard !newPlanName.isEmpty else { return }
+                    duplicatePlan(newPlanName, newPlanDays, newPlanDate)
+                    dismiss() // Close the sheet
+                }
+            )
         }
     }
 }

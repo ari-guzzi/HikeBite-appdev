@@ -14,6 +14,7 @@ struct PlanSelectionView: View {
     @State private var showCreatePlanSheet = false
     var selectedTrip: Trip?
     var fetchMeals: () -> Void
+    var dismissTemplates: () -> Void
     var body: some View {
         VStack {
             Text("Choose a Plan")
@@ -56,7 +57,7 @@ struct PlanSelectionView: View {
     private func addToExistingTrip(trip: Trip) {
         print("✅ Adding template to existing trip: \(trip.name)")
         applyTemplateToTrip(template: template, trip: trip)
-        dismiss()
+        dismissTemplates()
     }
 
     private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate) {
@@ -67,6 +68,7 @@ struct PlanSelectionView: View {
             try modelContext.save()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { 
                 fetchMeals()
+                dismissTemplates()
             }
         } catch {
             print("❌ Failed to apply template: \(error.localizedDescription)")
