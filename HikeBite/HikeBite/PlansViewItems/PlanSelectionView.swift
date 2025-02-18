@@ -4,7 +4,7 @@
 //
 //  Created by Ari Guzzi on 2/15/25.
 //
-
+import FirebaseFirestore
 import SwiftUI
 
 struct PlanSelectionView: View {
@@ -75,38 +75,54 @@ struct PlanSelectionView: View {
         }
     }
     private func applyTemplateToTrip(template: MealPlanTemplate, trip: Trip) {
+        let db = Firestore.firestore()
         let tripDays = trip.days
         let templateDays = template.meals.keys.sorted()
         var addedMeals: [MealEntry] = []
+        let group = DispatchGroup() // Ensures all Firestore requests complete before updating the UI
 
         for (index, day) in templateDays.prefix(tripDays).enumerated() {
             if let meals = template.meals[day] {
                 for (mealType, mealID) in meals {
-                    let newMealEntry = MealEntry(
-                        day: "Day \(index + 1)",
-                        meal: mealType,
-                        recipeTitle: mealID,
-                        servings: 1,
-                        tripName: trip.name
-                    )
-                    modelContext.insert(newMealEntry)
-                    addedMeals.append(newMealEntry) // ✅ Store meals for debugging
+                    group.enter() //  Start tracking a Firestore request
+
+                    //  Fetch the correct recipe title from Firestore
+                    db.collection("Recipes").document(mealID).getDocument { snapshot, error in
+                        defer { group.leave() } // Mark Firestore request as complete
+
+                        var mealTitle = "Unknown Recipe" // Default fallback
+                        if let document = snapshot, document.exists {
+                            mealTitle = document.data()?["title"] as? String ?? "Unknown Recipe"
+                        } else {
+                            print("⚠️ Recipe with ID \(mealID) not found in Firestore")
+                        }
+
+                        //  create and insert the MealEntry with the correct title
+                        let newMealEntry = MealEntry(
+                            day: "Day \(index + 1)",
+                            meal: mealType,
+                            recipeTitle: mealTitle,
+                            servings: 1,
+                            tripName: trip.name
+                        )
+
+                        DispatchQueue.main.async {
+                            modelContext.insert(newMealEntry)
+                            addedMeals.append(newMealEntry)
+                        }
+                    }
                 }
             }
         }
 
-        do {
-            try modelContext.save()
-            print("✅ Applied template '\(template.name)' to trip '\(trip.name)' with \(addedMeals.count) meals")
-            
-            // ✅ Ensure UI refresh
-            DispatchQueue.main.async {
-                fetchMeals()
+        // Once all Firestore requests complete, save to database
+        group.notify(queue: .main) {
+            do {
+                try modelContext.save()
+                print("✅ Successfully applied template '\(template.name)' to trip '\(trip.name)'")
+            } catch {
+                print("❌ Failed to apply template: \(error.localizedDescription)")
             }
-            
-        } catch {
-            print("❌ Failed to apply template: \(error.localizedDescription)")
         }
     }
-
 }

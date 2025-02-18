@@ -77,13 +77,13 @@ struct Templates: View {
                 print("📢 TemplatesView appeared! Fetching templates...")
                 viewModel.loadTemplatesFromJSON()
             }
-            .sheet(isPresented: $isShowingPlanSelection) { // ✅ Pass sheet state
+            .sheet(isPresented: $isShowingPlanSelection) { // Pass sheet state
                             if let selectedTemplate = selectedTemplate {
                                 PlanSelectionView(
                                     template: selectedTemplate,
                                     selectedTrip: selectedTrip,
                                     fetchMeals: viewModel.fetchMeals,
-                                    dismissTemplates: { isShowingPlanSelection = false } // ✅ Dismiss both sheets
+                                    dismissTemplates: { isShowingPlanSelection = false } // Dismiss both sheets
                                 )
                             }
                         }
