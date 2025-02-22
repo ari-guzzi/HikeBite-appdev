@@ -12,6 +12,7 @@ struct MainView: View {
     @StateObject private var tripManager = TripManager()
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
+    @State private var showTripPicker = false
     @State var mealEntriesState: [MealEntry] = []
     @State private var selectedTrip: Trip? {
         didSet {
@@ -38,7 +39,15 @@ struct MainView: View {
                         .id(UUID())
                 } else {
                     VStack {
-                        Text("Select Trip from Profile View or")
+                        Button(action: { showTripPicker = true }) {
+                                        Text(selectedTrip?.name ?? "Select a Trip")
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(Color.gray.opacity(0.2))
+                                            .cornerRadius(10)
+                                            .foregroundColor(.black)
+                                    }
+                                    .padding()
                         Button("Create a New Trip") {
                             showCreateTrip = true
                         }
@@ -77,6 +86,9 @@ struct MainView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showTripPicker) {
+            TripSelectionView(tripManager: tripManager, selectedTrip: $selectedTrip, showTripPicker: $showTripPicker)
         }
     }
     func fetchMeals() {
