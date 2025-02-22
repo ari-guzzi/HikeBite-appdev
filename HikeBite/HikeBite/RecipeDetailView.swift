@@ -30,7 +30,13 @@ struct RecipeDetailView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top)
-                    
+                    if !recipe.description.isEmpty {
+                        Text(recipe.description)
+                            .font(.body)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                            .padding(.top, 4)
+                    }
                     if !recipe.filter.isEmpty {
                         Text("Filters:")
                             .fontWeight(.bold)
@@ -124,26 +130,30 @@ struct RecipeDetailView: View {
     func viewIngredient(ingredient: Binding<IngredientPlain>, servings: Int) -> some View {
         let ingredientName = ingredient.wrappedValue.name.capitalized
         let adjustedAmount = ingredient.wrappedValue.amount * Double(servings)
-        let adjustedCalories = ingredient.wrappedValue.calories * servings
-        let adjustedWeight = ingredient.wrappedValue.weight * servings
+        let formattedAmount = "\(String(format: "%.1f", adjustedAmount)) \(ingredient.wrappedValue.unit)"
+        let groceryItemName = "\(formattedAmount) of \(ingredientName)"
 
         HStack {
             VStack(alignment: .leading) {
                 Text(ingredientName).fontWeight(.bold)
-                Text("Amount: \(String(format: "%.1f", adjustedAmount)) \(ingredient.wrappedValue.unit)")
-                    .font(.caption)
-                Text("Calories: \(adjustedCalories) kcal").font(.caption)
-                Text("Weight: \(adjustedWeight) g").font(.caption)
+                Text("Amount: \(formattedAmount)").font(.caption)
+                Text("Calories: \(ingredient.wrappedValue.calories * servings) kcal").font(.caption)
+                Text("Weight: \(ingredient.wrappedValue.weight * servings) g").font(.caption)
             }
             Spacer()
 
             Button {
-                let formattedAmount = "\(adjustedAmount) \(ingredient.wrappedValue.unit)"
-                let newGroceryItem = GroceryItem(name: "\(formattedAmount) of \(ingredientName)", isCompleted: false)
+                let newGroceryItem = GroceryItem(name: groceryItemName, isCompleted: false)
                 modelContext.insert(newGroceryItem)
+
+                do {
+                    try modelContext.save()
+                    print("✅ Added to grocery list: \(newGroceryItem.name)")
+                } catch {
+                    print("❌ Failed to add grocery item: \(error.localizedDescription)")
+                }
             } label: {
-                let ingredName = "\(adjustedAmount) \(ingredientName)"
-                let existsInGroceryList = items.contains { $0.name == ingredName }
+                let existsInGroceryList = items.contains { $0.name == groceryItemName }
                 Image(systemName: existsInGroceryList ? "checkmark.circle.fill" : "plus.circle")
                     .foregroundColor(.green)
             }

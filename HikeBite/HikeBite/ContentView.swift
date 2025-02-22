@@ -78,6 +78,7 @@ struct ContentView: View {
                 let data = document.data()
                 // Ensure required fields exist
                 guard let title = data["title"] as? String,
+                      let description = data["description"] as? String,
                       let filter = data["filter"] as? [String],
                       let ingredientsArray = data["ingredients"] as? [[String: Any]] else {
                     print("❌ Skipping document \(document.documentID) due to missing required fields")
@@ -103,6 +104,7 @@ struct ContentView: View {
                 let result = Result(
                     id: document.documentID,
                     title: title,
+                    description: description,
                     filter: filter,
                     ingredients: ingredients
                 )

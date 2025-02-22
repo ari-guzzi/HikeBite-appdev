@@ -10,6 +10,7 @@ import SwiftUI
 struct Result: Codable, Identifiable, Equatable {
     @DocumentID var id: String?
     let title: String
+    var description: String
     let filter: [String]
     var ingredients: [IngredientPlain]
     static func == (lhs: Result, rhs: Result) -> Bool {

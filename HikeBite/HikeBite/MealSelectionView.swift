@@ -62,7 +62,6 @@ struct MealSelectionView: View {
                         .cornerRadius(10)
                 }
                 .padding()
-
                 Button(action: { dismiss() }) {
                     Text("Cancel").foregroundColor(.red)
                 }
