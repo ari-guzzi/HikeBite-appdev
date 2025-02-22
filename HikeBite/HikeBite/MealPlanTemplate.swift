@@ -4,17 +4,17 @@
 //
 //  Created by Ari Guzzi on 2/2/25.
 //
-
+import FirebaseFirestore
 import SwiftUI
 
 struct MealPlanTemplate: Identifiable, Codable {
-    var id: String
-    var name: String
-    var meals: [String: [String: String]]
-    // This won't be included in JSON decoding
+    @DocumentID var id: String?
+    var title: String
+    var img: String
+    var mealTemplates: [String: [String: [Int]]]
     var mealNames: [String: [String: String]] = [:]
 
     enum CodingKeys: String, CodingKey {
-        case id, name, meals // Exclude mealNames from Codable
+        case id, title, img, mealTemplates // Exclude mealNames from Codable
     }
 }

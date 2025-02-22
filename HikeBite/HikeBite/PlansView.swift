@@ -35,78 +35,21 @@ struct PlansView: View {
     }
     var body: some View {
         VStack {
-            HStack {
-                Button {
-                    showDuplicatePlanSheet = true
-                } label: {
-                    HStack {
-                        Text("Duplicate Plan")
-                            .foregroundColor(.blue)
-                        Image(systemName: "doc.on.doc")
-                            .foregroundColor(.blue)
-                    }
-                }
-                .padding()
-                Spacer()
-                Button {
-                    showCreatePlanSheet = true
-                } label: {
-                    HStack {
-                        Text("Create New Plan")
-                            .foregroundColor(Color.blue)
-                        Image(systemName: "plus.circle")
-                            .foregroundColor(.blue)
-                    }
-                }
-                .padding()
-            }
-
-            ZStack {
-                Image("backpacking")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 400)
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-
-                Text(tripName)
-                    .font(.title)
-                    .foregroundColor(Color.white)
-                    .multilineTextAlignment(.center)
-                    .frame(width: 350)
-                    .offset(y: -90)
-            }
-
+            headerView
+            tripImageView
             ScrollView {
                 ForEach(days, id: \.self) { day in
-                    let mealsForThisDay = viewModel.mealEntries.filter { $0.day == day }
-                    Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
-                        DaysView(
-                            mealsForDay: mealsForThisDay,
-                            deleteMeal: deleteMeal,
-                            swapMeal: { meal in
-                                mealToSwap = meal
-                                showingSwapSheet = true
-                            },
-                            selectedTab: $selectedTab // Pass the binding
-                        )
-                    }
+                    mealSectionView(for: day)
                 }
             }
         }
         .onAppear {
             print("📌 PlansView loaded with trip: \(tripName)")
             viewModel.fetchMeals(for: tripName)
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.mealEntriesState = viewModel.mealEntries
-                print("🔄 Meals after update: \(mealEntriesState.count)")
-            }
+            updateMealEntriesState()
         }
-        .onChange(of: mealEntries) { newEntries in
-            print("🔄 UI Update Triggered. Found: \(newEntries.count) meals.")
-            mealEntriesState = newEntries.filter { $0.tripName == tripName }
-            print("🔄 Meal entries updated in UI. Found: \(mealEntriesState.count)")
+        .onChange(of: mealEntries) { _ in
+            updateMealEntriesState()
         }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             DuplicatePlanView(originalTrip: selectedTrip, duplicatePlan: duplicatePlan)
@@ -116,12 +59,93 @@ struct PlansView: View {
                 saveNewPlan(name: name, days: days, date: date)
             }
         }
-        .sheet(isPresented: $showingSwapSheet) {
-            if let mealToSwap = mealToSwap {
-                SwapMealView(mealToSwap: mealToSwap, dismiss: { showingSwapSheet = false })
+        .sheet(isPresented: Binding(
+            get: { showingSwapSheet && mealToSwap != nil },
+            set: { showingSwapSheet = $0 }
+        )) {
+            if var mealToSwap = mealToSwap {
+                SwapMealView(
+                    mealToSwap: mealToSwap,
+                    dismiss: {
+                        showingSwapSheet = false
+                        mealToSwap = MealEntry(day: "", meal: "", recipeTitle: "", servings: 1, tripName: "") // Reset mealToSwap
+                    }
+                )
+                .id(mealToSwap.id)
             }
         }
     }
+    private var headerView: some View {
+        HStack {
+            Button(action: { showDuplicatePlanSheet = true }) {
+                HStack {
+                    Text("Duplicate Plan").foregroundColor(.blue)
+                    Image(systemName: "doc.on.doc").foregroundColor(.blue)
+                }
+            }
+            .padding()
+
+            Spacer()
+
+            Button(action: { showCreatePlanSheet = true }) {
+                HStack {
+                    Text("Create New Trip").foregroundColor(Color.blue)
+                    Image(systemName: "plus.circle").foregroundColor(.blue)
+                }
+            }
+            .padding()
+        }
+    }
+    private var tripImageView: some View {
+        ZStack {
+            Image("backpacking")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 400)
+                .scaledToFit()
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+
+            Text(tripName)
+                .font(.title)
+                .foregroundColor(Color.white)
+                .multilineTextAlignment(.center)
+                .frame(width: 350)
+                .offset(y: -90)
+        }
+    }
+
+    private func mealSectionView(for day: String) -> some View {
+        let formattedDay = "Day \(day.filter { $0.isNumber })"
+        let mealsForThisDay = mealsForDay(day: day)
+
+        return Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
+            if !mealsForThisDay.isEmpty {
+                DaysView(
+                    mealsForDay: mealsForThisDay,
+                    deleteMeal: deleteMeal,
+                    swapMeal: { meal in
+                        mealToSwap = meal
+                        showingSwapSheet = true
+                    },
+                    selectedTab: $selectedTab
+                )
+            } else {
+                Text("No meals for this day")
+                    .foregroundColor(.gray)
+                    .padding()
+            }
+        }
+    }
+    private func updateMealEntriesState() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.mealEntriesState = viewModel.mealEntries
+            print("🔄 Meals after update: \(mealEntriesState.count)")
+            for meal in mealEntriesState {
+                print("📋 Meal Loaded: \(meal.recipeTitle) on \(meal.day) (\(meal.meal))")
+            }
+        }
+    }
+
     private func duplicatePlan(name: String, days: Int, date: Date) {
         do {
             let newTrip = Trip(name: name, days: days, date: date)
@@ -225,60 +249,65 @@ struct DaysView: View {
     var deleteMeal: (MealEntry) -> Void
     var swapMeal: (MealEntry) -> Void
     @Binding var selectedTab: Int
+
     var body: some View {
-        ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
-            let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }     
-            VStack(alignment: .leading) {
-                HStack {
-                    Image(systemName: "circlebadge.fill")
-                        .foregroundColor(Color.gray)
-                        .padding(.leading)
-                    Text(mealType)
-                        .font(.title2)
-                    Spacer()
-                    Button(action: {
-                        selectedTab = 3 // Switch to Meals Tab
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.green)
+        VStack {
+            ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
+                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }
+
+                VStack(alignment: .leading) {
+                    HStack {
+                        Image(systemName: "circlebadge.fill")
+                            .foregroundColor(Color.gray)
+                            .padding(.leading)
+                        Text(mealType)
                             .font(.title2)
-                    }
-                }
-                if mealsForThisMealType.isEmpty {
-                    Text("No meals yet")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .padding(.leading, 40)
-                } else {
-                    VStack {
-                        ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
-                            HStack {
-                                Button(action: { deleteMeal(meal) }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.red)
-                                        .padding(.trailing, 10)
-                                }
-                                Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
-                                    .font(.body)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                Button(action: { swapMeal(meal) }) {
-                                    Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                                        .foregroundColor(.blue)
-                                        .padding(.leading, 10)
-                                }
-                            }
-                            .padding(.vertical, 5)
+                        Spacer()
+                        Button(action: {
+                            selectedTab = 3 // Switch to Meals Tab
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.green)
+                                .font(.title2)
                         }
                     }
-                    .padding(.horizontal)
+                    
+                    if mealsForThisMealType.isEmpty {
+                        Text("No meals yet") // ✅ Ensures empty days still render
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.leading, 40)
+                    } else {
+                        VStack {
+                            ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
+                                HStack {
+                                    Button(action: { deleteMeal(meal) }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.red)
+                                            .padding(.trailing, 10)
+                                    }
+                                    Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
+                                        .font(.body)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Button(action: { swapMeal(meal) }) {
+                                        Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                                            .foregroundColor(.blue)
+                                            .padding(.leading, 10)
+                                    }
+                                }
+                                .padding(.vertical, 5)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
                 }
+                .onAppear {
+                    print("🔍 DaysView appearing for \(mealsForDay.first?.day ?? "Unknown"), Meals: \(mealsForDay.map { $0.recipeTitle })")
+                }
+                Rectangle()
+                    .frame(width: 300, height: 1.0)
+                    .foregroundColor(.black)
             }
-            .onAppear {
-                print("🔍 DaysView rendering with \(mealsForDay.count) meals")
-            }
-            Rectangle()
-                .frame(width: 300, height: 1.0)
-                .foregroundColor(.black)
         }
     }
 }

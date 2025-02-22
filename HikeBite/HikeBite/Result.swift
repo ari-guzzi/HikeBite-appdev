@@ -10,7 +10,6 @@ struct Result: Codable, Identifiable, Equatable {
     let title: String
     let filter: [String]
     var ingredients: [IngredientPlain]
-    
     static func == (lhs: Result, rhs: Result) -> Bool {
         return lhs.id == rhs.id
     }

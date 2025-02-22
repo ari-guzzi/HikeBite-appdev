@@ -27,7 +27,7 @@ struct MainView: View {
                 .tabItem { Label("Profile", systemImage: "person") }
                 .tag(0)
 
-            Templates(selectedTrip: $selectedTrip, fetchMeals: fetchMeals)
+            Templates(selectedTrip: $selectedTrip, selectedTab: $selectedTab, fetchMeals: fetchMeals)
                 .tabItem {
                     Label("Templates", systemImage: "newspaper")
                 }
