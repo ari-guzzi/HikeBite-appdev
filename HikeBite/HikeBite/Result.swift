@@ -4,9 +4,11 @@
 //
 //  Created by Ari Guzzi on 2/13/25.
 //
+import FirebaseFirestore
+import SwiftUI
 
 struct Result: Codable, Identifiable, Equatable {
-    let id: String
+    @DocumentID var id: String?
     let title: String
     let filter: [String]
     var ingredients: [IngredientPlain]

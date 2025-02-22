@@ -12,7 +12,7 @@ struct MainView: View {
     @StateObject private var tripManager = TripManager()
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
-    @State private var mealEntriesState: [MealEntry] = []
+    @State var mealEntriesState: [MealEntry] = []
     @State private var selectedTrip: Trip? {
         didSet {
             if selectedTrip != nil {
@@ -36,10 +36,12 @@ struct MainView: View {
                 if let trip = selectedTrip {
                     PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date, selectedTrip: trip, modelContext: modelContext, selectedTab: $selectedTab)
                         .id(UUID())
-                        //.id(selectedTrip?.name)
                 } else {
-                    Button("Create a Trip") {
-                        showCreateTrip = true
+                    VStack {
+                        Text("Select Trip from Profile View or")
+                        Button("Create a New Trip") {
+                            showCreateTrip = true
+                        }
                     }
                 }
             }
@@ -77,7 +79,7 @@ struct MainView: View {
             }
         }
     }
-    private func fetchMeals() {
+    func fetchMeals() {
         do {
             let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
             mealEntriesState = fetchedMeals

@@ -1,16 +1,19 @@
 //
-//  SwapMealView.swift
+//  AddMealView.swift
 //  HikeBite
 //
-//  Created by Ari Guzzi on 2/1/25.
+//  Created by Ari Guzzi on 2/22/25.
 //
 import FirebaseFirestore
 import SwiftUI
 
-struct SwapMealView: View {
+struct AddMealView: View {
     @Environment(\.modelContext) private var modelContext
-    var mealToSwap: MealEntry
+    var day: String
+    var mealType: String
+    var tripName: String
     var dismiss: () -> Void
+    var refreshMeals: () -> Void
 
     @State private var recipes: [Result] = []
     @State private var isLoading = true
@@ -18,20 +21,16 @@ struct SwapMealView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Swap \(mealToSwap.recipeTitle)")
+                Text("Add Meal to \(mealType) on \(day)")
                     .font(.headline)
                     .padding()
 
                 if isLoading {
                     ProgressView("Loading recipes...")
-                } else if recipes.isEmpty {
-                    Text("No recipes found.")
-                        .foregroundColor(.gray)
-                        .padding()
                 } else {
                     List(recipes, id: \.id) { recipe in
                         Button {
-                            swapMeal(with: recipe.title)
+                            addMeal(recipe: recipe)
                         } label: {
                             HStack {
                                 Text(recipe.title)
@@ -41,34 +40,64 @@ struct SwapMealView: View {
                     }
                 }
             }
-            .navigationTitle("Choose a Replacement")
+            .navigationTitle("Select a Meal")
             .toolbar {
-                Button("Cancel") { dismiss() }
+                Button("Cancel") {
+                    dismiss()
+                }
             }
             .onAppear {
-                print("🛠️ SwapMealView appeared. Fetching recipes...")
-                fetchRecipesFromFirebase()
+                print("🛠️ AddMealView appeared with: Day - \(day), MealType - \(mealType)")
+                if mealType.isEmpty {
+                    print("❌ Error: MealType was empty, retrying...")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        print("🔄 Retrying with: \(mealType)")
+                    }
+                }
+                print("📢 Calling fetchRecipesFromFirebase()") // ✅ Debugging log
+                fetchRecipesFromFirebase() // ✅ Ensuring it runs
             }
             .onChange(of: recipes) { newRecipes in
                 if !newRecipes.isEmpty {
                     print("🔄 Recipes updated: \(newRecipes.count) found")
-                    isLoading = false  // Hide spinner once recipes are available
+                    isLoading = false
                 }
             }
         }
     }
 
-    private func swapMeal(with newTitle: String) {
-        mealToSwap.recipeTitle = newTitle
+    private func addMeal(recipe: Result) {
+        guard !day.isEmpty, !mealType.isEmpty else {
+            print("❌ Error: Attempting to add a meal with missing day or mealType.")
+            return
+        }
+
+        let newMeal = MealEntry(
+            day: day,
+            meal: mealType,
+            recipeTitle: recipe.title,
+            servings: 1,
+            tripName: tripName
+        )
+
+        modelContext.insert(newMeal)
+
         do {
             try modelContext.save()
-            print("✅ Swapped \(mealToSwap.recipeTitle) with \(newTitle)")
-            dismiss()
+            print("✅ Added \(recipe.title) to \(tripName) on \(day) for \(mealType)")
+            
+            DispatchQueue.main.async {
+                dismiss()
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                refreshMeals() // ✅ Ensure UI updates after saving
+            }
+
         } catch {
-            print("❌ Error swapping meal: \(error.localizedDescription)")
+            print("❌ Failed to add meal: \(error.localizedDescription)")
         }
     }
-
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
         print("📢 Fetching recipes from Firestore (Attempt 1)...")
