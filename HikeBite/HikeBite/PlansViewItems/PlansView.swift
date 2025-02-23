@@ -154,7 +154,6 @@ struct PlansView: View {
             }
         }
     }
-
     private func duplicatePlan(name: String, days: Int, date: Date) {
         do {
             let newTrip = Trip(name: name, days: days, date: date)
@@ -196,7 +195,6 @@ struct PlansView: View {
             print("❌ Failed to save trip: \(error.localizedDescription)")
         }
     }
-
     private func deleteMeal(_ meal: MealEntry) {
         modelContext.delete(meal)
         do {

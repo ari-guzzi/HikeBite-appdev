@@ -34,16 +34,14 @@ struct MainView: View {
                 .tag(1)
             Group {
                 if let trip = selectedTrip {
-                    if let trip = selectedTrip {
-                        PlansView(
-                            tripManager: tripManager,
-                            numberOfDays: trip.days,
-                            tripDate: trip.date,
-                            selectedTrip: $selectedTrip,
-                            modelContext: modelContext,
-                            selectedTab: $selectedTab
-                        )
-                    }
+                    PlansView(
+                        tripManager: tripManager,
+                        numberOfDays: trip.days,
+                        tripDate: trip.date,
+                        selectedTrip: $selectedTrip,
+                        modelContext: modelContext,
+                        selectedTab: $selectedTab
+                    )
                 } else {
                     VStack {
                         HStack {

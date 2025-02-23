@@ -132,8 +132,8 @@ struct PlanSelectionView: View {
         let newTrip = Trip(name: name, days: days, date: date)
         modelContext.insert(newTrip)
         DispatchQueue.main.async {
-                selectedTrip = newTrip
-            }
+            selectedTrip = newTrip
+        }
         applyTemplateToTrip(template: template, trip: newTrip)
         do {
             try modelContext.save()

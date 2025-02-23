@@ -19,7 +19,7 @@ import SwiftUI
 //        #if DEBUG
 //        let providerFactory = AppCheckDebugProviderFactory()
 //        AppCheck.setAppCheckProviderFactory(providerFactory)
-//        print("✅ Firebase App Check using Debug Mode")
+//        print(" Firebase App Check using Debug Mode")
 //        #endif
 //
 //        return true

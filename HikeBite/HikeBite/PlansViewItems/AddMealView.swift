@@ -85,15 +85,12 @@ struct AddMealView: View {
         do {
             try modelContext.save()
             print("✅ Added \(recipe.title) to \(tripName) on \(day) for \(mealType)")
-            
             DispatchQueue.main.async {
                 dismiss()
             }
-
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 refreshMeals() // ✅ Ensure UI updates after saving
             }
-
         } catch {
             print("❌ Failed to add meal: \(error.localizedDescription)")
         }
@@ -101,26 +98,21 @@ struct AddMealView: View {
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
         print("📢 Fetching recipes from Firestore (Attempt 1)...")
-
         db.collection("Recipes").getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching recipes: \(error.localizedDescription)")
                 DispatchQueue.main.async { isLoading = false }
                 return
             }
-
             guard let documents = snapshot?.documents else {
                 print("⚠️ No recipes found.")
                 DispatchQueue.main.async { isLoading = false }
                 return
             }
-
             print("📜 Raw Firestore Data: \(documents.map { $0.data() })")
-
             let fetchedRecipes = documents.compactMap { doc -> Result? in
                 try? doc.data(as: Result.self)
             }
-
             DispatchQueue.main.async {
                 self.recipes = fetchedRecipes
                 self.isLoading = false

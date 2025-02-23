@@ -71,21 +71,38 @@ struct ProfileView: View {
                             Text("Previous Trips")
                                 .font(.largeTitle)
                                 .padding(.leading, 20)
-                            List(previousTrips) { trip in
-                                Button(action: {
-                                    selectedTrip = trip
-                                    selectedTab = 2
-                                }) {
-                                    VStack(alignment: .leading) {
-                                        Text(trip.name).font(.headline)
-                                        Text(trip.date.formatted(date: .long, time: .omitted))
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
+                            
+                            List {
+                                ForEach(previousTrips) { trip in
+                                    HStack {
+                                        VStack(alignment: .leading) {
+                                            Text(trip.name).font(.headline)
+                                            Text(trip.date.formatted(date: .long, time: .omitted))
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                        Button(action: {
+                                            selectedTrip = trip
+                                            selectedTab = 2
+                                        }) {
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .swipeActions {
+                                        Button(role: .destructive) {
+                                            deleteTrip(trip)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
                                     }
                                 }
+                                .onDelete(perform: deleteTripAt)
                             }
                             .frame(height: 250)
                         }
+
                     }
                 }
             }
@@ -94,6 +111,22 @@ struct ProfileView: View {
             print("🔄 ProfileView appeared. Fetching trips...")
             tripManager.fetchTrips(modelContext: modelContext)
         }
+    }
+    private func deleteTripAt(_ offsets: IndexSet) {
+        for index in offsets {
+            let tripToDelete = previousTrips[index]
+            deleteTrip(tripToDelete) 
+        }
+    }
+    private func deleteTrip(_ trip: Trip) {
+        modelContext.delete(trip)
+        do {
+            try modelContext.save()
+            print("✅ Deleted trip: \(trip.name)")
+        } catch {
+            print("❌ Failed to delete trip: \(error.localizedDescription)")
+        }
+        tripManager.trips.removeAll { $0.id == trip.id }
     }
 }
 struct ProfileNameView: View {

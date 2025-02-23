@@ -26,20 +26,4 @@ struct TripPicker: View {
         }
 
     }
-//    var body: some View {
-//        VStack {
-//            Button(action: { showTripPicker = true }) {
-//                Text(selectedTrip?.name ?? "Select a Trip")
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(Color.gray.opacity(0.2))
-//                    .cornerRadius(10)
-//                    .foregroundColor(.black)
-//            }
-//            .padding()
-//        }
-//        .sheet(isPresented: $showTripPicker) {
-//            TripSelectionView(tripManager: tripManager, selectedTrip: $selectedTrip, showTripPicker: $showTripPicker)
-//        }
-//    }
 }
