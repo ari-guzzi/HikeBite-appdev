@@ -14,14 +14,13 @@ struct MainView: View {
     @State private var showCreateTrip = false
     @State private var showTripPicker = false
     @State var mealEntriesState: [MealEntry] = []
-    @State private var selectedTrip: Trip? {
+    @State private var selectedTrip: Trip? { 
         didSet {
             if selectedTrip != nil {
                 selectedTab = 2
             }
         }
     }
-
     var body: some View {
         TabView(selection: $selectedTab) {
             ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab)
@@ -35,19 +34,22 @@ struct MainView: View {
                 .tag(1)
             Group {
                 if let trip = selectedTrip {
-                    PlansView(tripName: trip.name, numberOfDays: trip.days, tripDate: trip.date, selectedTrip: trip, modelContext: modelContext, selectedTab: $selectedTab)
-                        .id(UUID())
+                    if let trip = selectedTrip {
+                        PlansView(
+                            tripManager: tripManager,
+                            numberOfDays: trip.days,
+                            tripDate: trip.date,
+                            selectedTrip: $selectedTrip,
+                            modelContext: modelContext,
+                            selectedTab: $selectedTab
+                        )
+                    }
                 } else {
                     VStack {
-                        Button(action: { showTripPicker = true }) {
-                                        Text(selectedTrip?.name ?? "Select a Trip")
-                                            .frame(maxWidth: .infinity)
-                                            .padding()
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(10)
-                                            .foregroundColor(.black)
-                                    }
-                                    .padding()
+                        HStack {
+                            Text("Select Trip")
+                            TripPicker(selectedTrip: $selectedTrip, tripManager: tripManager)
+                        }
                         Button("Create a New Trip") {
                             showCreateTrip = true
                         }
@@ -75,20 +77,17 @@ struct MainView: View {
                 Task {
                     do {
                         try modelContext.save()
-                        tripManager.fetchTrips(modelContext: modelContext)  // ✅ Refresh trips
+                        tripManager.fetchTrips(modelContext: modelContext)
                         DispatchQueue.main.async {
                             selectedTrip = newTrip
                             selectedTab = 2
                             showCreateTrip = false
                         }
                     } catch {
-                        print("❌ Failed to save trip: \(error.localizedDescription)")
+                        print("Failed to save trip: \(error)")
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showTripPicker) {
-            TripSelectionView(tripManager: tripManager, selectedTrip: $selectedTrip, showTripPicker: $showTripPicker)
         }
     }
     func fetchMeals() {

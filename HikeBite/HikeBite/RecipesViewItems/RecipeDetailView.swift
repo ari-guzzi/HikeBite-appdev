@@ -108,6 +108,8 @@ struct RecipeDetailView: View {
             return
         }
 
+        let totalCalories = mutableIngredients.reduce(0) { $0 + ($1.calories * servings) }
+        let totalGrams = mutableIngredients.reduce(0) { $0 + ($1.weight * servings) }
         let newMealEntry = MealEntry(
             day: selectedDay,
             meal: selectedMeal,
@@ -115,9 +117,7 @@ struct RecipeDetailView: View {
             servings: servings,
             tripName: selectedTrip.name
         )
-
         modelContext.insert(newMealEntry)
-
         do {
             try modelContext.save()
             print("✅ Meal saved to \(selectedTrip.name): \(newMealEntry.recipeTitle) for \(newMealEntry.day), \(newMealEntry.meal) with \(servings) servings")
@@ -125,7 +125,6 @@ struct RecipeDetailView: View {
             print("❌ Failed to save meal entry: \(error.localizedDescription)")
         }
     }
-
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>, servings: Int) -> some View {
         let ingredientName = ingredient.wrappedValue.name.capitalized

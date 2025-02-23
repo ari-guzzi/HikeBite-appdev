@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct PlansView: View {
+    @ObservedObject var tripManager: TripManager
     @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel: MealEntriesViewModel
     @Query private var mealEntries: [MealEntry]
@@ -17,20 +18,19 @@ struct PlansView: View {
     @State private var showingSwapSheet = false
     @State private var showCreatePlanSheet = false
     @State private var showDuplicatePlanSheet = false
-    @State var tripName: String
     @State var numberOfDays: Int
     @State var tripDate: Date
     @Binding var selectedTab: Int
-    var selectedTrip: Trip
+    @Binding var selectedTrip: Trip?
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
-    init(tripName: String, numberOfDays: Int, tripDate: Date, selectedTrip: Trip, modelContext: ModelContext, selectedTab: Binding<Int>) {
-        self.tripName = tripName
+    init(tripManager: TripManager, numberOfDays: Int, tripDate: Date, selectedTrip: Binding<Trip?>, modelContext: ModelContext, selectedTab: Binding<Int>) {
+        self.tripManager = tripManager
         self.numberOfDays = numberOfDays
         self.tripDate = tripDate
-        self.selectedTrip = selectedTrip
-        _viewModel = StateObject(wrappedValue: MealEntriesViewModel(modelContext: modelContext, tripName: tripName))
+        self._selectedTrip = selectedTrip
+        _viewModel = StateObject(wrappedValue: MealEntriesViewModel(modelContext: modelContext, tripName: selectedTrip.wrappedValue?.name ?? "Unknown Trip"))
         self._selectedTab = selectedTab
     }
     var body: some View {
@@ -44,10 +44,10 @@ struct PlansView: View {
             }
         }
         .onAppear {
-            print("📌 PlansView loaded with trip: \(tripName)")
-            // ✅ Refetch meals every time the screen appears
+            fetchMeals()
+            print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "Unknown Trip")")
             DispatchQueue.main.async {
-                viewModel.fetchMeals(for: tripName)
+                viewModel.fetchMeals(for: selectedTrip?.name ?? "Unknown Trip")
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.mealEntriesState = viewModel.mealEntries
@@ -57,12 +57,17 @@ struct PlansView: View {
                 }
             }
         }
-
         .onChange(of: mealEntries) { _ in
             updateMealEntriesState()
         }
+        .onChange(of: selectedTrip) { newTrip in
+            print("🔄 Trip changed: \(newTrip?.name ?? "None")")
+            fetchMeals() // ✅ Fetch meals again when the trip changes
+        }
         .sheet(isPresented: $showDuplicatePlanSheet) {
-            DuplicatePlanView(originalTrip: selectedTrip, duplicatePlan: duplicatePlan)
+            if let trip = selectedTrip {
+                DuplicatePlanView(originalTrip: trip, duplicatePlan: duplicatePlan)
+            }
         }
         .sheet(isPresented: $showCreatePlanSheet) {
             CreatePlanView { name, days, date in
@@ -95,6 +100,7 @@ struct PlansView: View {
             }
             .padding()
             Spacer()
+            TripPicker(selectedTrip: $selectedTrip, tripManager: tripManager)
             Button(action: { showCreatePlanSheet = true }) {
                 HStack {
                     Text("Create New Trip").foregroundColor(Color.blue)
@@ -113,7 +119,7 @@ struct PlansView: View {
                 .scaledToFit()
                 .clipShape(RoundedRectangle(cornerRadius: 20))
 
-            Text(tripName)
+            Text(selectedTrip?.name ?? "Unknown Trip")
                 .font(.title)
                 .foregroundColor(Color.white)
                 .multilineTextAlignment(.center)
@@ -121,27 +127,24 @@ struct PlansView: View {
                 .offset(y: -90)
         }
     }
-
     private func mealSectionView(for day: String) -> some View {
         let formattedDay = "Day \(day.filter { $0.isNumber })"
         let mealsForThisDay = mealsForDay(day: day)
-
         return Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
-                    DaysView(
-                        mealsForDay: mealsForThisDay,
-                        deleteMeal: deleteMeal,
-                        swapMeal: { meal in
-                            mealToSwap = meal
-                            showingSwapSheet = true
-                        },
-                        tripName: tripName,
-                        refreshMeals: { fetchMeals() },
-                        day: day,
-                        selectedTab: $selectedTab
-                    )
-                }
-            }
-
+            DaysView(
+                mealsForDay: mealsForThisDay,
+                deleteMeal: deleteMeal,
+                swapMeal: { meal in
+                    mealToSwap = meal
+                    showingSwapSheet = true
+                },
+                tripName: selectedTrip?.name ?? "Unknown Trip",
+                refreshMeals: { fetchMeals() },
+                day: day,
+                selectedTab: $selectedTab
+            )
+        }
+    }
     private func updateMealEntriesState() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.mealEntriesState = viewModel.mealEntries
@@ -156,9 +159,7 @@ struct PlansView: View {
         do {
             let newTrip = Trip(name: name, days: days, date: date)
             modelContext.insert(newTrip)
-            
-            let originalMeals = mealEntriesState.filter { $0.tripName == tripName }
-            
+            let originalMeals = mealEntriesState.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
             for meal in originalMeals {
                 let duplicatedMeal = MealEntry(
                     day: meal.day,
@@ -170,36 +171,32 @@ struct PlansView: View {
                 modelContext.insert(duplicatedMeal)
             }
             try modelContext.save()
-            print("✅ Successfully duplicated plan '\(tripName)' as '\(name)'")
+            print("✅ Successfully duplicated plan '\(selectedTrip)' as '\(name)'")
             showDuplicatePlanSheet = false // Close the duplicate sheet
         } catch {
             print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
     private func mealsForDay(day: String) -> [MealEntry] {
-        return mealEntriesState.filter { $0.day == day && $0.tripName == tripName }
+        return mealEntriesState.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
     }
     private func saveNewPlan(name: String, days: Int, date: Date) {
         do {
-            let tripsBeforeSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
-            print("📂 Trips before saving: \(tripsBeforeSave.count)")
             let newTrip = Trip(name: name, days: days, date: date)
             modelContext.insert(newTrip)
             try modelContext.save()
             print("✅ New trip saved successfully")
-            let tripsAfterSave: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
-            print("📂 Trips after saving: \(tripsAfterSave.count)")
-            for trip in tripsAfterSave {
-                print("📌 Trip Name: \(trip.name) - \(trip.days) days - Date: \(trip.date)")
+            DispatchQueue.main.async {
+                self.selectedTrip = newTrip 
+                self.numberOfDays = newTrip.days
+                self.tripDate = newTrip.date
+                showCreatePlanSheet = false
             }
         } catch {
             print("❌ Failed to save trip: \(error.localizedDescription)")
         }
-
-        DispatchQueue.main.async {
-            showCreatePlanSheet = false
-        }
     }
+
     private func deleteMeal(_ meal: MealEntry) {
         modelContext.delete(meal)
         do {
@@ -213,8 +210,7 @@ struct PlansView: View {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
-                let filteredMeals = fetchedMeals.filter { $0.tripName == tripName }
-
+                let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
                 DispatchQueue.main.async {
                     self.mealEntriesState.removeAll()
                     self.mealEntriesState = filteredMeals
@@ -227,69 +223,6 @@ struct PlansView: View {
             } catch {
                 print("❌ Failed to load meals: \(error.localizedDescription)")
             }
-        }
-    }
-
-
-}
-struct FoodListView: View {
-    var meals: [MealEntry]
-
-    var body: some View {
-        HStack(alignment: .top) {
-            Rectangle()
-                .frame(width: 2)
-                .foregroundColor(.black)
-                .padding(.leading, 22.0)
-                .padding(.trailing, 10)
-
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(meals, id: \.recipeTitle) { meal in
-                    Text(meal.recipeTitle)
-                        .font(.body)
-                }
-            }
-            .padding()
-            .background(Color(red: 0.968, green: 0.957, blue: 0.957))
-            .cornerRadius(10)
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-struct DuplicatePlanView: View {
-    @State private var newPlanName: String = ""
-    @State private var newPlanDays: Int = 3
-    @State private var newPlanDate: Date = Date()
-    var originalTrip: Trip
-    var duplicatePlan: (String, Int, Date) -> Void
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("New Plan Name")) {
-                    TextField("Enter plan name", text: $newPlanName)
-                }
-
-                Section(header: Text("Number of Days")) {
-                    Stepper("\(newPlanDays) Days", value: $newPlanDays, in: 1...10)
-                }
-
-                Section(header: Text("Start Date")) {
-                    DatePicker("Select Date", selection: $newPlanDate, displayedComponents: .date)
-                }
-            }
-            .navigationTitle("Duplicate Plan")
-            .navigationBarItems(
-                leading: Button("Cancel") { dismiss() },
-                trailing: Button("Duplicate") {
-                    guard !newPlanName.isEmpty else { return }
-                    duplicatePlan(newPlanName, newPlanDays, newPlanDate)
-                    dismiss() // Close the sheet
-                }
-            )
         }
     }
 }

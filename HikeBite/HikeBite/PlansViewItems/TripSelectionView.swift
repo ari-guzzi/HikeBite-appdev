@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TripSelectionView: View {
-    var tripManager: TripManager
+    @ObservedObject var tripManager: TripManager
     @Binding var selectedTrip: Trip?
     @Binding var showTripPicker: Bool
     @State private var tempSelectedTrip: Trip? = nil
