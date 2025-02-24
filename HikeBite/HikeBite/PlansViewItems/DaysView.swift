@@ -20,9 +20,14 @@ struct DaysView: View {
     @State private var selectedMealType = ""
 
     var body: some View {
+        Text("🛠️ Debug: Rendering \(mealsForDay.count) meals for \(day) in DaysView")
+            .font(.caption)
+            .foregroundColor(.blue)
+
         VStack {
             ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
-                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }
+                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType && $0.day == day }
+               // let mealsForThisMealType = mealEntriesState.filter { $0.meal == mealType && $0.day == day }
 
                 VStack(alignment: .leading) {
                     HStack {
@@ -45,7 +50,6 @@ struct DaysView: View {
                                 .font(.title2)
                         }
                     }
-
                     if mealsForThisMealType.isEmpty {
                         Text("No meals yet")
                             .font(.caption)
@@ -53,7 +57,7 @@ struct DaysView: View {
                             .padding(.leading, 40)
                     } else {
                         VStack {
-                            ForEach(mealsForThisMealType, id: \.recipeTitle) { meal in
+                            ForEach(mealsForThisMealType, id: \.id) { meal in
                                 HStack {
                                     Button(action: { deleteMeal(meal) }) {
                                         Image(systemName: "xmark.circle.fill")
@@ -71,6 +75,7 @@ struct DaysView: View {
                                 }
                                 .padding(.vertical, 5)
                             }
+                            .id(UUID())
                         }
                         .padding(.horizontal)
                     }
@@ -94,4 +99,3 @@ struct DaysView: View {
         }
     }
 }
-

@@ -54,8 +54,8 @@ struct AddMealView: View {
                         print("🔄 Retrying with: \(mealType)")
                     }
                 }
-                print("📢 Calling fetchRecipesFromFirebase()") // ✅ Debugging log
-                fetchRecipesFromFirebase() // ✅ Ensuring it runs
+                print("📢 Calling fetchRecipesFromFirebase()")
+                fetchRecipesFromFirebase()
             }
             .onChange(of: recipes) { newRecipes in
                 if !newRecipes.isEmpty {
@@ -73,6 +73,7 @@ struct AddMealView: View {
         }
 
         let newMeal = MealEntry(
+            id: UUID(),
             day: day,
             meal: mealType,
             recipeTitle: recipe.title,
@@ -89,7 +90,7 @@ struct AddMealView: View {
                 dismiss()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                refreshMeals() // ✅ Ensure UI updates after saving
+                refreshMeals()
             }
         } catch {
             print("❌ Failed to add meal: \(error.localizedDescription)")

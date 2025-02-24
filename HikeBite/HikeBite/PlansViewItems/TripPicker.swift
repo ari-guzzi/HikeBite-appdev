@@ -12,7 +12,7 @@ struct TripPicker: View {
     @ObservedObject var tripManager: TripManager
     @State private var showTripPicker = false
     var body: some View {
-        Picker("Select a Trip", selection: $selectedTrip) { // ✅ Ensure Binding
+        Picker("Select a Trip", selection: $selectedTrip) {
             ForEach(tripManager.trips) { trip in
                 Text(trip.name).tag(trip as Trip?)
             }

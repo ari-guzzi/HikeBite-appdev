@@ -40,29 +40,28 @@ struct PlansView: View {
             ScrollView {
                 ForEach(days, id: \.self) { day in
                     mealSectionView(for: day)
+                        .id(day)
                 }
             }
         }
         .onAppear {
-            fetchMeals()
-            print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "Unknown Trip")")
-            DispatchQueue.main.async {
-                viewModel.fetchMeals(for: selectedTrip?.name ?? "Unknown Trip")
-            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.mealEntriesState = viewModel.mealEntries
-                print("🔄 Meals after update: \(mealEntriesState.count)")
-                for meal in mealEntriesState {
-                    print("📋 Meal Loaded: \(meal.recipeTitle) on \(meal.day) (\(meal.meal))")
-                }
+                print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "None")")
+                fetchMeals()
             }
         }
         .onChange(of: mealEntries) { _ in
             updateMealEntriesState()
         }
         .onChange(of: selectedTrip) { newTrip in
-            print("🔄 Trip changed: \(newTrip?.name ?? "None")")
-            fetchMeals() // ✅ Fetch meals again when the trip changes
+            guard let newTrip = newTrip else {
+                print("❌ No trip selected!")
+                return
+            }
+            print("🔄 Trip changed to: \(newTrip.name)")
+            numberOfDays = newTrip.days // Don't delete this
+            tripDate = newTrip.date // Don't delete this
+            fetchMeals()
         }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             if let trip = selectedTrip {
@@ -101,6 +100,10 @@ struct PlansView: View {
             .padding()
             Spacer()
             TripPicker(selectedTrip: $selectedTrip, tripManager: tripManager)
+                .onChange(of: selectedTrip) { newTrip in
+                    print("🔄 Trip changed: \(newTrip?.name ?? "None")")
+                    fetchMeals()
+                }
             Button(action: { showCreatePlanSheet = true }) {
                 HStack {
                     Text("Create New Trip").foregroundColor(Color.blue)
@@ -128,8 +131,8 @@ struct PlansView: View {
         }
     }
     private func mealSectionView(for day: String) -> some View {
-        let formattedDay = "Day \(day.filter { $0.isNumber })"
         let mealsForThisDay = mealsForDay(day: day)
+        print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
         return Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
             DaysView(
                 mealsForDay: mealsForThisDay,
@@ -176,9 +179,50 @@ struct PlansView: View {
             print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
+//    private func mealsForDay(day: String) -> [MealEntry] {
+//        let filteredMeals = mealEntriesState.filter { meal in
+//            meal.tripName == selectedTrip?.name && meal.day == day
+//        }
+//        
+//        guard let tripName = selectedTrip?.name else {
+//            print("❌ No selected trip! Returning empty meal list.")
+//            return []
+//        }
+//        print("🔍 Looking for meals with tripName: \(tripName), day: \(day)")
+//
+//        let meals = mealEntriesState.filter { meal in
+//
+//            let isMatch = meal.tripName == tripName && meal.day.filter { $0.isNumber } == day.filter { $0.isNumber }
+//            print("🔍 Checking meal: \(meal.recipeTitle) - tripName: \(meal.tripName), day: \(meal.day) (Expected: \(day)) -> \(isMatch ? "✅ Match" : "❌ No Match")")
+//            return isMatch
+//        }
+//        
+//        print("📆 Found \(meals.count) meals for \(tripName) on \(day)")
+//        return meals
+//    }
     private func mealsForDay(day: String) -> [MealEntry] {
-        return mealEntriesState.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+        guard let tripName = selectedTrip?.name else {
+            print("❌ No selected trip! Returning empty meal list.")
+            return []
+        }
+
+        let normalizedDay = day.filter { $0.isNumber }  // Normalize to just numbers
+        
+        print("🔍 Looking for meals with tripName: \(tripName), day: \(day)")
+
+        let meals = mealEntriesState.filter { meal in
+            let mealDayNormalized = meal.day.filter { $0.isNumber }
+            let isMatch = meal.tripName.trimmingCharacters(in: .whitespacesAndNewlines) == tripName.trimmingCharacters(in: .whitespacesAndNewlines)
+                && mealDayNormalized == normalizedDay
+            print("🔍 Checking meal: \(meal.recipeTitle) - tripName: \(meal.tripName), day: \(meal.day) (Expected: \(day)) -> \(isMatch ? "✅ Match" : "❌ No Match")")
+            return isMatch
+        }
+        
+        print("📆 Found \(meals.count) meals for \(tripName) on \(day)")
+        return meals
     }
+
+
     private func saveNewPlan(name: String, days: Int, date: Date) {
         do {
             let newTrip = Trip(name: name, days: days, date: date)
@@ -205,21 +249,31 @@ struct PlansView: View {
         }
     }
     private func fetchMeals() {
+        print("🧐 mealsForDay BEFORE update: \(mealEntriesState.count) meals")
+
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
-                let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+
                 DispatchQueue.main.async {
-                    self.mealEntriesState.removeAll()
-                    self.mealEntriesState = filteredMeals
-                    
-                    print("✅ Meals successfully loaded into state: \(mealEntriesState.count)")
-                    for meal in mealEntriesState {
-                        print("📋 Meal Loaded: \(meal.recipeTitle) on \(meal.day) (\(meal.meal))")
+                    print("📋 All stored meals in SwiftData:")
+                    for meal in fetchedMeals {
+                        print("🔍 Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
+                    }
+
+                    let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+                    print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+
+                    // 🔄 Force UI Update by clearing first
+                    self.mealEntriesState = []
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.mealEntriesState = filteredMeals
                     }
                 }
             } catch {
-                print("❌ Failed to load meals: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    print("❌ Failed to load meals: \(error.localizedDescription)")
+                }
             }
         }
     }
