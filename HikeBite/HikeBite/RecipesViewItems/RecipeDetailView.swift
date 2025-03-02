@@ -20,7 +20,13 @@ struct RecipeDetailView: View {
     @State private var selectedMeal = "Breakfast"
     let days = ["Day 1", "Day 2", "Day 3"]
     let meals = ["Breakfast", "Lunch", "Dinner", "Snacks"]
-
+    @State private var image: Image?
+    var apiKey: String? {
+        Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
+    }
+    var baseURL: String? {
+        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
+    }
     var body: some View {
         VStack {
             ScrollView {
@@ -30,13 +36,43 @@ struct RecipeDetailView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top)
-                    if !recipe.description.isEmpty {
-                        Text(recipe.description)
-                            .font(.body)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                            .padding(.top, 4)
+                    if let image = image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 300, height: 200)
+                            .clipped()
                     }
+                        if !recipe.description.isEmpty {
+                            Text(recipe.description)
+                                .font(.body)
+                                .foregroundColor(.gray)
+                                .padding(.horizontal)
+                                .padding(.top, 4)
+                        }
+                        if let createdBy = recipe.createdBy, !createdBy.isEmpty {
+                            HStack {
+                                Text("Created by: ")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Text(createdBy)
+                                    .font(.subheadline)
+                                    .bold()
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        if let timestamp = recipe.timestamp {
+                            HStack {
+                                Text("Uploaded on: ")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Text(timestamp.formatted(date: .abbreviated, time: .shortened)) // Formats date nicely
+                                    .font(.subheadline)
+                                    .bold()
+                            }
+                            .padding(.horizontal)
+                        }
                     if !recipe.filter.isEmpty {
                         Text("Filters:")
                             .fontWeight(.bold)
@@ -99,6 +135,7 @@ struct RecipeDetailView: View {
         }
         .onAppear {
             mutableIngredients = recipe.ingredients
+            fetchImageForRecipe(title: recipe.title)
         }
     }
 
@@ -108,8 +145,8 @@ struct RecipeDetailView: View {
             return
         }
 
-        let totalCalories = mutableIngredients.reduce(0) { $0 + ($1.calories * servings) }
-        let totalGrams = mutableIngredients.reduce(0) { $0 + ($1.weight * servings) }
+        let totalCalories = mutableIngredients.reduce(0) { $0 + (($1.calories ?? 0) * servings) }
+        let totalGrams = mutableIngredients.reduce(0) { $0 + (($1.weight ?? 0) * servings) }
         let newMealEntry = MealEntry(
             day: selectedDay,
             meal: selectedMeal,
@@ -128,7 +165,7 @@ struct RecipeDetailView: View {
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>, servings: Int) -> some View {
         let ingredientName = ingredient.wrappedValue.name.capitalized
-        let adjustedAmount = ingredient.wrappedValue.amount * Double(servings)
+        let adjustedAmount = (ingredient.wrappedValue.amount ?? 0.0) * Double(servings)
         let formattedAmount = "\(String(format: "%.1f", adjustedAmount)) \(ingredient.wrappedValue.unit)"
         let groceryItemName = "\(formattedAmount) of \(ingredientName)"
 
@@ -136,8 +173,8 @@ struct RecipeDetailView: View {
             VStack(alignment: .leading) {
                 Text(ingredientName).fontWeight(.bold)
                 Text("Amount: \(formattedAmount)").font(.caption)
-                Text("Calories: \(ingredient.wrappedValue.calories * servings) kcal").font(.caption)
-                Text("Weight: \(ingredient.wrappedValue.weight * servings) g").font(.caption)
+                Text("Calories: \((ingredient.wrappedValue.calories ?? 0) * servings) kcal").font(.caption)
+                Text("Weight: \((ingredient.wrappedValue.weight ?? 0) * servings) g").font(.caption)
             }
             Spacer()
 
@@ -160,4 +197,67 @@ struct RecipeDetailView: View {
         .padding()
         .border(Color(hue: 1.0, saturation: 0.023, brightness: 0.907))
     }
+    func fetchImageForRecipe(title: String) {
+            guard let apiKey = self.apiKey, let baseURL = self.baseURL else {
+                print("API key or base URL is nil")
+                return
+            }
+
+            let queryItems = [
+                URLQueryItem(name: "query", value: title),
+                URLQueryItem(name: "number", value: "1"),
+                URLQueryItem(name: "addRecipeInformation", value: "true")
+            ]
+            var urlComponents = URLComponents(string: "\(baseURL)/recipes/complexSearch")
+            urlComponents?.queryItems = queryItems
+
+            guard let url = urlComponents?.url else {
+                print("Invalid URL components")
+                return
+            }
+
+            var request = URLRequest(url: url)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(apiKey, forHTTPHeaderField: "x-rapidapi-key")
+            request.httpMethod = "GET"
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error fetching image: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let data = data,
+                      let response = try? JSONDecoder().decode(RecipeSearchResponse.self, from: data),
+                      let firstResult = response.results.first,
+                      let imageData = try? Data(contentsOf: URL(string: firstResult.image)!) else {
+                    print("Failed to load image data")
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self.image = Image(uiImage: UIImage(data: imageData)!)
+                }
+            }.resume()
+        }
+    }
+
+struct RecipeSearchResponse: Codable {
+    let results: [Recipe]
+    let offset: Int
+    let number: Int
+    let totalResults: Int
+}
+
+struct Recipe: Codable, Identifiable {
+    let id: Int
+    let title: String
+    let image: String
+    let imageType: String
+    let readyInMinutes: Int?
+    let servings: Int?
+    let sourceUrl: String?
+    // Include other fields as necessary, ensuring they are marked optional if they can be absent
+
+    var identifier: String { return "\(id)" }
 }

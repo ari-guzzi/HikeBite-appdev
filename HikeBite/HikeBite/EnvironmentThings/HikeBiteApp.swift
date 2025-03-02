@@ -54,11 +54,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct HikeBiteApp: App {
+    @StateObject var viewModel = AuthViewModel()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
     var body: some Scene {
         WindowGroup {
             MainView()
         }
+        .environmentObject(viewModel)
         .modelContainer(for: [GroceryItem.self, MealEntry.self, Trip.self], inMemory: false)
     }
 }

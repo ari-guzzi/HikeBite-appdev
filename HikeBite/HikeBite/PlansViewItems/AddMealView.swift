@@ -16,8 +16,10 @@ struct AddMealView: View {
     var refreshMeals: () -> Void
 
     @State private var recipes: [Result] = []
-    @State private var isLoading = true
-
+   @State private var isLoading = true
+   @State private var activeFilters: Set<String> = []
+   @State private var showingFilter = false
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -28,7 +30,7 @@ struct AddMealView: View {
                 if isLoading {
                     ProgressView("Loading recipes...")
                 } else {
-                    List(recipes, id: \.id) { recipe in
+                    List(filteredRecipes, id: \.id) { recipe in
                         Button {
                             addMeal(recipe: recipe)
                         } label: {
@@ -42,8 +44,11 @@ struct AddMealView: View {
             }
             .navigationTitle("Select a Meal")
             .toolbar {
-                Button("Cancel") {
-                    dismiss()
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    filterButton
                 }
             }
             .onAppear {
@@ -57,6 +62,11 @@ struct AddMealView: View {
                 print("📢 Calling fetchRecipesFromFirebase()")
                 fetchRecipesFromFirebase()
             }
+            .sheet(isPresented: $showingFilter) {
+                FilterView(activeFilters: $activeFilters) {
+                    showingFilter = false
+                }
+            }
             .onChange(of: recipes) { newRecipes in
                 if !newRecipes.isEmpty {
                     print("🔄 Recipes updated: \(newRecipes.count) found")
@@ -66,6 +76,25 @@ struct AddMealView: View {
         }
     }
 
+    /// List of recipes filtered based on active filters
+    private var filteredRecipes: [Result] {
+        recipes.filter(shouldIncludeResult)
+    }
+
+    /// Button to open filter selection, updates if filters are active
+    private var filterButton: some View {
+        Button(action: {
+            showingFilter.toggle()
+        }) {
+            Image(systemName: activeFilters.isEmpty ? "line.horizontal.3.decrease.circle" : "line.horizontal.3.decrease.circle.fill")
+                .foregroundColor(activeFilters.isEmpty ? .primary : .blue) // Default vs active color
+        }
+    }
+
+    /// Determines whether a recipe should be included based on filters
+    private func shouldIncludeResult(_ result: Result) -> Bool {
+        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
+    }
     private func addMeal(recipe: Result) {
         guard !day.isEmpty, !mealType.isEmpty else {
             print("❌ Error: Attempting to add a meal with missing day or mealType.")

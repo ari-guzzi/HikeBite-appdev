@@ -9,10 +9,10 @@ import SwiftUI
 struct IngredientPlain: Codable, Identifiable {
     var id: UUID = UUID()
     var name: String
-    let amount: Double
-    let unit: String
-    let calories: Int
-    let weight: Int
+    var amount: Double?
+    var unit: String
+    var calories: Int?
+    var weight: Int?
     enum CodingKeys: String, CodingKey {
         case name, amount, unit, calories, weight
     }

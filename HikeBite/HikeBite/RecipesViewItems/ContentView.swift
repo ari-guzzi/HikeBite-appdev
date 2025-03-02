@@ -4,14 +4,16 @@
 //
 //  Created by Ari Guzzi on 1/13/25.
 //
+import SwiftUI
 import Firebase
 import FirebaseFirestore
 import FirebaseStorage
-import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
     @State private var results = [Result]()
+    @State private var activeFilters: Set<String> = []
+    @State private var showingFilter = false
     @Binding var selectedTrip: Trip?
     var apiKey: String? {
         Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
@@ -22,214 +24,186 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-//                List(results, id: \.id) { item in
-//                    NavigationLink(destination: RecipeDetailView(recipe: item, selectedTrip: selectedTrip)) {
-//                        VStack(alignment: .center) {
-//                            Text(item.title)
-//                                .fontWeight(.bold)
-//                                .frame(maxWidth: .infinity, alignment: .center)
-//                                .multilineTextAlignment(.center)
-//                        }
-//                    }
-//                }
-                List(results, id: \.id) { item in
-                    NavigationLink(destination: RecipeDetailView(recipe: item, selectedTrip: selectedTrip)) {
-                        VStack(alignment: .center) {
-                            if let imageURL = item.imageURL, let url = URL(string: imageURL) {
-                                AsyncImage(url: url) { image in
-                                    image.resizable()
-                                         .aspectRatio(contentMode: .fill)
-                                         .frame(width: 100, height: 100)
-                                         .clipped()
-                                } placeholder: {
-                                    ProgressView()
-                                }
-                            }
-                            Text(item.title)
-                                .fontWeight(.bold)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .multilineTextAlignment(.center)
-                        }
-                    }
-                }
-                .listStyle(PlainListStyle())
-                .navigationTitle("Recipe Search")
-                .searchable(
-                    text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Search Recipes"
-                )
-                .onChange(of: searchText) { oldValue, newValue in
-                    if newValue != oldValue && !newValue.isEmpty {
+                filteredList
+                    .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Recipes")
+                    .onChange(of: searchText) { newValue in
                         fetchData(searchQuery: newValue)
                     }
+                    .navigationTitle("Recipe Search")
+                    .toolbar {
+                        filterButton
+                    }
+                    .sheet(isPresented: $showingFilter) {
+                        FilterView(activeFilters: $activeFilters) {
+                            showingFilter = false
+                        }
+                    }
+            }
+            
+            .onAppear {
+                if FirebaseApp.app() != nil {
+                    fetchData()
                 }
             }
-        }
-        .onAppear {
-            print("ContentView appeared")
-            if FirebaseApp.app() != nil {
-                fetchData()
-                print("Firebase is configured and fetchData called")
-            } else {
-                print("Firebase is not configured")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: AddRecipeView()) {
+                        Image(systemName: "plus")
+                    }
+                }
             }
         }
     }
-    /// Fetches recipes from Firestore, with optional search query
+    var filteredList: some View {
+        List(results.filter(shouldIncludeResult), id: \.id) { item in
+            NavigationLink(destination: RecipeDetailView(recipe: item)) {
+                RecipeRow(item: item)
+            }
+        }
+        .listStyle(PlainListStyle())
+    }
+    var filterButton: some View {
+        Button(action: {
+            showingFilter.toggle()
+        }) {
+            Image(systemName: activeFilters.isEmpty ? "line.horizontal.3.decrease.circle" : "line.horizontal.3.decrease.circle.fill")
+                .foregroundColor(activeFilters.isEmpty ? .primary : .blue)
+        }
+    }
+    func shouldIncludeResult(_ result: Result) -> Bool {
+        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
+    }
+//            func fetchData(searchQuery: String = "") {
+//                let db = Firestore.firestore()
+//                var query: Query = db.collection("Recipes")
+//                if !searchQuery.isEmpty {
+//                    query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
+//                        .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
+//                }
+//                query.getDocuments { snapshot, error in
+//                    if let error = error {
+//                        print("Error fetching recipes: \(error.localizedDescription)")
+//                        return
+//                    }
+//                    guard let documents = snapshot?.documents else {
+//                        print("No recipes found")
+//                        return
+//                    }
+//                    self.results = documents.compactMap { document in
+//                        try? document.data(as: Result.self)
+//                    }
+//                }
+//            }
     func fetchData(searchQuery: String = "") {
-        print("Fetching recipes...")
         let db = Firestore.firestore()
-        var query: Query = db.collection("Recipes")
+        let recipesRef = db.collection("Recipes")
 
+        // If search query is provided, filter results based on title
+        var query: Query = recipesRef
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
-                .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
+                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
 
         query.getDocuments { snapshot, error in
             if let error = error {
-                print("Error fetching recipes: \(error.localizedDescription)")
+                print("❌ Error fetching recipes: \(error.localizedDescription)")
                 return
             }
 
             guard let documents = snapshot?.documents else {
-                print("No recipes found")
+                print("⚠️ No recipes found.")
                 return
             }
 
-            var fetchedRecipes: [Result] = []
-
-            for document in documents {
-                let data = document.data()
-                // Ensure required fields exist
-                guard let title = data["title"] as? String,
-                      let description = data["description"] as? String,
-                      let filter = data["filter"] as? [String],
-                      let ingredientsArray = data["ingredients"] as? [[String: Any]] else {
-                    print("❌ Skipping document \(document.documentID) due to missing required fields")
-                    continue
+            let fetchedRecipes = documents.compactMap { doc -> Result? in
+                do {
+                    return try doc.data(as: Result.self) // Decode documents into Result
+                } catch {
+                    print("⚠️ Failed to decode document: \(doc.documentID) - \(error)")
+                    return nil
                 }
-
-                // Convert ingredients safely
-                var ingredients: [IngredientPlain] = [] 
-                for ingredientData in ingredientsArray {
-                    if let name = ingredientData["name"] as? String,
-                       let amount = ingredientData["amount"] as? Double,
-                       let unit = ingredientData["unit"] as? String,
-                       let calories = ingredientData["calories"] as? Int,
-                       let weight = ingredientData["weight"] as? Int {
-                        
-                        let ingredient = IngredientPlain(name: name, amount: amount,  unit: unit, calories: calories, weight: weight)
-                        ingredients.append(ingredient)
-                    } else {
-                        print("⚠️ Skipping ingredient in \(document.documentID) due to missing fields: \(ingredientData)")
-                    }
-                }
-
-                let result = Result(
-                    id: document.documentID,
-                    title: title,
-                    description: description,
-                    filter: filter,
-                    ingredients: ingredients
-                )
-                fetchedRecipes.append(result)
             }
+
             DispatchQueue.main.async {
-                 self.results = fetchedRecipes
-                 self.fetchImagesForRecipes(fetchedRecipes)
-             }
-        }
-    }
-    func fetchImagesForRecipes(_ recipes: [Result]) {
-        let group = DispatchGroup()
-        for var recipe in recipes {
-            group.enter()
-            fetchImageForRecipe(title: recipe.title) { imageURL in
-                recipe.imageURL = imageURL
-                group.leave()
+                self.results = fetchedRecipes
+                print("✅ Fetched \(self.results.count) recipes.")
             }
         }
-
-        group.notify(queue: .main) {
-            self.results = recipes // Update the UI once all images are fetched
-        }
     }
 
-    func fetchImageForRecipe(title: String, completion: @escaping (String?) -> Void) {
-        guard let apiKey = self.apiKey, let baseURL = self.baseURL else {
-            print("API key or base URL is nil")
-            completion(nil)
-            return
+}
+    struct RecipeRow: View {
+        var item: Result
+        var body: some View {
+            VStack(alignment: .center) {
+                Text(item.title)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
+            }
         }
-
-        var components = URLComponents(string: "\(baseURL)/recipes/complexSearch")
-        components?.queryItems = [
-            URLQueryItem(name: "apiKey", value: apiKey),
-            URLQueryItem(name: "query", value: title),
-            URLQueryItem(name: "number", value: "1"), // Limit to one result for simplicity
-            URLQueryItem(name: "addRecipeInformation", value: "true") // Ensure it includes image URLs
-        ]
-
-        guard let url = components?.url else {
-            print("Invalid URL components")
-            completion(nil)
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "GET"
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {
-                print("No data or there was an error: \(error!.localizedDescription)")
+    }
+    struct RecipeSearch: Codable {
+        let offset, number: Int?
+        let results: [Result]
+        let totalResults: Int
+    }
+    
+    struct SupportInfo: Codable {
+        let url: String
+        let text: String
+    }
+    
+    func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
+        let storageRef = Storage.storage().reference(forURL: storagePath)
+        storageRef.downloadURL { url, error in
+            if let error = error {
                 completion(nil)
-                return
+            } else if let url = url {
+                completion(url.absoluteString)
             }
-
-            do {
-                let decoder = JSONDecoder()
-                let response = try decoder.decode(RecipeSearchResponse.self, from: data)
-                if let imageURL = response.results.first?.imageURL {
-                    DispatchQueue.main.async {
-                        completion(imageURL)
-                    }
-                } else {
-                    print("No image found for the recipe")
-                    completion(nil)
+        }
+    }
+struct FilterView: View {
+    @Binding var activeFilters: Set<String>
+    let allFilters = [
+        "no-stove", "no-water", "dairy-free", "vegan", "vegetarian", "fresh",
+        "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snacks"
+    ]
+    var onDone: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            List(allFilters, id: \.self) { filter in
+                HStack {
+                    Text(filter.capitalized)
+                    Spacer()
+                    Image(systemName: activeFilters.contains(filter) ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(activeFilters.contains(filter) ? .blue : .gray)
                 }
-            } catch {
-                print("Decoding error: \(error)")
-                completion(nil)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    toggleFilter(filter)
+                }
             }
-        }.resume()
+            .navigationTitle("Filters")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        onDone()
+                    }
+                }
+            }
+        }
     }
-
-}
-struct RecipeSearchResponse: Codable {
-    let results: [Result] // This should be an array of Recipe objects.
-}
-
-struct RecipeSearch: Codable {
-    let offset, number: Int?
-    let results: [Result]
-    let totalResults: Int
-}
-
-struct SupportInfo: Codable {
-    let url: String
-    let text: String
-}
-
-func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
-    let storageRef = Storage.storage().reference(forURL: storagePath)
-    storageRef.downloadURL { url, error in
-        if let error = error {
-            completion(nil)
-        } else if let url = url {
-            completion(url.absoluteString)
+    
+    private func toggleFilter(_ filter: String) {
+        if activeFilters.contains(filter) {
+            activeFilters.remove(filter)
+        } else {
+            activeFilters.insert(filter)
         }
     }
 }
+

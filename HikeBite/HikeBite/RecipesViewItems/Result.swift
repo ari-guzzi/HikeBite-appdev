@@ -25,6 +25,8 @@ struct Result: Codable, Identifiable, Equatable {
     let filter: [String]
     var ingredients: [IngredientPlain]
     var imageURL: String?
+    let createdBy: String? // User ID of the recipe creator
+    let timestamp: Date? // To store when it was created
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -33,6 +35,8 @@ struct Result: Codable, Identifiable, Equatable {
         case filter
         case ingredients
         case imageURL = "image" // Assuming the API key for images is "image"
+        case createdBy
+        case timestamp
     }
 
     static func == (lhs: Result, rhs: Result) -> Bool {

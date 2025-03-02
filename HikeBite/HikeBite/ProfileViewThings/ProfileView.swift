@@ -12,6 +12,7 @@ struct ProfileView: View {
     @ObservedObject var tripManager: TripManager
     @Binding var selectedTrip: Trip?
     @Binding var selectedTab: Int
+    @EnvironmentObject var viewModel: AuthViewModel
 
     var upcomingTrips: [Trip] {
         let now = Date()
@@ -30,6 +31,17 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                if viewModel.userSession == nil {
+                    NavigationLink {
+                        LoginView()
+                    } label: {
+                        HStack(spacing: 3) {
+                            Text("Create an Account")
+                                .fontWeight(.bold)
+                        }
+                        .font(.system(size: 14))
+                    }
+                }
                 ProfileNameView()
                 NavigationLink(destination: GroceryList()) {
                     Text("View Grocery List")
