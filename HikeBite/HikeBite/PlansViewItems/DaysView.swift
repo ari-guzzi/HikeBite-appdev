@@ -23,11 +23,9 @@ struct DaysView: View {
         Text("🛠️ Debug: Rendering \(mealsForDay.count) meals for \(day) in DaysView")
             .font(.caption)
             .foregroundColor(.blue)
-
         VStack {
             ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
-                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType && $0.day == day }
-               // let mealsForThisMealType = mealEntriesState.filter { $0.meal == mealType && $0.day == day }
+                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }
 
                 VStack(alignment: .leading) {
                     HStack {
@@ -99,3 +97,4 @@ struct DaysView: View {
         }
     }
 }
+

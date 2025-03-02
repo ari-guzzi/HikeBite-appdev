@@ -19,28 +19,39 @@ struct PlanSelectionView: View {
     var fetchMeals: () -> Void
     var dismissTemplates: () -> Void
     @Binding var selectedTab: Int
-    
+    @State private var showWarningSheet = false
+    @State private var warningMessage: String = ""
     var body: some View {
+        let templateMaxDays = template.mealTemplates.keys
+            .compactMap { Int($0.filter { $0.isNumber }) }
+            .max() ?? 0
         VStack {
             Text("Choose a Plan")
                 .font(.title)
                 .padding()
-            
             if let trip = selectedTrip {
-                Button {
-                    print("🔄 Applying template to existing trip: \(trip.name)")
-                    applyTemplateToTrip(template, trip: trip, modelContext: modelContext)
-                } label: {
-                    Text("Add to Current Plan: \(trip.name)")
-                        .frame(maxWidth: .infinity)
+                let templateMaxDays = template.mealTemplates.keys.compactMap { Int($0.filter { $0.isNumber }) }.max() ?? 0
+                VStack {
+                    if trip.days <= templateMaxDays {
+                        Button {
+                            print("🔄 Applying template to existing trip: \(trip.name)")
+                            applyTemplateToTrip(template, trip: trip, modelContext: modelContext)
+                        } label: {
+                            Text("Add to Current Plan: \(trip.name)")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
                         .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                    } else {
+                        Text("⚠️ This template has **\(templateMaxDays) days**, but your current selected trip has **\(trip.days) days**.")
+                            .foregroundColor(.red)
+                            .padding()
+                    }
                 }
-                .padding()
             }
-            
             Button {
                 showCreatePlanSheet = true
             } label: {
@@ -54,17 +65,20 @@ struct PlanSelectionView: View {
             .padding()
         }
         .sheet(isPresented: $showCreatePlanSheet) {
-            CreatePlanView { name, days, date in
+            CreateTripView(templateMaxDays: templateMaxDays) { name, days, date in
                 createNewTripFromTemplate(name: name, days: days, date: date, template: template)
             }
         }
     }
-
     // **Applies a meal plan template to an existing trip**
     private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext) {
-        print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
+        let templateMaxDays = template.mealTemplates.keys.compactMap { Int($0.filter { $0.isNumber }) }.max() ?? 0
         
-
+        guard trip.days <= templateMaxDays else {
+            print("❌ Cannot apply template. Trip (\(trip.days) days) is longer than the template (\(templateMaxDays) days).")
+            return
+        }
+        print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
         let db = Firestore.firestore()
         var mealNames: [String: [String: String]] = [:]
         let group = DispatchGroup()
@@ -99,17 +113,19 @@ struct PlanSelectionView: View {
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {
-                let tripDay = templateDay.filter { $0.isNumber }
+                let tripDay = "Day \(Int(templateDay.filter { $0.isNumber }) ?? 0)"
                 for (mealType, mealIDs) in meals {
                     for mealID in mealIDs {
                         let mealTitle = mealNames[templateDay]?[mealType] ?? "Unknown Meal"
                         let newMeal = MealEntry(
-                            day: tripDay,
+                            id: UUID(),
+                            day: tripDay.description,
                             meal: mealType,
                             recipeTitle: mealTitle,
                             servings: 1,
                             tripName: trip.name
                         )
+
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
                         print("✅ Added meal: \(mealTitle) for \(tripDay), \(mealType)")
@@ -144,21 +160,29 @@ struct PlanSelectionView: View {
             }
         }
     }
-
     // **Creates a new trip from a template and applies meals**
-    private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate) {
+private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate) {
+        let templateMaxDays = template.mealTemplates.keys
+            .compactMap { Int($0.filter { $0.isNumber }) }
+            .max() ?? 0
+        guard days <= templateMaxDays else {
+            DispatchQueue.main.async {
+                self.warningMessage = "This template only supports up to \(templateMaxDays) days. Please select a shorter trip."
+                self.showWarningSheet = true
+            }
+            return
+        }
         let newTrip = Trip(name: name, days: days, date: date)
         modelContext.insert(newTrip)
 
         DispatchQueue.main.async {
             selectedTrip = newTrip
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // ✅ Add slight delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             applyTemplateToTrip(template, trip: newTrip, modelContext: modelContext)
 
             DispatchQueue.main.async {
-                self.fetchMeals() // ✅ Ensure meals are fetched AFTER `selectedTrip` is updated
+                self.fetchMeals()
                 selectedTab = 2
                 dismissTemplates()
             }
