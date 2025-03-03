@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct RegistrationView: View {
     @State private var selectedTrip: Trip? {
@@ -21,8 +22,10 @@ struct RegistrationView: View {
     @State private var fullName = ""
     @State private var password = ""
     @State private var confirmPassword = ""
-    @State private var navigateToProfile = false
+    @Binding var showLogin: Bool
     @Environment(\.dismiss) var dismiss
+    @State private var selectedImage: UIImage?
+        @State private var isImagePickerPresented = false
     @EnvironmentObject var viewModel: AuthViewModel
     var body: some View {
         VStack {
@@ -30,6 +33,27 @@ struct RegistrationView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 120)
+            Button {
+                            isImagePickerPresented.toggle()
+                        } label: {
+                            if let image = selectedImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.blue, lineWidth: 2))
+                            } else {
+                                Image(systemName: "person.crop.circle.badge.plus")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .sheet(isPresented: $isImagePickerPresented) {
+                            ImagePicker(image: $selectedImage)
+                        }
             VStack(spacing: 24) {
                 InputView(text: $email,
                           title: "Email Address",
@@ -66,8 +90,9 @@ struct RegistrationView: View {
                 Task {
                     try await viewModel.createUser(withEmail: email,
                         password: password,
-                        fullname: fullName)
-                    navigateToProfile = true
+                        fullname: fullName,
+                        image: selectedImage)
+                    showLogin = false
                 }
             } label: {
                 HStack {
@@ -94,10 +119,7 @@ struct RegistrationView: View {
                 }
                 .font(.system(size: 14))
             }
-            NavigationLink(destination: ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab), isActive: $navigateToProfile) {
-                EmptyView()
-                    .navigationBarBackButtonHidden()
-            }
+
         }
     }
 }
@@ -106,8 +128,4 @@ extension RegistrationView: AuthenticationFormProtocol {
     var formIsValid: Bool {
         return !email.isEmpty && email.contains("@") && !password.isEmpty && password.count > 5 && confirmPassword == password && !fullName.isEmpty //firebase requires it >= 6, we can make it better
     }
-}
-
-#Preview {
-    RegistrationView()
 }

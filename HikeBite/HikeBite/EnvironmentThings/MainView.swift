@@ -8,11 +8,13 @@ import SwiftData
 import SwiftUI
 
 struct MainView: View {
+    @EnvironmentObject var viewModel: AuthViewModel
     @Environment(\.modelContext) private var modelContext
     @StateObject private var tripManager = TripManager()
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
     @State private var showTripPicker = false
+    @State private var showLogin = false
     @State var mealEntriesState: [MealEntry] = []
     @State private var selectedTrip: Trip? { 
         didSet {
@@ -23,7 +25,7 @@ struct MainView: View {
     }
     var body: some View {
         TabView(selection: $selectedTab) {
-            ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab)
+            ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab, showLogin: $showLogin)
                 .tabItem { Label("Profile", systemImage: "person") }
                 .tag(0)
 
@@ -67,6 +69,9 @@ struct MainView: View {
         }
         .onAppear {
             tripManager.fetchTrips(modelContext: modelContext)
+        }
+        .sheet(isPresented: $showLogin) { // Show LoginView as a sheet when needed
+            LoginView(showLogin: $showLogin)
         }
         .sheet(isPresented: $showCreateTrip) {
             CreatePlanView { name, days, date in

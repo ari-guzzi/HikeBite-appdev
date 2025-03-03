@@ -19,7 +19,7 @@ struct LoginView: View {
     @State private var selectedTab: Int = 0
     @State private var email: String = ""
     @State private var password: String = ""
-    @State private var navigateToProfile = false
+    @Binding var showLogin: Bool
     @EnvironmentObject var viewModel: AuthViewModel
     var body: some View {
         NavigationStack {
@@ -44,7 +44,7 @@ struct LoginView: View {
                 Button {
                     Task {
                         try await viewModel.signIn(withEmail: email, password: password)
-                        navigateToProfile = true
+                        showLogin = false
                     }
                 } label: {
                     HStack {
@@ -63,7 +63,7 @@ struct LoginView: View {
                 Spacer()
                 //sign up button
                 NavigationLink {
-                    RegistrationView()
+                    RegistrationView(showLogin: $showLogin)
                         .navigationBarBackButtonHidden()
                 } label: {
                     HStack(spacing:3) {
@@ -72,10 +72,6 @@ struct LoginView: View {
                             .fontWeight(.bold)
                     }
                     .font(.system(size: 14))
-                }
-                NavigationLink(destination: ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab), isActive: $navigateToProfile) {
-                    EmptyView()
-                        .navigationBarBackButtonHidden()
                 }
             }
         }
@@ -86,7 +82,4 @@ extension LoginView: AuthenticationFormProtocol {
     var formIsValid: Bool {
         return !email.isEmpty && email.contains("@") && !password.isEmpty && password.count > 5 //firebase requires it >= 6, we can make it better
     }
-}
-#Preview {
-    LoginView()
 }

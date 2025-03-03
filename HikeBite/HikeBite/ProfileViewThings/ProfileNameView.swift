@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfileNameView: View {
     @EnvironmentObject var viewModel: AuthViewModel
-
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -19,12 +19,33 @@ struct ProfileNameView: View {
                         .edgesIgnoringSafeArea(.top)
                     HStack {
                         NavigationLink(destination: SettingsPage()) {
-                            Image("profile")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 70, height: 70)
-                                .clipShape(Circle())
-                                .padding(.leading, 15)
+                            if let imageURL = viewModel.currentUser?.profileImgeURL, let url = URL(string: imageURL) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image.resizable()
+                                            .scaledToFill()
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(Circle())
+                                    case .failure(_):
+                                        Image("profile") // Default profile image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(Circle())
+                                    case .empty:
+                                        ProgressView()
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
+                            } else {
+                                Image("profile") // Default profile image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(Circle())
+                            }
                         }
                         VStack(alignment: .leading) {
                             if let user = viewModel.currentUser {
@@ -33,7 +54,7 @@ struct ProfileNameView: View {
                                 Text("\(user.email)")
                                     .font(.subheadline)
                             } else {
-                                Text("Hello There!")
+                                Text("Hello, There!")
                                     .font(.title)
                                 Text("Welcome to HikeBite")
                                     .font(.subheadline)
@@ -43,8 +64,8 @@ struct ProfileNameView: View {
                         Spacer()
                     }
                 }
-                .frame(height: 100)
             }
+            .frame(height: 100)
         }
     }
 }
