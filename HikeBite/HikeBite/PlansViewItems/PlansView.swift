@@ -45,9 +45,9 @@ struct PlansView: View {
             }
         }
         .onAppear {
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "None")")
-                self.mealEntriesState = mealEntries // ✅ Force update from @Query
+                self.mealEntriesState = mealEntries // Force update from @Query
                 fetchMeals()
             }
         }
@@ -279,27 +279,22 @@ struct PlansView: View {
     }
     private func fetchMeals() {
         print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
-
+        
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync {
                     try modelContext.fetch(FetchDescriptor<MealEntry>())
                 }
-
                 DispatchQueue.main.async {
-                    print("📋 All stored meals in SwiftData:")
-                    for meal in fetchedMeals {
-                        print("🔍 Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
-                    }
-
-                    // **Filter meals for selected trip**
                     let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+                    DispatchQueue.main.async {
+                        print("🔄 Clearing UI meals before loading new ones...")
+                        self.mealEntriesState.removeAll()
 
-                    // **Force UI update by resetting the array reference**
-                    self.mealEntriesState = []
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self.mealEntriesState = filteredMeals
-                        print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self.mealEntriesState = filteredMeals
+                            print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+                        }
                     }
                 }
             } catch {
@@ -309,6 +304,4 @@ struct PlansView: View {
             }
         }
     }
-
-
 }

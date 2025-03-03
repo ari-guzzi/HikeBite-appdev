@@ -35,7 +35,7 @@ struct PlanSelectionView: View {
                     if trip.days <= templateMaxDays {
                         Button {
                             print("🔄 Applying template to existing trip: \(trip.name)")
-                            applyTemplateToTrip(template, trip: trip, modelContext: modelContext)
+                            applyTemplateToTrip(template, trip: trip, modelContext: modelContext, refreshMeals: fetchMeals)
                         } label: {
                             Text("Add to Current Plan: \(trip.name)")
                                 .frame(maxWidth: .infinity)
@@ -66,24 +66,24 @@ struct PlanSelectionView: View {
         }
         .sheet(isPresented: $showCreatePlanSheet) {
             CreateTripView(templateMaxDays: templateMaxDays) { name, days, date in
-                createNewTripFromTemplate(name: name, days: days, date: date, template: template)
+                createNewTripFromTemplate(name: name, days: days, date: date, template: template, refreshMeals: fetchMeals)
             }
         }
     }
     // **Applies a meal plan template to an existing trip**
-    private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext) {
+    private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext, refreshMeals: @escaping () -> Void) {
         print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
-
+        
         let db = Firestore.firestore()
         var mealNames: [String: [String: String]] = [:]
         let group = DispatchGroup()
-
+        
         for (templateDay, meals) in template.mealTemplates {
             for (mealType, mealIDs) in meals {
                 for mealID in mealIDs {
                     let mealIDString = String(mealID)
                     group.enter()
-
+                    
                     db.collection("Recipes").document(mealIDString).getDocument { snapshot, error in
                         if let document = snapshot, document.exists {
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
@@ -103,7 +103,7 @@ struct PlanSelectionView: View {
                 }
             }
         }
-
+        
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {
@@ -119,19 +119,19 @@ struct PlanSelectionView: View {
                             servings: 1,
                             tripName: trip.name
                         )
-
+                        
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
-
+                        
                         print("✅ Added Meal: \(newMeal.recipeTitle) - Trip: \(newMeal.tripName) - Day: \(newMeal.day) - MealType: \(mealType)")
                     }
                 }
             }
-
+            
             do {
                 try modelContext.save()
                 print("✅ Successfully saved \(addedMeals.count) meals for trip '\(trip.name)'")
-
+                
                 DispatchQueue.main.async {
                     self.fetchMeals()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -139,15 +139,17 @@ struct PlanSelectionView: View {
                         self.dismissTemplates()
                     }
                 }
-
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {                    refreshMeals()
+                }
+                
             } catch {
                 print("❌ Failed to apply template: \(error.localizedDescription)")
             }
         }
     }
-
+    
     // **Creates a new trip from a template and applies meals**
-private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate) {
+    private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate, refreshMeals: @escaping () -> Void) {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
             .max() ?? 0
@@ -160,18 +162,24 @@ private func createNewTripFromTemplate(name: String, days: Int, date: Date, temp
         }
         let newTrip = Trip(name: name, days: days, date: date)
         modelContext.insert(newTrip)
-
         DispatchQueue.main.async {
             selectedTrip = newTrip
+            print("🔄 New trip selected: \(newTrip.name)")
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            applyTemplateToTrip(template, trip: newTrip, modelContext: modelContext)
 
-            DispatchQueue.main.async {
-                self.fetchMeals()
-                selectedTab = 2
-                dismissTemplates()
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            print("🚀 Ensuring trip is saved before applying meals")
+            applyTemplateToTrip(template, trip: newTrip, modelContext: modelContext, refreshMeals: {
+                print("📥 Meals applied, now refreshing UI")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    fetchMeals() // 🚀 Ensures meals are loaded AFTER save
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    selectedTab = 2
+                    self.dismissTemplates()
+                }
+            })
         }
+
     }
 }
