@@ -122,10 +122,8 @@ struct AddRecipeView: View {
               createdBy: user?.email ?? "unknown email",  // Use the authenticated user's email
               timestamp: Date() // Use `Date()` instead of `Timestamp`
          )
-
         isUploading = true
 
-     
         do {
             let db = Firestore.firestore()
             let _ = try db.collection("Recipes").addDocument(from: newResult) { error in

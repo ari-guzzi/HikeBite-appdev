@@ -149,12 +149,10 @@ struct ContentView: View {
         let results: [Result]
         let totalResults: Int
     }
-    
     struct SupportInfo: Codable {
         let url: String
         let text: String
     }
-    
     func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
         let storageRef = Storage.storage().reference(forURL: storagePath)
         storageRef.downloadURL { url, error in
@@ -172,7 +170,6 @@ struct FilterView: View {
         "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snacks"
     ]
     var onDone: () -> Void
-    
     var body: some View {
         NavigationView {
             List(allFilters, id: \.self) { filter in
@@ -197,7 +194,6 @@ struct FilterView: View {
             }
         }
     }
-    
     private func toggleFilter(_ filter: String) {
         if activeFilters.contains(filter) {
             activeFilters.remove(filter)
@@ -206,4 +202,3 @@ struct FilterView: View {
         }
     }
 }
-

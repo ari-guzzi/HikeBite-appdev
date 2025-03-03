@@ -72,13 +72,8 @@ struct PlanSelectionView: View {
     }
     // **Applies a meal plan template to an existing trip**
     private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext) {
-        let templateMaxDays = template.mealTemplates.keys.compactMap { Int($0.filter { $0.isNumber }) }.max() ?? 0
-        
-        guard trip.days <= templateMaxDays else {
-            print("❌ Cannot apply template. Trip (\(trip.days) days) is longer than the template (\(templateMaxDays) days).")
-            return
-        }
         print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
+
         let db = Firestore.firestore()
         var mealNames: [String: [String: String]] = [:]
         let group = DispatchGroup()
@@ -103,7 +98,6 @@ struct PlanSelectionView: View {
                             }
                             mealNames[templateDay]?[mealType] = "Not Found"
                         }
-                        
                         group.leave()
                     }
                 }
@@ -119,7 +113,7 @@ struct PlanSelectionView: View {
                         let mealTitle = mealNames[templateDay]?[mealType] ?? "Unknown Meal"
                         let newMeal = MealEntry(
                             id: UUID(),
-                            day: tripDay.description,
+                            day: tripDay,
                             meal: mealType,
                             recipeTitle: mealTitle,
                             servings: 1,
@@ -128,10 +122,8 @@ struct PlanSelectionView: View {
 
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
-                        print("✅ Added meal: \(mealTitle) for \(tripDay), \(mealType)")
-                        print("🔍 Saving Meal: '\(newMeal.recipeTitle)' - Trip: '\(newMeal.tripName)' - Day: '\(newMeal.day)'")
-                        print("🦵 Checking Meal Assignment - Title: '\(mealTitle)', Trip: '\(trip.name)', Day: '\(tripDay)', MealType: '\(mealType)'")
 
+                        print("✅ Added Meal: \(newMeal.recipeTitle) - Trip: \(newMeal.tripName) - Day: \(newMeal.day) - MealType: \(mealType)")
                     }
                 }
             }
@@ -139,13 +131,6 @@ struct PlanSelectionView: View {
             do {
                 try modelContext.save()
                 print("✅ Successfully saved \(addedMeals.count) meals for trip '\(trip.name)'")
-
-                // ** NEW: Fetch and log all stored meals **
-                let allMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
-                print("📋 All meals in SwiftData after saving:")
-                for meal in allMeals {
-                    print("🔍 Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
-                }
 
                 DispatchQueue.main.async {
                     self.fetchMeals()
@@ -160,6 +145,7 @@ struct PlanSelectionView: View {
             }
         }
     }
+
     // **Creates a new trip from a template and applies meals**
 private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate) {
         let templateMaxDays = template.mealTemplates.keys

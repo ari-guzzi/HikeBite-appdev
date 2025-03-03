@@ -11,19 +11,16 @@ struct SwapMealView: View {
     @Environment(\.modelContext) private var modelContext
     var mealToSwap: MealEntry
     var dismiss: () -> Void
-    
     @State private var recipes: [Result] = []
     @State private var isLoading = true
     @State private var activeFilters: Set<String> = []
     @State private var showingFilter = false
-    
     var body: some View {
         NavigationView {
             VStack {
                 Text("Swap \(mealToSwap.recipeTitle)")
                     .font(.headline)
-                    .padding()
-                
+                    .padding()          
                 if isLoading {
                     ProgressView("Loading recipes...")
                 } else if filteredRecipes.isEmpty {
@@ -67,12 +64,11 @@ struct SwapMealView: View {
             }
         }
     }
-    /// List of recipes filtered based on active filters
+    // List of recipes filtered based on active filters
     private var filteredRecipes: [Result] {
         recipes.filter(shouldIncludeResult)
     }
-    
-    /// Button to open filter selection
+    // Button to open filter selection
     private var filterButton: some View {
            Button(action: {
                showingFilter.toggle()
@@ -81,12 +77,10 @@ struct SwapMealView: View {
                    .foregroundColor(activeFilters.isEmpty ? .primary : .blue)
            }
        }
-    
-    /// Determines whether a recipe should be included based on filters
+    // Determines whether a recipe should be included based on filters
     private func shouldIncludeResult(_ result: Result) -> Bool {
         activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
     }
-    
     private func swapMeal(with newTitle: String) {
         mealToSwap.recipeTitle = newTitle
         do {
@@ -97,30 +91,24 @@ struct SwapMealView: View {
             print("❌ Error swapping meal: \(error.localizedDescription)")
         }
     }
-    
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
         print("📢 Fetching recipes from Firestore (Attempt 1)...")
-        
         db.collection("Recipes").getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching recipes: \(error.localizedDescription)")
                 DispatchQueue.main.async { isLoading = false }
                 return
             }
-            
             guard let documents = snapshot?.documents else {
                 print("⚠️ No recipes found.")
                 DispatchQueue.main.async { isLoading = false }
                 return
             }
-            
-            print("📜 Raw Firestore Data: \(documents.map { $0.data() })")
-            
+            // print("📜 Raw Firestore Data: \(documents.map { $0.data() })")
             let fetchedRecipes = documents.compactMap { doc -> Result? in
                 try? doc.data(as: Result.self)
             }
-            
             DispatchQueue.main.async {
                 self.recipes = fetchedRecipes
                 self.isLoading = false

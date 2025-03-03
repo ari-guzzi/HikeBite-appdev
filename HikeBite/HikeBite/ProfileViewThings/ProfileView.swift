@@ -43,83 +43,80 @@ struct ProfileView: View {
                         .font(.system(size: 14))
                     }
                 }
-                    ProfileNameView()
-                    NavigationLink(destination: GroceryList()) {
-                        Text("View Grocery List")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .padding()
-                    if tripManager.trips.isEmpty {
-                        Text("No trips yet. Create a new one!")
-                            .foregroundColor(.gray)
-                            .padding()
-                    } else {
+                ProfileNameView()
+                NavigationLink(destination: GroceryList()) {
+                    Text("View Grocery List")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
+                if tripManager.trips.isEmpty {
+                    Text("No trips yet. Create a new one!")
+                        .foregroundColor(.gray)
+                        .padding()
+                } else {
+                    ScrollView {
                         ScrollView {
-                            ScrollView {
-                                if !upcomingTrips.isEmpty {
-                                    Text("Upcoming Trips")
-                                        .font(.largeTitle)
-                                        .padding(.leading, 20)
-                                    
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack(spacing: 10) {
-                                            ForEach(upcomingTrips) { trip in
-                                                Button(action: {
-                                                    selectedTrip = trip
-                                                    selectedTab = 2
-                                                }) {
-                                                    TripCardView(trip: trip)
-                                                }
-                                            }
-                                        }
-                                        .padding(.horizontal)
-                                    }
-                                }
-                            }
-                            if !previousTrips.isEmpty {
-                                Text("Previous Trips")
+                            if !upcomingTrips.isEmpty {
+                                Text("Upcoming Trips")
                                     .font(.largeTitle)
-                                    .padding(.leading, 20)
-                                
-                                List {
-                                    ForEach(previousTrips) { trip in
-                                        HStack {
-                                            VStack(alignment: .leading) {
-                                                Text(trip.name).font(.headline)
-                                                Text(trip.date.formatted(date: .long, time: .omitted))
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.gray)
-                                            }
-                                            Spacer()
+                                    .padding(.leading, 20)         
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 10) {
+                                        ForEach(upcomingTrips) { trip in
                                             Button(action: {
                                                 selectedTrip = trip
                                                 selectedTab = 2
                                             }) {
-                                                Image(systemName: "chevron.right")
-                                                    .foregroundColor(.gray)
-                                            }
-                                        }
-                                        .swipeActions {
-                                            Button(role: .destructive) {
-                                                deleteTrip(trip)
-                                            } label: {
-                                                Label("Delete", systemImage: "trash")
+                                                TripCardView(trip: trip)
                                             }
                                         }
                                     }
-                                    .onDelete(perform: deleteTripAt)
+                                    .padding(.horizontal)
                                 }
-                                .frame(height: 250)
                             }
-                            
+                        }
+                        if !previousTrips.isEmpty {
+                            Text("Previous Trips")
+                                .font(.largeTitle)
+                                .padding(.leading, 20)
+                            List {
+                                ForEach(previousTrips) { trip in
+                                    HStack {
+                                        VStack(alignment: .leading) {
+                                            Text(trip.name).font(.headline)
+                                            Text(trip.date.formatted(date: .long, time: .omitted))
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                        Button(action: {
+                                            selectedTrip = trip
+                                            selectedTab = 2
+                                        }) {
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .swipeActions {
+                                        Button(role: .destructive) {
+                                            deleteTrip(trip)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                }
+                                .onDelete(perform: deleteTripAt)
+                            }
+                            .frame(height: 250)
                         }
                     }
                 }
             }
+        }
         .onAppear {
             print("🔄 ProfileView appeared. Fetching trips...")
             tripManager.fetchTrips(modelContext: modelContext)
@@ -128,7 +125,7 @@ struct ProfileView: View {
     private func deleteTripAt(_ offsets: IndexSet) {
         for index in offsets {
             let tripToDelete = previousTrips[index]
-            deleteTrip(tripToDelete) 
+            deleteTrip(tripToDelete)
         }
     }
     private func deleteTrip(_ trip: Trip) {

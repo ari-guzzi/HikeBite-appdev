@@ -5,8 +5,8 @@
 //  Created by Ari Guzzi on 3/2/25.
 //
 
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 struct RegistrationView: View {
     @State private var selectedTrip: Trip? {
@@ -33,27 +33,30 @@ struct RegistrationView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 120)
-            Button {
-                            isImagePickerPresented.toggle()
-                        } label: {
-                            if let image = selectedImage {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.blue, lineWidth: 2))
-                            } else {
-                                Image(systemName: "person.crop.circle.badge.plus")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .sheet(isPresented: $isImagePickerPresented) {
-                            ImagePicker(image: $selectedImage)
-                        }
+            HStack {
+                Text("Add Profile Picture")
+                Button {
+                    isImagePickerPresented.toggle()
+                } label: {
+                    if let image = selectedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.blue, lineWidth: 2))
+                    } else {
+                        Image(systemName: "person.crop.circle.badge.plus")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .sheet(isPresented: $isImagePickerPresented) {
+                ImagePicker(image: $selectedImage)
+            }
             VStack(spacing: 24) {
                 InputView(text: $email,
                           title: "Email Address",

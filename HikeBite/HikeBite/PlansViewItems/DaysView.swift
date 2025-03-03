@@ -19,13 +19,12 @@ struct DaysView: View {
     @State private var showingAddMealSheet = false
     @State private var selectedMealType = ""
 
+    let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snacks"] // Standard meal types
+
     var body: some View {
-        Text("🛠️ Debug: Rendering \(mealsForDay.count) meals for \(day) in DaysView")
-            .font(.caption)
-            .foregroundColor(.blue)
         VStack {
-            ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { mealType in
-                let mealsForThisMealType = mealsForDay.filter { $0.meal == mealType }
+            ForEach(mealTypes, id: \.self) { mealType in
+                let mealsForThisType = mealsForDay.filter { $0.meal.caseInsensitiveCompare(mealType) == .orderedSame }
 
                 VStack(alignment: .leading) {
                     HStack {
@@ -37,8 +36,7 @@ struct DaysView: View {
                         Spacer()
                         Button(action: {
                             selectedMealType = mealType
-                            print("🛠️ Selected MealType: \(selectedMealType), Day: \(day)")
-                            //  Delay opening the sheet to ensure mealType updates
+                            print("➕ Adding Meal: \(selectedMealType) on \(day)")
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 showingAddMealSheet = true
                             }
@@ -48,14 +46,16 @@ struct DaysView: View {
                                 .font(.title2)
                         }
                     }
-                    if mealsForThisMealType.isEmpty {
+                    .padding(.top, 10)
+
+                    if mealsForThisType.isEmpty {
                         Text("No meals yet")
                             .font(.caption)
                             .foregroundColor(.gray)
                             .padding(.leading, 40)
                     } else {
                         VStack {
-                            ForEach(mealsForThisMealType, id: \.id) { meal in
+                            ForEach(mealsForThisType, id: \.id) { meal in
                                 HStack {
                                     Button(action: { deleteMeal(meal) }) {
                                         Image(systemName: "xmark.circle.fill")
@@ -72,10 +72,11 @@ struct DaysView: View {
                                     }
                                 }
                                 .padding(.vertical, 5)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                .padding(.horizontal)
                             }
-                            .id(UUID())
                         }
-                        .padding(.horizontal)
                     }
                 }
                 Rectangle()
@@ -95,6 +96,11 @@ struct DaysView: View {
                 refreshMeals: { refreshMeals() }
             )
         }
+        .onAppear {
+            print("🔍 DaysView received \(mealsForDay.count) meals for \(day)")
+            for meal in mealsForDay {
+                print("🍽 Meal Found: \(meal.recipeTitle) on \(meal.day) - Trip: \(meal.tripName) - Type: \(meal.meal)")
+            }
+        }
     }
 }
-

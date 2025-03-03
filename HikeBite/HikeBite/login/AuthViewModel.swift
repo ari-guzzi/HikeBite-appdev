@@ -4,16 +4,15 @@
 //
 //  Created by Ari Guzzi on 3/2/25.
 //
+import Firebase
 import FirebaseAuth
 import FirebaseFirestore
-import Foundation
-import Firebase
 import FirebaseStorage
+import Foundation
 import SwiftUI
 
 protocol AuthenticationFormProtocol {
     var formIsValid: Bool { get }
-    
 }
 @MainActor
 class AuthViewModel: ObservableObject {
@@ -22,7 +21,6 @@ class AuthViewModel: ObservableObject {
     @Published var isAuthenticated = false
     init() {
         self.userSession = Auth.auth().currentUser
-        
         Task {
             await fetchUser()
         }
@@ -62,18 +60,13 @@ class AuthViewModel: ObservableObject {
     func createUser(withEmail email: String, password: String, fullname: String, image: UIImage?) async throws {
         let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
         let userID = authResult.user.uid
-        
         var profileImageURL: String? = nil
-        
         if let image = image {
             profileImageURL = try await uploadProfileImage(image, userID: userID)
         }
-        
         let newUser = User(id: userID, fullname: fullname, email: email, profileImgeURL: profileImageURL)
-        
         let userRef = Firestore.firestore().collection("users").document(userID)
         try userRef.setData(from: newUser)
-        
         self.currentUser = newUser
         DispatchQueue.main.async {
             self.isAuthenticated = true
@@ -83,15 +76,12 @@ class AuthViewModel: ObservableObject {
         private func uploadProfileImage(_ image: UIImage, userID: String) async throws -> String {
             let storageRef = Storage.storage().reference().child("profile_images/\(userID).jpg")
             guard let imageData = image.jpegData(compressionQuality: 0.4) else { throw URLError(.badServerResponse) }
-            
             let metadata = StorageMetadata()
             metadata.contentType = "image/jpeg"
-            
             _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
             let url = try await storageRef.downloadURL()
             return url.absoluteString
         }
-    
     func signOut() {
         do {
             try Auth.auth().signOut() // signs out user on backend

@@ -51,6 +51,10 @@ struct PlansView: View {
                 fetchMeals()
             }
         }
+        .onChange(of: mealEntriesState) { _ in
+            print("🔄 mealEntriesState updated! Found \(mealEntriesState.count) meals.")
+        }
+
         .onChange(of: mealEntries) { _ in
             updateMealEntriesState()
         }
@@ -87,6 +91,15 @@ struct PlansView: View {
                     }
                 )
                 .id(mealToSwap.id)
+                .onChange(of: mealEntries) { newEntries in
+                    DispatchQueue.main.async {
+                        self.mealEntriesState = newEntries
+                        print("🔄 UI Update Triggered. Found: \(newEntries.count) meals.")
+                        for meal in newEntries {
+                            print("📋 UI Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
+                        }
+                    }
+                }
             }
         }
     }
@@ -215,13 +228,23 @@ struct PlansView: View {
             print("❌ No selected trip! Returning empty meal list.")
             return []
         }
-        
-        let meals = mealEntriesState.filter { $0.tripName == tripName }
-        
-        print("📆 Found \(meals.count) total meals for trip \(tripName)")
+
+        print("🔎 Checking meals for trip: \(tripName) on \(day)")
+
+        let meals = mealEntriesState.filter {
+            let mealDay = $0.day.trimmingCharacters(in: .whitespacesAndNewlines)
+            let queryDay = day.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let matches = $0.tripName == tripName && mealDay == queryDay
+
+            print("🍽 Checking Meal: \(mealDay) == \(queryDay)? \(matches ? "✅ YES" : "❌ NO")")
+            return matches
+        }
+
+        print("📆 Found \(meals.count) meals for trip \(tripName) on \(day)")
         return meals
     }
-    
+
     private func cleanUpMealDays() {
         for meal in mealEntriesState {
             if meal.day.contains("Day Day") {
@@ -255,23 +278,24 @@ struct PlansView: View {
         }
     }
     private func fetchMeals() {
-        print("🧐 mealsForDay BEFORE update: \(mealEntriesState.count) meals")
-        
+        print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
+
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync {
                     try modelContext.fetch(FetchDescriptor<MealEntry>())
                 }
-                
+
                 DispatchQueue.main.async {
                     print("📋 All stored meals in SwiftData:")
                     for meal in fetchedMeals {
-                        print("🔍 Stored Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
+                        print("🔍 Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
                     }
-                    
+
+                    // **Filter meals for selected trip**
                     let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
-                    
-                    // ✅ Force UI Update
+
+                    // **Force UI update by resetting the array reference**
                     self.mealEntriesState = []
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         self.mealEntriesState = filteredMeals
@@ -285,4 +309,6 @@ struct PlansView: View {
             }
         }
     }
+
+
 }
