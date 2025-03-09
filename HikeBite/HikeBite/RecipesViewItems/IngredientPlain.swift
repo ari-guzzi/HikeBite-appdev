@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct IngredientPlain: Codable, Identifiable {
+struct IngredientPlain: Codable, Identifiable, Hashable {
     var id: UUID = UUID()
     var name: String
     var amount: Double?

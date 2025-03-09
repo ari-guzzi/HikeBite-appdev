@@ -14,6 +14,7 @@ class MealEntry: Identifiable, Hashable {
     var day: String
     var meal: String
     var recipeTitle: String
+    
     var servings: Int
     var tripName: String
 

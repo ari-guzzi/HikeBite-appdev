@@ -4,10 +4,10 @@
 //
 //  Created by Ari Guzzi on 1/13/25.
 //
-import SwiftUI
 import Firebase
 import FirebaseFirestore
 import FirebaseStorage
+import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
@@ -166,8 +166,8 @@ struct ContentView: View {
 struct FilterView: View {
     @Binding var activeFilters: Set<String>
     let allFilters = [
-        "no-stove", "no-water", "dairy-free", "vegan", "vegetarian", "fresh",
-        "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snacks"
+        "no-stove", "no-water", "no-dairy", "vegan", "vegetarian", "fresh",
+        "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snack"
     ]
     var onDone: () -> Void
     var body: some View {

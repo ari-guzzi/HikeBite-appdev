@@ -21,7 +21,7 @@ struct AddRecipeView: View {
     @State private var isUploading = false
     @Environment(\.presentationMode) var presentationMode
 
-    let allFilters = ["no-stove", "no-water", "dairy-free", "vegan", "vegetarian", "fresh", "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snacks"]
+    let allFilters = ["no-stove", "no-water", "no-dairy", "vegan", "vegetarian", "fresh", "premade", "light-weight", "breakfast", "lunch", "dinner", "beverages", "snack"]
 
     var body: some View {
         if let user = viewModel.currentUser {

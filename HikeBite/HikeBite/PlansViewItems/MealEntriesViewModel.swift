@@ -8,6 +8,7 @@ import SwiftData
 import SwiftUI
 
 class MealEntriesViewModel: ObservableObject {
+    @Published var showSnacksConsolidated: Bool = false
     @Published var mealEntries: [MealEntry] = []
     private var modelContext: ModelContext
     private var tripName: String
@@ -15,6 +16,12 @@ class MealEntriesViewModel: ObservableObject {
         self.modelContext = modelContext
         self.tripName = tripName
         fetchMeals(for: tripName)
+    }
+    
+    func updateSnacksVisibility(show: Bool) {
+        DispatchQueue.main.async {
+            self.showSnacksConsolidated = show
+        }
     }
     func fetchMeals(for tripName: String) {
         do {

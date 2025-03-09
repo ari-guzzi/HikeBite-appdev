@@ -18,6 +18,8 @@ struct PlansView: View {
     @State private var showingSwapSheet = false
     @State private var showCreatePlanSheet = false
     @State private var showDuplicatePlanSheet = false
+    @State private var showSnacksConsolidated = false
+    @State private var consolidatedSnacks: [MealEntry] = []
     @State var numberOfDays: Int
     @State var tripDate: Date
     @Binding var selectedTab: Int
@@ -37,18 +39,20 @@ struct PlansView: View {
         VStack {
             headerView
             tripImageView
-            ScrollView {
-                ForEach(days, id: \.self) { day in
-                    mealSectionView(for: day)
-                        .id(day)
+            Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
+                .padding()
+                .onChange(of: showSnacksConsolidated) { newValue in
+                    viewModel.updateSnacksVisibility(show: newValue)
+                    updateAndPrintSnacks()
                 }
-            }
+            scrollViewContent
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "None")")
                 self.mealEntriesState = mealEntries // Force update from @Query
                 fetchMeals()
+                updateAndPrintSnacks()
             }
         }
         .onChange(of: mealEntriesState) { _ in
@@ -103,6 +107,28 @@ struct PlansView: View {
             }
         }
     }
+    private var snackToggle: some View {
+        Toggle("Show Consolidated Snacks", isOn: $showSnacksConsolidated)
+            .padding()
+    }
+
+    private var scrollViewContent: some View {
+        ScrollView {
+            ForEach(days, id: \.self, content: mealSectionView)
+            if showSnacksConsolidated {
+                SnacksView(snacks: consolidatedSnacks,
+                           deleteMeal: deleteMeal,
+                           swapMeal: { meal in
+                    mealToSwap = meal
+                    showingSwapSheet = true
+                },
+                           tripName: selectedTrip?.name ?? "Unknown Trip",
+                           refreshMeals: { fetchMeals() }
+                )
+            }
+        }
+    }
+
     private var headerView: some View {
         HStack {
             Button(action: { showDuplicatePlanSheet = true }) {
@@ -144,6 +170,23 @@ struct PlansView: View {
                 .offset(y: -90)
         }
     }
+    private func updateAndPrintSnacks() {
+        if showSnacksConsolidated {
+            consolidatedSnacks = viewModel.mealEntries.filter { $0.meal.lowercased() == "snacks" }
+            if consolidatedSnacks.isEmpty {
+                print("No snacks found.")
+            } else {
+                consolidatedSnacks.forEach { snack in
+                    print("Snack: \(snack.recipeTitle), Day: \(snack.day)")
+                }
+            }
+            print("Consolidated snacks updated: \(consolidatedSnacks.count) found")
+        } else {
+            consolidatedSnacks = []
+            print("Snacks consolidation is off.")
+        }
+    }
+
     private func mealSectionView(for day: String) -> some View {
         let mealsForThisDay = mealsForDay(day: day)
         print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
@@ -158,7 +201,8 @@ struct PlansView: View {
                 tripName: selectedTrip?.name ?? "Unknown Trip",
                 refreshMeals: { fetchMeals() },
                 day: day,
-                selectedTab: $selectedTab
+                selectedTab: $selectedTab,
+                showSnacksConsolidated: $showSnacksConsolidated
             )
         }
     }
@@ -193,36 +237,6 @@ struct PlansView: View {
             print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
-    //    private func mealsForDay(day: String) -> [MealEntry] {
-    //        guard let tripName = selectedTrip?.name else {
-    //            print("❌ No selected trip! Returning empty meal list.")
-    //            return []
-    //        }
-    //
-    //        // ✅ Extract numeric day value
-    //        let queryDayInt = Int(day.filter { $0.isNumber }) ?? -1
-    //
-    //        print("🔍 Looking for meals with tripName: \(tripName), day: \(day)")
-    //
-    //        let meals = mealEntriesState.filter { meal in
-    //            let mealDayInt = Int(meal.day.filter { $0.isNumber }) ?? -1
-    //
-    //            // ✅ Ensure the meal belongs to the correct trip and matches the correct day
-    //            let isMatch = meal.tripName == tripName && mealDayInt == queryDayInt
-    //
-    //            print("🔍 Checking meal: \(meal.recipeTitle)")
-    //            print("   - Meal ID: \(meal.id)")
-    //            print("   - Meal Day: '\(meal.day)' (Int: \(mealDayInt))")
-    //            print("   - Expected Day: '\(day)' (Int: \(queryDayInt))")
-    //            print("   - Trip: \(meal.tripName) (Expected: \(tripName))")
-    //            print("   - Match? \(isMatch ? "✅ YES" : "❌ NO")")
-    //
-    //            return isMatch
-    //        }
-    //
-    //        print("📆 Found \(meals.count) meals for \(tripName) on Day \(day)")
-    //        return meals
-    //    }
     private func mealsForDay(day: String) -> [MealEntry] {
         guard let tripName = selectedTrip?.name else {
             print("❌ No selected trip! Returning empty meal list.")
@@ -237,7 +251,6 @@ struct PlansView: View {
 
             let matches = $0.tripName == tripName && mealDay == queryDay
 
-            print("🍽 Checking Meal: \(mealDay) == \(queryDay)? \(matches ? "✅ YES" : "❌ NO")")
             return matches
         }
 
