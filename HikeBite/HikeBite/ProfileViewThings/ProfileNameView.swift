@@ -14,9 +14,9 @@ struct ProfileNameView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ZStack {
-                    LinearGradient(gradient: Gradient(colors: [.blue, .white]), startPoint: .top, endPoint: .bottom)
-                        .frame(height: 100)
-                        .edgesIgnoringSafeArea(.top)
+//                    LinearGradient(gradient: Gradient(colors: [.blue, .white]), startPoint: .top, endPoint: .bottom)
+//                        .frame(height: 100)
+//                        .edgesIgnoringSafeArea(.top)
                     HStack {
                         NavigationLink(destination: SettingsPage()) {
                             if let imageURL = viewModel.currentUser?.profileImgeURL, let url = URL(string: imageURL) {
@@ -54,10 +54,14 @@ struct ProfileNameView: View {
                                 Text("\(user.email)")
                                     .font(.subheadline)
                             } else {
-                                Text("Hello, There!")
-                                    .font(.title)
+                                Text("Hello, There")
+                                    .font(
+                                        Font.custom("FONTSPRINGDEMO-FieldsDisplayExtraBoldRegular", size: 48)
+                                            .weight(.heavy)
+                                            
+                                    )
                                 Text("Welcome to HikeBite")
-                                    .font(.subheadline)
+                                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
                             }
                         }
                         .padding(.leading, 10)

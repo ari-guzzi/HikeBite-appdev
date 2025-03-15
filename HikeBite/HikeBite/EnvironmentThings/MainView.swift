@@ -26,12 +26,12 @@ struct MainView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             ProfileView(tripManager: tripManager, selectedTrip: $selectedTrip, selectedTab: $selectedTab, showLogin: $showLogin)
-                .tabItem { Label("Profile", systemImage: "person") }
+                .tabItem { Label("Profile", systemImage: "person.fill") }
                 .tag(0)
 
             Templates(selectedTrip: $selectedTrip, selectedTab: $selectedTab, fetchMeals: fetchMeals)
                 .tabItem {
-                    Label("Templates", systemImage: "newspaper")
+                    Label("Templates", systemImage: "list.bullet.rectangle.portrait")
                 }
                 .tag(1)
             Group {
@@ -57,13 +57,13 @@ struct MainView: View {
                 }
             }
             .tabItem {
-                Label("Trips", systemImage: "list.bullet.rectangle.fill")
+                Label("Trips", systemImage: "map.fill")
             }
             .tag(2)
 
             ContentView(selectedTrip: $selectedTrip)
                 .tabItem {
-                    Label("Meals", systemImage: "book.fill")
+                    Label("Meals", systemImage: "fork.knife")
                 }
                 .tag(3)
         }

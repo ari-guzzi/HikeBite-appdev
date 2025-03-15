@@ -29,5 +29,14 @@
 			</array>
 		</dict>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>fontspring-demo-fieldsdisplay-regular.otf</string>
+		<string>fontspring-demo-fieldsdisplay-black.otf</string>
+		<string>fontspring-demo-fieldsdisplay-bold.otf</string>
+		<string>fontspring-demo-fieldsdisplay-extrabold.otf</string>
+		<string>fontspring-demo-fieldsdisplay-medium.otf</string>
+		<string>fontspring-demo-fieldsdisplay-semibold.otf</string>
+	</array>
 </dict>
 </plist>

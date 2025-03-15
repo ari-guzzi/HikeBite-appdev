@@ -15,7 +15,8 @@ struct MealDetailView: View {
             Text("Meal Details").font(.headline)
             Text("Title: \(meal.recipeTitle)")
             Text("Servings: \(meal.servings)")
-            Text("Ingredients: ")        }
+            Text("Ingredients: ")
+        }
         .padding()
         .frame(width: 300, height: 200)
         .background(Color.white)

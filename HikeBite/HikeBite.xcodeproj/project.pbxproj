@@ -20,6 +20,12 @@
 		74505E1F2D35D9E600474952 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E1E2D35D9E500474952 /* WidgetKit.framework */; };
 		74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E202D35D9E600474952 /* SwiftUI.framework */; };
 		74505E2E2D35D9E900474952 /* MealPlanExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74505E1C2D35D9E500474952 /* MealPlanExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		74B5E0552D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0542D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf */; };
+		74B5E05B2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0582D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf */; };
+		74B5E05C2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0592D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf */; };
+		74B5E05D2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0572D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf */; };
+		74B5E05E2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E05A2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf */; };
+		74B5E05F2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0562D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf */; };
 		74FB19482D5FDCCE005E31C9 /* TripManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FB19472D5FDCCE005E31C9 /* TripManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +74,12 @@
 		74505E1C2D35D9E500474952 /* MealPlanExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealPlanExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74505E1E2D35D9E500474952 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		74505E202D35D9E600474952 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		74B5E0542D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-regular.otf"; sourceTree = "<group>"; };
+		74B5E0562D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-black.otf"; sourceTree = "<group>"; };
+		74B5E0572D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-bold.otf"; sourceTree = "<group>"; };
+		74B5E0582D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-extrabold.otf"; sourceTree = "<group>"; };
+		74B5E0592D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-medium.otf"; sourceTree = "<group>"; };
+		74B5E05A2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-semibold.otf"; sourceTree = "<group>"; };
 		74FB19472D5FDCCE005E31C9 /* TripManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -164,6 +176,7 @@
 		7400E0F82D35CE190013D1FC = {
 			isa = PBXGroup;
 			children = (
+				74B5E0532D84FA7E00BE0B5B /* Fonts */,
 				74FB19472D5FDCCE005E31C9 /* TripManager.swift */,
 				7400E1032D35CE1A0013D1FC /* HikeBite */,
 				7400E1142D35CE1D0013D1FC /* HikeBiteTests */,
@@ -192,6 +205,19 @@
 				74505E202D35D9E600474952 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		74B5E0532D84FA7E00BE0B5B /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				74B5E0542D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf */,
+				74B5E0562D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf */,
+				74B5E0572D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf */,
+				74B5E0582D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf */,
+				74B5E0592D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf */,
+				74B5E05A2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -357,6 +383,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74B5E05B2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf in Resources */,
+				74B5E05C2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf in Resources */,
+				74B5E05D2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf in Resources */,
+				74B5E05E2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf in Resources */,
+				74B5E05F2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf in Resources */,
+				74B5E0552D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

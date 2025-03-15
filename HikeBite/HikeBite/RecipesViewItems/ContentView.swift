@@ -21,34 +21,55 @@ struct ContentView: View {
     var baseURL: String? {
         Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
     }
+    init(selectedTrip: Binding<Trip?>) {
+                self._selectedTrip = selectedTrip
+            UITableView.appearance().backgroundColor = .clear
+            UITableViewCell.appearance().backgroundColor = .clear
+        }
     var body: some View {
         NavigationView {
-            VStack {
-                filteredList
-                    .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Recipes")
-                    .onChange(of: searchText) { newValue in
-                        fetchData(searchQuery: newValue)
-                    }
-                    .navigationTitle("Recipe Search")
-                    .toolbar {
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
+                               startPoint: .top,
+                               endPoint: .bottom)
+                .edgesIgnoringSafeArea([.top, .leading, .trailing])
+                VStack {
+                    HStack{
+                        Text("Sort Meals")
+                            .foregroundColor(Color("AccentColor"))
+                            .padding(.leading, 30)
                         filterButton
+                        Spacer()
                     }
-                    .sheet(isPresented: $showingFilter) {
-                        FilterView(activeFilters: $activeFilters) {
-                            showingFilter = false
+                    filteredList
+                    
+                        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
+                        .onChange(of: searchText) { newValue in
+                            fetchData(searchQuery: newValue)
                         }
-                    }
-            }
-            
-            .onAppear {
-                if FirebaseApp.app() != nil {
-                    fetchData()
+                        .navigationTitle("Meal Ideas")
+                    
+                        .sheet(isPresented: $showingFilter) {
+                            FilterView(activeFilters: $activeFilters) {
+                                showingFilter = false
+                            }
+                        }
+                    
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: AddRecipeView()) {
-                        Image(systemName: "plus")
+                
+                .onAppear {
+                    if FirebaseApp.app() != nil {
+                        fetchData()
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        NavigationLink(destination: AddRecipeView()) {
+                            HStack{ Text("Upload a meal")
+                                Image(systemName: "plus")
+                                    .foregroundColor(.black)
+                            }
+                        }
                     }
                 }
             }
@@ -59,8 +80,15 @@ struct ContentView: View {
             NavigationLink(destination: RecipeDetailView(recipe: item)) {
                 RecipeRow(item: item)
             }
+            .listRowBackground(Color.clear)
+            .padding(.horizontal, 10)  // Adds horizontal padding to each row
+            .padding(.vertical, 5)  // Adds vertical padding to create space between rows
+            .background(Color.white)  // Sets background color of each row
+            .cornerRadius(10)  // Applies corner radius to each row's background
+            .shadow(color: .gray, radius: 3, x: 0, y: 2)  // Adds shadow to each row
         }
-        .listStyle(PlainListStyle())
+        .listStyle(PlainListStyle())  // Removes default list styling
+        .padding()
     }
     var filterButton: some View {
         Button(action: {
