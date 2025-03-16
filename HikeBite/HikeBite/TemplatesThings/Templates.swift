@@ -93,6 +93,12 @@ struct Templates: View {
                     //
                     //                    )
                     .onAppear {
+                        let attrs = [
+                           NSAttributedString.Key.foregroundColor: UIColor.black,
+                           NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 48)!
+                       ]
+                       UINavigationBar.appearance().titleTextAttributes = attrs
+                       UINavigationBar.appearance().largeTitleTextAttributes = attrs
                         print("🔄 Ensuring Firestore loads (First Attempt: \(hasAttemptedFirstLoad))")
                         if !hasAttemptedFirstLoad || !viewModel.hasLoadedOnce {
                             viewModel.loadTemplatesFromFirestore()

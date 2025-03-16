@@ -52,6 +52,12 @@ struct AddMealView: View {
                 }
             }
             .onAppear {
+                let attrs = [
+                   NSAttributedString.Key.foregroundColor: UIColor.black,
+                   NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 48)!
+               ]
+               UINavigationBar.appearance().titleTextAttributes = attrs
+               UINavigationBar.appearance().largeTitleTextAttributes = attrs
                 print("🛠️ AddMealView appeared with: Day - \(day), MealType - \(mealType)")
                 if mealType.isEmpty {
                     print("❌ Error: MealType was empty, retrying...")
