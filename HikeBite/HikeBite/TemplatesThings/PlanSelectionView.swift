@@ -14,6 +14,7 @@ struct PlanSelectionView: View {
     @Environment(\.modelContext) private var modelContext
     var template: MealPlanTemplate
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var tripManager: TripManager
     @State private var showCreatePlanSheet = false
     @Binding var selectedTrip: Trip?
     var fetchMeals: () -> Void
@@ -21,6 +22,7 @@ struct PlanSelectionView: View {
     @Binding var selectedTab: Int
     @State private var showWarningSheet = false
     @State private var warningMessage: String = ""
+    @State private var isNavigatingToSelectedTrip = false
     var body: some View {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
@@ -29,13 +31,42 @@ struct PlanSelectionView: View {
             Text("Choose a Plan")
                 .font(.title)
                 .padding()
+            if tripManager.trips.isEmpty {
+                Text("No available trips.")
+                        .foregroundColor(.gray)
+                        .padding()
+            } else {
+                Picker("Select Trip", selection: $selectedTrip) {
+                    ForEach(tripManager.trips, id: \.id) { trip in
+                        Text(trip.name).tag(trip as Trip?)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .padding()
+            }
             if let trip = selectedTrip {
                 let templateMaxDays = template.mealTemplates.keys.compactMap { Int($0.filter { $0.isNumber }) }.max() ?? 0
                 VStack {
+                    NavigationLink(
+                        destination: PlansView(
+                            tripManager: tripManager,
+                            numberOfDays: selectedTrip?.days ?? 0,
+                            tripDate: selectedTrip?.date ?? Date(),
+                            selectedTrip: $selectedTrip,
+                            modelContext: modelContext,
+                            selectedTab: $selectedTab
+                        ),
+                        isActive: $isNavigatingToSelectedTrip
+                    ) {
+                        EmptyView()
+                    }
+                    .hidden()  // Hide since it's just used to trigger navigation
+
                     if trip.days <= templateMaxDays {
                         Button {
                             print("🔄 Applying template to existing trip: \(trip.name)")
                             applyTemplateToTrip(template, trip: trip, modelContext: modelContext, refreshMeals: fetchMeals)
+                            isNavigatingToSelectedTrip = true
                         } label: {
                             Text("Add to Current Plan: \(trip.name)")
                                 .frame(maxWidth: .infinity)
@@ -45,6 +76,7 @@ struct PlanSelectionView: View {
                                 .cornerRadius(10)
                         }
                         .padding()
+                    
                     } else {
                         Text("⚠️ This template has **\(templateMaxDays) days**, but your current selected trip has **\(trip.days) days**.")
                             .foregroundColor(.red)
@@ -54,6 +86,7 @@ struct PlanSelectionView: View {
             }
             Button {
                 showCreatePlanSheet = true
+                isNavigatingToSelectedTrip = true
             } label: {
                 Text("Add to New Plan")
                     .frame(maxWidth: .infinity)
@@ -69,21 +102,23 @@ struct PlanSelectionView: View {
                 createNewTripFromTemplate(name: name, days: days, date: date, template: template, refreshMeals: fetchMeals)
             }
         }
+        .onAppear {
+            isNavigatingToSelectedTrip = false
+            tripManager.fetchTrips(modelContext: modelContext)
+        }
+
     }
     // **Applies a meal plan template to an existing trip**
     private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext, refreshMeals: @escaping () -> Void) {
         print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
-        
         let db = Firestore.firestore()
         var mealNames: [String: [String: String]] = [:]
         let group = DispatchGroup()
-        
         for (templateDay, meals) in template.mealTemplates {
             for (mealType, mealIDs) in meals {
                 for mealID in mealIDs {
                     let mealIDString = String(mealID)
                     group.enter()
-                    
                     db.collection("Recipes").document(mealIDString).getDocument { snapshot, error in
                         if let document = snapshot, document.exists {
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
@@ -103,7 +138,6 @@ struct PlanSelectionView: View {
                 }
             }
         }
-        
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {

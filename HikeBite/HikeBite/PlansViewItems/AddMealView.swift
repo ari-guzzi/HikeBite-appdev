@@ -16,9 +16,9 @@ struct AddMealView: View {
     var refreshMeals: () -> Void
 
     @State private var recipes: [Result] = []
-   @State private var isLoading = true
-   @State private var activeFilters: Set<String> = []
-   @State private var showingFilter = false
+    @State private var isLoading = true
+    @State private var activeFilters: Set<String> = []
+    @State private var showingFilter = false
     
     var body: some View {
         NavigationView {

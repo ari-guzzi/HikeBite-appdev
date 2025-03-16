@@ -68,6 +68,7 @@ struct HikeBiteApp: App {
             MainView()
         }
         .environmentObject(viewModel)
+        .environmentObject(TripManager())
         .modelContainer(for: [GroceryItem.self, MealEntry.self, Trip.self], inMemory: false)
     }
 }

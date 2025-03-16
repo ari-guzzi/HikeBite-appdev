@@ -156,46 +156,6 @@ struct PlansView: View {
             Image("vector")
         }
     }
-//    private var tripImageView: some View {
-//        ZStack {
-//                Image("backpacking")
-//                  .resizable()
-//                  .aspectRatio(contentMode: .fill)
-//                  .frame(width: 399, height: 216)
-//                  .clipped()
-//                  .cornerRadius(10)
-//                  .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-//            Rectangle()
-//              .foregroundColor(.clear)
-//              .frame(width: 417, height: 177)
-//              .background(
-//                LinearGradient(
-//                  stops: [
-//                    Gradient.Stop(color: .white.opacity(0), location: 0.00),
-//                    Gradient.Stop(color: .white, location: 1.00),
-//                  ],
-//                  startPoint: UnitPoint(x: 0.5, y: 0.32),
-//                  endPoint: UnitPoint(x: 0.5, y: 0.77)
-//                )
-//              )
-//            
-//              .cornerRadius(9)
-////            Image("backpacking")
-////                .resizable()
-////                .aspectRatio(contentMode: .fit)
-////                .frame(width: 400)
-////                .scaledToFit()
-////                .clipShape(RoundedRectangle(cornerRadius: 20))
-//            
-//            Text(selectedTrip?.name ?? "Unknown Trip")
-//                .font(
-//                Font.custom("Area Normal", size: 24)
-//                .weight(.bold)
-//                )
-//                .foregroundColor(.black)
-//                .frame(width: 287, height: 45.25401, alignment: .topLeading)
-//        }
-//    }
     private var tripImageView: some View {
             ZStack {
                 // Main image
