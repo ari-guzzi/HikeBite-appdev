@@ -43,43 +43,49 @@ struct Templates: View {
                                        startPoint: .top,
                                        endPoint: .bottom)
                             .edgesIgnoringSafeArea([.top, .leading, .trailing])
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 16) {
-                            ForEach(viewModel.templates) { template in
-                                Button {
-                                    selectedTemplate = template
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        isShowingPreview = true
-                                    }
-                                } label: {
-                                    VStack {
-                                        AsyncImage(url: URL(string: template.img)) { phase in
-                                            if let image = phase.image {
-                                                image.resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: 100)
-                                                    .cornerRadius(10)
-                                            } else if phase.error != nil {
-                                                Image(systemName: "photo")
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: 100)
-                                                    .cornerRadius(10)
-                                            } else {
-                                                ProgressView()
+
+                            ScrollView {
+                                ZStack {
+                                    FunnyLines()
+                                        .edgesIgnoringSafeArea(.all)
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 16) {
+                                    ForEach(viewModel.templates) { template in
+                                        Button {
+                                            selectedTemplate = template
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                                isShowingPreview = true
                                             }
+                                        } label: {
+                                            VStack {
+                                                AsyncImage(url: URL(string: template.img)) { phase in
+                                                    if let image = phase.image {
+                                                        image.resizable()
+                                                            .scaledToFit()
+                                                            .frame(height: 100)
+                                                            .cornerRadius(10)
+                                                    } else if phase.error != nil {
+                                                        Image(systemName: "photo")
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(height: 100)
+                                                            .cornerRadius(10)
+                                                    } else {
+                                                        ProgressView()
+                                                    }
+                                                }
+                                                Text(template.title)
+                                                    .font(.headline)
+                                            }
+                                            .padding()
+                                            .frame(width: 179, height: 172)
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(10)
                                         }
-                                        Text(template.title)
-                                            .font(.headline)
                                     }
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(10)
                                 }
+                                .padding()
                             }
                         }
-                        .padding()
-                    }
                     .navigationTitle("Templates")
                     //                    .font(
                     //                        Font.custom("FONTSPRINGDEMO-FieldsDisplayExtraBoldRegular", size: 48)

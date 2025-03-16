@@ -36,17 +36,38 @@ struct PlansView: View {
         self._selectedTab = selectedTab
     }
     var body: some View {
-        VStack {
-            headerView
-            tripImageView
-            Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
-                .padding()
-                .onChange(of: showSnacksConsolidated) { newValue in
-                    viewModel.updateSnacksVisibility(show: newValue)
-                    updateAndPrintSnacks()
+        ZStack {
+            Image("topolines")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .opacity(0.08)
+                .blur(radius: 2)
+            VStack(spacing: 0) {
+                headerView
+                tripImageView
+                    .offset(y: -70)
+                Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
+                    .onChange(of: showSnacksConsolidated) { newValue in
+                        viewModel.updateSnacksVisibility(show: newValue)
+                        updateAndPrintSnacks()
+                    }
+                    .frame(maxWidth: 400)
+                HStack {
+                    Button(action: { showDuplicatePlanSheet = true }) {
+                        VStack {
+                            Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
+                            Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
+                        }
+                        
+                    }
                 }
-            scrollViewContent
+                scrollViewContent
+                    .frame(maxWidth: 400)
+            }
+            .edgesIgnoringSafeArea(.top)
         }
+        .padding(0)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "None")")
@@ -108,8 +129,9 @@ struct PlansView: View {
         }
     }
     private var snackToggle: some View {
-        Toggle("Show Consolidated Snacks", isOn: $showSnacksConsolidated)
-            .padding()
+        VStack {
+            Toggle("Show Consolidated Snacks", isOn: $showSnacksConsolidated)
+        }
     }
 
     private var scrollViewContent: some View {
@@ -122,53 +144,109 @@ struct PlansView: View {
                     mealToSwap = meal
                     showingSwapSheet = true
                 },
-                           tripName: selectedTrip?.name ?? "Unknown Trip",
-                           refreshMeals: { fetchMeals() }
+                   tripName: selectedTrip?.name ?? "Unknown Trip",
+                   refreshMeals: { fetchMeals() }
                 )
             }
         }
     }
 
     private var headerView: some View {
-        HStack {
-            Button(action: { showDuplicatePlanSheet = true }) {
-                HStack {
-                    Text("Duplicate Plan").foregroundColor(.blue)
-                    Image(systemName: "doc.on.doc").foregroundColor(.blue)
-                }
-            }
-            .padding()
-            Spacer()
-            TripPicker(selectedTrip: $selectedTrip, tripManager: tripManager)
-                .onChange(of: selectedTrip) { newTrip in
-                    print("🔄 Trip changed: \(newTrip?.name ?? "None")")
-                    fetchMeals()
-                }
-            Button(action: { showCreatePlanSheet = true }) {
-                HStack {
-                    Text("Create New Trip").foregroundColor(Color.blue)
-                    Image(systemName: "plus.circle").foregroundColor(.blue)
-                }
-            }
-            .padding()
+        VStack {
+            Image("vector")
         }
     }
+//    private var tripImageView: some View {
+//        ZStack {
+//                Image("backpacking")
+//                  .resizable()
+//                  .aspectRatio(contentMode: .fill)
+//                  .frame(width: 399, height: 216)
+//                  .clipped()
+//                  .cornerRadius(10)
+//                  .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+//            Rectangle()
+//              .foregroundColor(.clear)
+//              .frame(width: 417, height: 177)
+//              .background(
+//                LinearGradient(
+//                  stops: [
+//                    Gradient.Stop(color: .white.opacity(0), location: 0.00),
+//                    Gradient.Stop(color: .white, location: 1.00),
+//                  ],
+//                  startPoint: UnitPoint(x: 0.5, y: 0.32),
+//                  endPoint: UnitPoint(x: 0.5, y: 0.77)
+//                )
+//              )
+//            
+//              .cornerRadius(9)
+////            Image("backpacking")
+////                .resizable()
+////                .aspectRatio(contentMode: .fit)
+////                .frame(width: 400)
+////                .scaledToFit()
+////                .clipShape(RoundedRectangle(cornerRadius: 20))
+//            
+//            Text(selectedTrip?.name ?? "Unknown Trip")
+//                .font(
+//                Font.custom("Area Normal", size: 24)
+//                .weight(.bold)
+//                )
+//                .foregroundColor(.black)
+//                .frame(width: 287, height: 45.25401, alignment: .topLeading)
+//        }
+//    }
     private var tripImageView: some View {
-        ZStack {
-            Image("backpacking")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 400)
-                .scaledToFit()
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-            
-            Text(selectedTrip?.name ?? "Unknown Trip")
-                .font(.title)
-                .foregroundColor(Color.white)
-                .multilineTextAlignment(.center)
-                .frame(width: 350)
-                .offset(y: -90)
-        }
+            ZStack {
+                // Main image
+                Image("pinetrees")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width, height: 300)
+                    .clipped()
+                    .cornerRadius(10) // Apply corner radius to the image
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    .overlay(
+                        // Top gradient overlay
+                        LinearGradient(
+                            gradient: Gradient(colors: [.white, .clear]),
+                            startPoint: .top,
+                            endPoint: .center
+                        )
+                        .frame(height: 300)
+                    )
+                    .overlay(
+                        // Bottom gradient overlay within the image
+                        VStack {
+                            Spacer()
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: .clear, location: 0),
+                                    .init(color: .white, location: 1)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .center
+                            )
+                            .frame(height: 112)
+                        }
+                    )
+                Text(selectedTrip?.name ?? "Unknown Trip")
+                                .font(
+                                Font.custom("Area Normal", size: 24)
+                                .weight(.bold)
+                                )
+                                .foregroundColor(.black)
+                                .frame(width: 287, height: 45.25401, alignment: .topLeading)
+                                .offset(x: -40, y: -90)
+                VStack {
+                    Spacer()
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(height: 50)
+                        .cornerRadius(10)
+                }
+            }
+            .frame(height: 216) // Fixed height for the whole stack
     }
     private func updateAndPrintSnacks() {
         if showSnacksConsolidated {
@@ -190,8 +268,10 @@ struct PlansView: View {
     private func mealSectionView(for day: String) -> some View {
         let mealsForThisDay = mealsForDay(day: day)
         print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
-        return Section(header: Text(day).font(.title).fontWeight(.bold).padding(.leading, 30)) {
-            DaysView(
+        return Section(header: Text(day)
+                .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
+                .frame(maxWidth: .infinity, alignment: .leading)) {
+                DaysView(
                 mealsForDay: mealsForThisDay,
                 deleteMeal: deleteMeal,
                 swapMeal: { meal in

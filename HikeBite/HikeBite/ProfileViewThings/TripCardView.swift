@@ -12,16 +12,6 @@ struct TripCardView: View {
     
     var body: some View {
         ZStack {
-        // Background image independent of other content
-//        Image("topolines")
-//            .resizable()
-//            .aspectRatio(contentMode: .fill)
-//            .frame(width: 510, height: 254)  // Set the desired frame for the background
-//            .clipped()
-//            .opacity(0.2)
-//            .cornerRadius(9)  // Match corner radius if needed
-//            .position(x: 155, y: 127)  // Center position in the parent frame
-//        
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .bottom) {
                 
@@ -29,7 +19,7 @@ struct TripCardView: View {
                     .foregroundColor(.clear)
                     .frame(width: 310, height: 254)
                     .background(
-                        Image("backpacking")
+                        Image("pinetrees")
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 310, height: 254)
@@ -63,6 +53,9 @@ struct TripCardView: View {
                         .frame(width: 277, height: 25, alignment: .leading)
                     
                     HStack {
+                        Text(trip.date.formatted(date: .long, time: .omitted))
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                         Spacer()
                         Text("View trip")
                             .font(.custom("Fields", size: 16))

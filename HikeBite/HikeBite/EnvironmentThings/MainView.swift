@@ -16,7 +16,9 @@ struct MainView: View {
     @State private var showTripPicker = false
     @State private var showLogin = false
     @State var mealEntriesState: [MealEntry] = []
-    @State private var selectedTrip: Trip? { 
+    @State private var numberOfDays: Int = 0
+    @State private var tripDate: Date = Date()
+    @State private var selectedTrip: Trip? {
         didSet {
             if selectedTrip != nil {
                 selectedTab = 2
@@ -34,28 +36,14 @@ struct MainView: View {
                     Label("Templates", systemImage: "list.bullet.rectangle.portrait")
                 }
                 .tag(1)
-            Group {
-                if let trip = selectedTrip {
-                    PlansView(
-                        tripManager: tripManager,
-                        numberOfDays: trip.days,
-                        tripDate: trip.date,
-                        selectedTrip: $selectedTrip,
-                        modelContext: modelContext,
-                        selectedTab: $selectedTab
-                    )
-                } else {
-                    VStack {
-                        HStack {
-                            Text("Select Trip")
-                            TripPicker(selectedTrip: $selectedTrip, tripManager: tripManager)
-                        }
-                        Button("Create a New Trip") {
-                            showCreateTrip = true
-                        }
-                    }
-                }
-            }
+                TripsView(
+                    tripManager: tripManager,
+                    selectedTrip: $selectedTrip,
+                    selectedTab: $selectedTab,
+                    showLogin: $showLogin,
+                    numberOfDays: numberOfDays,
+                    tripDate: tripDate
+                )
             .tabItem {
                 Label("Trips", systemImage: "map.fill")
             }

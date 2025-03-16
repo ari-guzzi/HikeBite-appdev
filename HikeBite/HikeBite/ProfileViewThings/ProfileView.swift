@@ -84,39 +84,33 @@ struct ProfileView: View {
                             .foregroundColor(.gray)
                             .padding()
                     } else {
-                        HStack {
-                            Text("Trips")
-                                .font(
-                                    Font.custom("FONTSPRINGDEMO-FieldsDisplayExtraBoldRegular", size: 48)
-                                        .weight(.heavy)
-                                        
-                                )
-                                .padding(.leading, 50)
-                                .foregroundColor(.black)
-                            Spacer()
-                        }
                         ScrollView {
                             ScrollView {
                                 if !upcomingTrips.isEmpty {
-                                    HStack {
-                                        Text("Upcoming Trips")
-                                            .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                            .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                            .padding(.leading, 30)
-                                        Spacer()
-                                    }
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack(spacing: 10) {
-                                            ForEach(upcomingTrips) { trip in
-                                                Button(action: {
-                                                    selectedTrip = trip
-                                                    selectedTab = 2
-                                                }) {
-                                                    TripCardView(trip: trip)
+                                    ZStack() {
+                                        FunnyLines()
+                                        VStack {
+                                            HStack {
+                                                Text("Upcoming Trips")
+                                                    .font(Font.custom("Area Normal", size: 24).weight(.bold))
+                                                    .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
+                                                    .padding(.leading, 30)
+                                                Spacer()
+                                            }
+                                            ScrollView(.horizontal, showsIndicators: false) {
+                                                HStack(spacing: 10) {
+                                                    ForEach(upcomingTrips) { trip in
+                                                        Button(action: {
+                                                            selectedTrip = trip
+                                                            selectedTab = 2
+                                                        }) {
+                                                            TripCardView(trip: trip)
+                                                        }
+                                                    }
                                                 }
+                                                .padding(.horizontal)
                                             }
                                         }
-                                        .padding(.horizontal)
                                     }
                                 }
                             }
@@ -127,21 +121,6 @@ struct ProfileView: View {
                                     .frame(width: 405, height: 114)
                                     .clipped()
                                     .opacity(0.2)
-                                if !previousTrips.isEmpty {
-                                    if !previousTrips.isEmpty {
-                                        VStack(alignment: .leading) {
-                                            Text("Previous Trips")
-                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                                .padding(.leading, 20)
-                                            List(previousTrips) { trip in
-                                                tripRow(trip: trip)                                            }
-                                            
-                                            .frame(height: 250)
-                                            .listStyle(PlainListStyle())
-                                        }
-                                    }
-                                }
                             }
                         }
                     }

@@ -250,20 +250,21 @@ struct DaysView: View {
                     .onTapGesture {
                         self.selectedMeal = meal // Set the meal for the popover
                     }
-                    .popover(isPresented: .constant(selectedMeal != nil && selectedMeal == meal), arrowEdge: .leading) {
-                        MealDetailView(meal: meal) // Show details in the popover
-                    }
+//                    .popover(isPresented: .constant(selectedMeal != nil && selectedMeal == meal), arrowEdge: .leading) {
+//                        MealDetailView(meal: meal) // Show details in the popover
+//                    }
             }
         }
     }
 
     private func sectionHeader(mealType: String) -> some View {
         HStack {
-            Image(systemName: "circlebadge.fill")
-                .foregroundColor(Color.gray)
-                .padding(.leading)
             Text(mealType)
-                .font(.title2)
+                .font(
+                Font.custom("Area Normal", size: 16)
+                .weight(.heavy)
+                )
+                .foregroundColor(.black)
             Spacer()
             Text("X Calories X Grams")
                 .font(.caption)
@@ -297,7 +298,7 @@ struct DaysView: View {
             }
         }
         .padding(.vertical, 5)
-        .background(Color(.systemGray6))
+        .background(Color(red: 0.91, green: 1, blue: 0.96))
         .cornerRadius(10)
         .padding(.horizontal)
     }
