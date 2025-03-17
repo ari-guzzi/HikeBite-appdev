@@ -44,26 +44,28 @@ struct PlansView: View {
                 .opacity(0.08)
                 .blur(radius: 2)
             VStack(spacing: 0) {
-                headerView
-                tripImageView
-                    .offset(y: -70)
-                Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
-                    .onChange(of: showSnacksConsolidated) { newValue in
-                        viewModel.updateSnacksVisibility(show: newValue)
-                        updateAndPrintSnacks()
-                    }
-                    .frame(maxWidth: 400)
-                HStack {
-                    Button(action: { showDuplicatePlanSheet = true }) {
-                        VStack {
-                            Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
-                            Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
+                ScrollView {
+                    headerView
+                    tripImageView
+                        .offset(y: -70)
+                    Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
+                        .onChange(of: showSnacksConsolidated) { newValue in
+                            viewModel.updateSnacksVisibility(show: newValue)
+                            updateAndPrintSnacks()
                         }
-                        
+                        .frame(maxWidth: 400)
+                    HStack {
+                        Button(action: { showDuplicatePlanSheet = true }) {
+                            VStack {
+                                Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
+                                Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
+                            }
+                            
+                        }
                     }
+                    scrollViewContent
+                        .frame(maxWidth: 400)
                 }
-                scrollViewContent
-                    .frame(maxWidth: 400)
             }
             .edgesIgnoringSafeArea(.top)
         }
