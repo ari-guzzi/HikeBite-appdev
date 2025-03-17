@@ -29,7 +29,6 @@
 		74B5E0652D86018800BE0B5B /* BottomMountain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B5E0642D86018800BE0B5B /* BottomMountain.swift */; };
 		74B5E0672D8601C400BE0B5B /* FunnyLines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B5E0662D8601C400BE0B5B /* FunnyLines.swift */; };
 		74B5E0692D86022600BE0B5B /* BackgroundGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B5E0682D86022600BE0B5B /* BackgroundGradient.swift */; };
-		74B5E06D2D863D6B00BE0B5B /* video.mov in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E06C2D863D6B00BE0B5B /* video.mov */; };
 		74FB19482D5FDCCE005E31C9 /* TripManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FB19472D5FDCCE005E31C9 /* TripManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -87,7 +86,6 @@
 		74B5E0642D86018800BE0B5B /* BottomMountain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BottomMountain.swift; path = BackgroundViews/BottomMountain.swift; sourceTree = "<group>"; };
 		74B5E0662D8601C400BE0B5B /* FunnyLines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FunnyLines.swift; path = BackgroundViews/FunnyLines.swift; sourceTree = "<group>"; };
 		74B5E0682D86022600BE0B5B /* BackgroundGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BackgroundGradient.swift; path = BackgroundViews/BackgroundGradient.swift; sourceTree = "<group>"; };
-		74B5E06C2D863D6B00BE0B5B /* video.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = video.mov; sourceTree = "<group>"; };
 		74FB19472D5FDCCE005E31C9 /* TripManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -184,7 +182,6 @@
 		7400E0F82D35CE190013D1FC = {
 			isa = PBXGroup;
 			children = (
-				74B5E06C2D863D6B00BE0B5B /* video.mov */,
 				74B5E0682D86022600BE0B5B /* BackgroundGradient.swift */,
 				74B5E0662D8601C400BE0B5B /* FunnyLines.swift */,
 				74B5E0642D86018800BE0B5B /* BottomMountain.swift */,
@@ -396,7 +393,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				74B5E05B2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf in Resources */,
-				74B5E06D2D863D6B00BE0B5B /* video.mov in Resources */,
 				74B5E05C2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf in Resources */,
 				74B5E05D2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-bold.otf in Resources */,
 				74B5E05E2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-semibold.otf in Resources */,
