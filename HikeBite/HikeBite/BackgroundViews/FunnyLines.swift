@@ -12,7 +12,7 @@ struct FunnyLines: View {
         Image("topolines")
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 405, height: 350)
+            .frame(width: UIScreen.main.bounds.width, height: 350)
             .clipped()
             .opacity(0.1)
             .padding(0)

@@ -53,7 +53,7 @@ struct PlansView: View {
                             viewModel.updateSnacksVisibility(show: newValue)
                             updateAndPrintSnacks()
                         }
-                        .frame(maxWidth: 400)
+                        .frame(maxWidth: UIScreen.main.bounds.width - 10)
                     HStack {
                         Button(action: { showDuplicatePlanSheet = true }) {
                             VStack {
@@ -64,7 +64,7 @@ struct PlansView: View {
                         }
                     }
                     scrollViewContent
-                        .frame(maxWidth: 400)
+                        .frame(maxWidth: UIScreen.main.bounds.width - 10)
                 }
             }
             .edgesIgnoringSafeArea(.top)

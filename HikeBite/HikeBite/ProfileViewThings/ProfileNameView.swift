@@ -67,6 +67,7 @@ struct ProfileNameView: View {
                         .padding(.leading, 10)
                         Spacer()
                     }
+                    .frame(width: UIScreen.main.bounds.width - 10)
                 }
             }
             .frame(height: 100)

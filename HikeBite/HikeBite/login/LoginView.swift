@@ -38,7 +38,7 @@ struct LoginView: View {
                     Image("logo")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 100, height: 120)              
+                        .frame(width: UIScreen.main.bounds.width, height: 120)  
                     //form fields
                     VStack(spacing: 24) {
                         InputView(text: $email,

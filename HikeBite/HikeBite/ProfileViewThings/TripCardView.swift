@@ -65,7 +65,7 @@ struct TripCardView: View {
                         Image(systemName: "arrow.right")
                             .frame(width: 24, height: 24)
                     }
-                    .background(Color.white) // Ensure text is easily readable on the gradient
+                    .background(Color.white)
                     .cornerRadius(4)
                 }
                 .padding(.horizontal)
@@ -73,6 +73,6 @@ struct TripCardView: View {
             }
             }
         }
-        .padding() // Add padding around the entire VStack if needed
+        .padding()
     }
 }

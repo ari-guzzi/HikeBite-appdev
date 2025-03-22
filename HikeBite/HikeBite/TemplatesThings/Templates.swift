@@ -77,7 +77,7 @@ struct Templates: View {
                                                     .font(.headline)
                                             }
                                             .padding()
-                                            .frame(width: 179, height: 172)
+                                            .frame(width: 179, height: 200)
                                             .background(Color(.systemGray6))
                                             .cornerRadius(10)
                                         }
@@ -87,11 +87,6 @@ struct Templates: View {
                             }
                         }
                     .navigationTitle("Templates")
-                    //                    .font(
-                    //                        Font.custom("FONTSPRINGDEMO-FieldsDisplayExtraBoldRegular", size: 48)
-                    //                            .weight(.heavy)
-                    //
-                    //                    )
                     .onAppear {
                         let attrs = [
                            NSAttributedString.Key.foregroundColor: UIColor.black,

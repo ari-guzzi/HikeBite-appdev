@@ -21,11 +21,15 @@ class TripManager: ObservableObject {
             let fetchedTrips: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
             print("📂 TripManager Fetch: \(fetchedTrips.count) trips found.")
 
-            DispatchQueue.main.async {
-                self.trips = fetchedTrips  // Ensures trips update correctly
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.trips = fetchedTrips
             }
         } catch {
             print("❌ Failed to fetch trips: \(error.localizedDescription)")
         }
+    }
+    deinit {
+        print("TripManager is being deinitialized")
     }
 }

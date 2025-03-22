@@ -127,8 +127,11 @@ struct ProfileView: View {
                 }
             }
             .onAppear {
-                print("🔄 ProfileView appeared. Fetching trips...")
-                tripManager.fetchTrips(modelContext: modelContext)
+                if tripManager.trips.isEmpty {
+                    tripManager.fetchTrips(modelContext: modelContext)
+                }
+                //print("🔄 ProfileView appeared. Fetching trips...")
+                //tripManager.fetchTrips(modelContext: modelContext)
             }
         }
     } // body

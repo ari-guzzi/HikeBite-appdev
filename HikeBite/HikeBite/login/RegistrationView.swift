@@ -43,7 +43,7 @@ struct RegistrationView: View {
                 Image("logo")
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 100, height: 120)
+                    .frame(width: UIScreen.main.bounds.width, height: 120)
                 HStack {
                     Text("Add Profile Picture")
                     Button {

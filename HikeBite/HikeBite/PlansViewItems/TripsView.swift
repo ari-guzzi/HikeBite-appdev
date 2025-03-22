@@ -54,6 +54,7 @@ struct TripsView: View {
                 VStack(spacing: 0) {
                     header
                     tripContent
+                        .frame(width: UIScreen.main.bounds.width)
                 }
             }
             .onAppear {
@@ -131,9 +132,13 @@ struct TripsView: View {
                                             ) {
                                                 tripRow(trip: trip)
                                             }
+                                            .listStyle(.plain)
                                             .listRowBackground(Color.clear)
+                                            .scrollIndicators(.hidden)
+
                                         }
-                                      .background(Color.clear)
+                                        .scrollIndicators(.hidden)
+                                        .background(Color.clear)
                                       .listStyle(PlainListStyle())
                                       .frame(height: 300)
                                     }
@@ -226,19 +231,19 @@ struct TripsView: View {
                 }
                 .padding()
                 Spacer()
-                Button(action: {
-                    selectedTrip = trip
-                    selectedTab = 2
-                }) {
-                    Image(systemName: "chevron.right").foregroundColor(.black).padding()
-                }
+//                Button(action: {
+//                    selectedTrip = trip
+//                    selectedTab = 2
+//                }) {
+//                    Image(systemName: "calendar.circle.fill").foregroundColor(.black).padding()
+//                }
             }
-            .frame(width: 400, height: 56)
+            .frame(width: UIScreen.main.bounds.width - 40, height: 56)
                 .background(Color.white)
                 .cornerRadius(9)
                 .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                 .listRowInsets(EdgeInsets())
-                .padding(.horizontal, 16)
+                //.padding(.horizontal, 16)
                 .padding(.vertical, 3)
             .listRowBackground(Color.clear)
     }

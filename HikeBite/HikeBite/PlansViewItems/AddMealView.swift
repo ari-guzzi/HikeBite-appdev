@@ -14,12 +14,10 @@ struct AddMealView: View {
     var tripName: String
     var dismiss: () -> Void
     var refreshMeals: () -> Void
-
     @State private var recipes: [Result] = []
     @State private var isLoading = true
     @State private var activeFilters: Set<String> = []
     @State private var showingFilter = false
-    
     var body: some View {
         NavigationView {
             VStack {
@@ -67,6 +65,9 @@ struct AddMealView: View {
                 }
                 print("📢 Calling fetchRecipesFromFirebase()")
                 fetchRecipesFromFirebase()
+            }
+            .onDisappear {
+                isLoading = false
             }
             .sheet(isPresented: $showingFilter) {
                 FilterView(activeFilters: $activeFilters) {

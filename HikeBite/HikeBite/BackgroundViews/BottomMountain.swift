@@ -12,7 +12,7 @@ struct BottomMountain: View {
         Image("transparentBackgroundAbstractmountain")
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: 405, height: 114)
+            .frame(width: UIScreen.main.bounds.width, height: 114)
             .clipped()
             .opacity(0.2)
     }

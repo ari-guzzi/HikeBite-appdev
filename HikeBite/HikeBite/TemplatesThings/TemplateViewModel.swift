@@ -1,9 +1,9 @@
-//
-//  TemplateViewModel.swift
-//  HikeBite
-//
-//  Created by Ari Guzzi on 2/23/25.
-//
+////
+////  TemplateViewModel.swift
+////  HikeBite
+////
+////  Created by Ari Guzzi on 2/23/25.
+////
 
 import Firebase
 import FirebaseFirestore
@@ -19,21 +19,33 @@ class TemplateViewModel: ObservableObject {
     private var retryCount = 0
     @Published var isLoading = true
     var hasLoadedOnce = false
+    
     init(fetchMeals: @escaping () -> Void) {
         self.fetchMeals = fetchMeals
         monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { [weak self] path in
+            if path.status == .satisfied {
+                print("Network is available.")
+                self?.loadTemplatesFromFirestore()
+            } else {
+                print("Network is unavailable.")
+            }
+        }
     }
     func loadTemplatesFromFirestore() {
-        if monitor.currentPath.status != .satisfied {
+        guard monitor.currentPath.status == .satisfied else {
             print("⚠️ No network connection. Retrying in 1 second...")
             DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
                 self.loadTemplatesFromFirestore()
             }
             return
         }
+        
         print("📢 Fetching templates from Firestore (Attempt \(retryCount + 1))...")
         let db = Firestore.firestore()
-        isLoading = true
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
         db.collection("Templates").getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Firestore Error:", error.localizedDescription)
@@ -69,16 +81,15 @@ class TemplateViewModel: ObservableObject {
                 }
             }
             group.notify(queue: .main) {
-                DispatchQueue.main.async {
-                    self.templates = loadedTemplates
-                    self.hasLoadedOnce = true
-                    self.retryCount = 0
-                    self.isLoading = false
-                    print("✅ Fully loaded templates:", self.templates)
-                }
+                self.templates = loadedTemplates
+                self.hasLoadedOnce = true
+                self.retryCount = 0
+                self.isLoading = false
+                print("✅ Fully loaded templates:", self.templates)
             }
         }
     }
+
     private func loadImageURL(for template: MealPlanTemplate, completion: @escaping (MealPlanTemplate) -> Void) {
         let storageRef = Storage.storage().reference(withPath: template.img)
         storageRef.downloadURL { url, error in
@@ -93,5 +104,9 @@ class TemplateViewModel: ObservableObject {
                 completion(updatedTemplate)
             }
         }
+    }
+    deinit {
+        monitor.cancel() // Stop the network monitor
+        print("TemplateViewModel is being deinitialized and network monitor is cancelled.")
     }
 }
