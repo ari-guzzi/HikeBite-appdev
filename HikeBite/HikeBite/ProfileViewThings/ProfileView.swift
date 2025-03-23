@@ -68,11 +68,11 @@ struct ProfileView: View {
                         Text("View Grocery List")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
                             .foregroundColor(.black)
-                            .padding(10)  // Adjust padding to control the size around the text
+                            .padding(10)
                             .background(
                                 RoundedRectangle(cornerRadius: 9)
                                     .stroke(Color(red: 0.15, green: 0.6, blue: 0.38), lineWidth: 1)
-                                    .background(Color.white)  // Ensure the background color fills the rounded rectangle
+                                    .background(Color.white)
                                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                             )
                             .cornerRadius(9)
@@ -87,7 +87,7 @@ struct ProfileView: View {
                         ScrollView {
                             ScrollView {
                                 if !upcomingTrips.isEmpty {
-                                    ZStack() {
+                                    ZStack {
                                         FunnyLines()
                                         VStack {
                                             HStack {
@@ -130,47 +130,7 @@ struct ProfileView: View {
                 if tripManager.trips.isEmpty {
                     tripManager.fetchTrips(modelContext: modelContext)
                 }
-                //print("🔄 ProfileView appeared. Fetching trips...")
-                //tripManager.fetchTrips(modelContext: modelContext)
             }
         }
-    } // body
-    private func deleteTripAt(_ offsets: IndexSet) {
-        for index in offsets {
-            let tripToDelete = previousTrips[index]
-            deleteTrip(tripToDelete)
-        }
-    }
-    private func deleteTrip(_ trip: Trip) {
-        modelContext.delete(trip)
-        do {
-            try modelContext.save()
-            print("✅ Deleted trip: \(trip.name)")
-        } catch {
-            print("❌ Failed to delete trip: \(error.localizedDescription)")
-        }
-        tripManager.trips.removeAll { $0.id == trip.id }
-    }
-    private func tripRow(trip: Trip) -> some View {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(trip.name).font(.headline)
-                    Text(trip.date.formatted(date: .long, time: .omitted))
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-                Button(action: {
-                    selectedTrip = trip
-                    selectedTab = 2
-                }) {
-                    Image(systemName: "chevron.right").foregroundColor(.gray)
-                }
-            }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(10)
-            .shadow(color: .gray, radius: 3, x: 0, y: 2)
-            .listRowBackground(Color.clear)
     }
 }

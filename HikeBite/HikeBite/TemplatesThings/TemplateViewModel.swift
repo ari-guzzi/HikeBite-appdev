@@ -32,6 +32,10 @@ class TemplateViewModel: ObservableObject {
             }
         }
     }
+   func loadTemplatesIfNeeded() {
+       guard !hasLoadedOnce, monitor.currentPath.status == .satisfied else { return }
+       loadTemplatesFromFirestore()
+   }
     func loadTemplatesFromFirestore() {
         guard monitor.currentPath.status == .satisfied else {
             print("⚠️ No network connection. Retrying in 1 second...")

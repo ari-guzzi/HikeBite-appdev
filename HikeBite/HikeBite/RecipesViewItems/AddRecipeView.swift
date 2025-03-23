@@ -118,7 +118,7 @@ struct AddRecipeView: View {
               description: description,
               filter: Array(selectedFilters),
               ingredients: ingredients,
-              imageURL: imageURL, // Optional: if user uploads an image
+              img: imageURL, // Optional: if user uploads an image
               createdBy: user?.email ?? "unknown email",  // Use the authenticated user's email
               timestamp: Date() // Use `Date()` instead of `Timestamp`
          )

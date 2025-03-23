@@ -238,6 +238,7 @@ struct TripsView: View {
 //                    Image(systemName: "calendar.circle.fill").foregroundColor(.black).padding()
 //                }
             }
+            .listRowBackground(Color.clear)
             .frame(width: UIScreen.main.bounds.width - 40, height: 56)
                 .background(Color.white)
                 .cornerRadius(9)
@@ -245,7 +246,6 @@ struct TripsView: View {
                 .listRowInsets(EdgeInsets())
                 //.padding(.horizontal, 16)
                 .padding(.vertical, 3)
-            .listRowBackground(Color.clear)
     }
     
     private func saveNewPlan(name: String, days: Int, date: Date) {

@@ -17,9 +17,7 @@
 		7415CD2C2D3C3F15008C36E1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2B2D3C3F15008C36E1 /* FirebaseAuth */; };
 		7415CD2E2D3C3F22008C36E1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2D2D3C3F22008C36E1 /* FirebaseStorage */; };
 		742C8A0A2D4C3A2200DB92CC /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 742C8A092D4C3A2200DB92CC /* FirebaseAppCheck */; };
-		74505E1F2D35D9E600474952 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E1E2D35D9E500474952 /* WidgetKit.framework */; };
 		74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E202D35D9E600474952 /* SwiftUI.framework */; };
-		74505E2E2D35D9E900474952 /* MealPlanExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74505E1C2D35D9E500474952 /* MealPlanExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		74B5E0552D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0542D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf */; };
 		74B5E05B2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0582D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-extrabold.otf */; };
 		74B5E05C2D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 74B5E0592D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-medium.otf */; };
@@ -44,35 +42,13 @@
 			remoteGlobalIDString = 7400E1002D35CE1A0013D1FC;
 			remoteInfo = HikeBite;
 		};
-		74505E2C2D35D9E900474952 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7400E0F92D35CE190013D1FC /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 74505E1B2D35D9E500474952;
-			remoteInfo = MealPlanExtension;
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		74505E332D35D9E900474952 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				74505E2E2D35D9E900474952 /* MealPlanExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7400E1012D35CE1A0013D1FC /* HikeBite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HikeBite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7400E1112D35CE1D0013D1FC /* HikeBiteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HikeBiteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7400E11B2D35CE1D0013D1FC /* HikeBiteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HikeBiteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		74505E1C2D35D9E500474952 /* MealPlanExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealPlanExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		74505E1E2D35D9E500474952 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		74505E202D35D9E600474952 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		74B5E0542D84FA9D00BE0B5B /* fontspring-demo-fieldsdisplay-regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-regular.otf"; sourceTree = "<group>"; };
 		74B5E0562D84FCB200BE0B5B /* fontspring-demo-fieldsdisplay-black.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "fontspring-demo-fieldsdisplay-black.otf"; sourceTree = "<group>"; };
@@ -90,13 +66,6 @@
 				Info.plist,
 			);
 			target = 7400E1002D35CE1A0013D1FC /* HikeBite */;
-		};
-		74505E322D35D9E900474952 /* Exceptions for "MealPlan" folder in "MealPlanExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 74505E1B2D35D9E500474952 /* MealPlanExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -117,14 +86,6 @@
 		7400E11E2D35CE1D0013D1FC /* HikeBiteUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HikeBiteUITests;
-			sourceTree = "<group>";
-		};
-		74505E222D35D9E600474952 /* MealPlan */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				74505E322D35D9E900474952 /* Exceptions for "MealPlan" folder in "MealPlanExtension" target */,
-			);
-			path = MealPlan;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -166,7 +127,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */,
-				74505E1F2D35D9E600474952 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +141,6 @@
 				7400E1032D35CE1A0013D1FC /* HikeBite */,
 				7400E1142D35CE1D0013D1FC /* HikeBiteTests */,
 				7400E11E2D35CE1D0013D1FC /* HikeBiteUITests */,
-				74505E222D35D9E600474952 /* MealPlan */,
 				74505E1D2D35D9E500474952 /* Frameworks */,
 				7400E1022D35CE1A0013D1FC /* Products */,
 			);
@@ -201,7 +160,6 @@
 		74505E1D2D35D9E500474952 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				74505E1E2D35D9E500474952 /* WidgetKit.framework */,
 				74505E202D35D9E600474952 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
@@ -230,13 +188,11 @@
 				7400E0FD2D35CE1A0013D1FC /* Sources */,
 				7400E0FE2D35CE1A0013D1FC /* Frameworks */,
 				7400E0FF2D35CE1A0013D1FC /* Resources */,
-				74505E332D35D9E900474952 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				74505E352D35DE6F00474952 /* PBXTargetDependency */,
-				74505E2D2D35D9E900474952 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				7400E1032D35CE1A0013D1FC /* HikeBite */,
@@ -315,9 +271,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				74505E222D35D9E600474952 /* MealPlan */,
 			);
 			name = MealPlanExtension;
 			packageProductDependencies = (
@@ -457,11 +410,6 @@
 			isa = PBXTargetDependency;
 			target = 7400E1002D35CE1A0013D1FC /* HikeBite */;
 			targetProxy = 7400E11C2D35CE1D0013D1FC /* PBXContainerItemProxy */;
-		};
-		74505E2D2D35D9E900474952 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 74505E1B2D35D9E500474952 /* MealPlanExtension */;
-			targetProxy = 74505E2C2D35D9E900474952 /* PBXContainerItemProxy */;
 		};
 		74505E352D35DE6F00474952 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

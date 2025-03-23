@@ -82,13 +82,11 @@ struct AddMealView: View {
             }
         }
     }
-
-    /// List of recipes filtered based on active filters
+    // List of recipes filtered based on active filters
     private var filteredRecipes: [Result] {
         recipes.filter(shouldIncludeResult)
     }
-
-    /// Button to open filter selection, updates if filters are active
+    // Button to open filter selection, updates if filters are active
     private var filterButton: some View {
         Button(action: {
             showingFilter.toggle()
@@ -97,8 +95,7 @@ struct AddMealView: View {
                 .foregroundColor(activeFilters.isEmpty ? .primary : .blue) // Default vs active color
         }
     }
-
-    /// Determines whether a recipe should be included based on filters
+    // Determines whether a recipe should be included based on filters
     private func shouldIncludeResult(_ result: Result) -> Bool {
         activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
     }
@@ -107,7 +104,6 @@ struct AddMealView: View {
             print("❌ Error: Attempting to add a meal with missing day or mealType.")
             return
         }
-
         let newMeal = MealEntry(
             id: UUID(),
             day: day,
@@ -116,7 +112,6 @@ struct AddMealView: View {
             servings: 1,
             tripName: tripName
         )
-
         modelContext.insert(newMeal)
 
         do {

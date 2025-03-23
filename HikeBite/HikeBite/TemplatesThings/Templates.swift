@@ -33,8 +33,7 @@ struct Templates: View {
                     }
                     .onAppear {
                         if !hasAttemptedFirstLoad {
-                            viewModel.loadTemplatesFromFirestore()
-                            hasAttemptedFirstLoad = true
+                            viewModel.loadTemplatesIfNeeded();                            hasAttemptedFirstLoad = true
                         }
                     }
                 } else {

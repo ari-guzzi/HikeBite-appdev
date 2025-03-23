@@ -101,32 +101,54 @@ struct ContentView: View {
     func shouldIncludeResult(_ result: Result) -> Bool {
         activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
     }
-//            func fetchData(searchQuery: String = "") {
-//                let db = Firestore.firestore()
-//                var query: Query = db.collection("Recipes")
-//                if !searchQuery.isEmpty {
-//                    query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
-//                        .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
-//                }
-//                query.getDocuments { snapshot, error in
-//                    if let error = error {
-//                        print("Error fetching recipes: \(error.localizedDescription)")
-//                        return
-//                    }
-//                    guard let documents = snapshot?.documents else {
-//                        print("No recipes found")
-//                        return
-//                    }
-//                    self.results = documents.compactMap { document in
-//                        try? document.data(as: Result.self)
-//                    }
-//                }
+//    func fetchData(searchQuery: String = "") {
+//        let db = Firestore.firestore()
+//        let recipesRef = db.collection("Recipes")
+//
+//        // If search query is provided, filter results based on title
+//        var query: Query = recipesRef
+//        if !searchQuery.isEmpty {
+//            query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
+//                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
+//        }
+//
+//        query.getDocuments { snapshot, error in
+//            if let error = error {
+//                print("❌ Error fetching recipes: \(error.localizedDescription)")
+//                return
 //            }
+//
+//            guard let documents = snapshot?.documents else {
+//                print("⚠️ No recipes found.")
+//                return
+//            }
+//
+//            let fetchedRecipes = documents.compactMap { doc -> Result? in
+//                var result = try? doc.data(as: Result.self)
+//                if let imagePath = result?.imageURL {
+//                    getDownloadURL(for: imagePath) { url in
+//                        result?.imageURL = url
+//                    }
+//                }
+//                return result
+//            }
+////                do {
+////                    return try doc.data(as: Result.self) // Decode documents into Result
+////                } catch {
+////                    print("⚠️ Failed to decode document: \(doc.documentID) - \(error)")
+////                    return nil
+////                }
+////            }
+//
+//            DispatchQueue.main.async {
+//                self.results = fetchedRecipes
+//                print("✅ Fetched \(self.results.count) recipes.")
+//            }
+//        }
+//    }
     func fetchData(searchQuery: String = "") {
         let db = Firestore.firestore()
         let recipesRef = db.collection("Recipes")
-
-        // If search query is provided, filter results based on title
         var query: Query = recipesRef
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
@@ -144,31 +166,61 @@ struct ContentView: View {
                 return
             }
 
-            let fetchedRecipes = documents.compactMap { doc -> Result? in
-                do {
-                    return try doc.data(as: Result.self) // Decode documents into Result
-                } catch {
-                    print("⚠️ Failed to decode document: \(doc.documentID) - \(error)")
-                    return nil
+            var newResults = [Result]()  // Temporary storage for fetched results
+            let group = DispatchGroup()  // Use a dispatch group to synchronize URL fetching
+
+            for document in documents {
+                var result = try? document.data(as: Result.self)
+                if let imagePath = result?.img { // This should be a gs:// URL
+                    group.enter()  // Enter the dispatch group
+                    getDownloadURL(for: imagePath) { url in
+                        DispatchQueue.main.async {
+                            result?.img = url // Update the result with the HTTP URL
+                            if let finalResult = result {
+                                newResults.append(finalResult)
+                            }
+                            group.leave()  // Leave the dispatch group
+                        }
+                    }
+                } else {
+                    if let finalResult = result {
+                        newResults.append(finalResult)
+                    }
                 }
             }
 
-            DispatchQueue.main.async {
-                self.results = fetchedRecipes
-                print("✅ Fetched \(self.results.count) recipes.")
+            group.notify(queue: .main) {  // Notify when all URLs have been fetched
+                self.results = newResults
+                print("✅ Fetched \(self.results.count) recipes with URLs.")
+            }
+
+
+            group.notify(queue: .main) {  // Notify when all URLs have been fetched
+                self.results = newResults
+                print("✅ Fetched \(self.results.count) recipes with URLs.")
             }
         }
     }
+
 
 }
     struct RecipeRow: View {
         var item: Result
         var body: some View {
             VStack(alignment: .center) {
-                Text(item.title)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .multilineTextAlignment(.center)
+                HStack {
+                    AsyncImage(url: URL(string: item.img ?? "")) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Color.gray
+                    }
+                    .frame(width: 100, height: 100)
+                    .cornerRadius(8)
+                    Text(item.title)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
+                }
             }
         }
     }
@@ -181,16 +233,19 @@ struct ContentView: View {
         let url: String
         let text: String
     }
-    func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
-        let storageRef = Storage.storage().reference(forURL: storagePath)
-        storageRef.downloadURL { url, error in
-            if let error = error {
-                completion(nil)
-            } else if let url = url {
-                completion(url.absoluteString)
-            }
+func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
+    let storageRef = Storage.storage().reference(forURL: storagePath) // This converts the gs:// URL to a reference
+    storageRef.downloadURL { url, error in
+        if let error = error {
+            print("Error fetching URL: \(error.localizedDescription)")
+            completion(nil)
+        } else if let url = url {
+            print("Fetched URL: \(url.absoluteString)")
+            completion(url.absoluteString) // This is the HTTP URL
         }
     }
+}
+
 struct FilterView: View {
     @Binding var activeFilters: Set<String>
     let allFilters = [
