@@ -7,6 +7,10 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import Combine
+import Firebase
+import FirebaseFirestore
+import FirebaseStorage
 
 struct RecipeDetailView: View {
     var recipe: Result
@@ -21,12 +25,8 @@ struct RecipeDetailView: View {
     let days = ["Day 1", "Day 2", "Day 3"]
     let meals = ["Breakfast", "Lunch", "Dinner", "Snacks"]
     @State private var image: Image?
-    var apiKey: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
-    }
-    var baseURL: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
-    }
+    @State private var imageURL: URL?
+
     var body: some View {
         VStack {
             ScrollView {
@@ -36,13 +36,49 @@ struct RecipeDetailView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top)
-                    if let image = image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 300, height: 200)
-                            .clipped()
+                    AsyncImage(url: imageURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable()
+                                 .aspectRatio(contentMode: .fill)
+                                 .frame(width: 100, height: 100)
+                                 .cornerRadius(8)
+                        case .empty:
+                            ProgressView()
+                        case .failure(_):
+                            Text("Unable to load image")
+                            .frame(width: 100, height: 100)
+                            .background(Color.gray)
+                            .cornerRadius(8)
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
+//                    if let imageURL = imageURL {
+//                        AsyncImage(url: imageURL) { phase in
+//                            switch phase {
+//                            case .success(let image):
+//                                image.resizable()
+//                                     .aspectRatio(contentMode: .fill)
+//                                     .frame(width: 300, height: 200)
+//                                     .cornerRadius(10)
+//                            case .failure(_):
+//                                Text("Unable to load image")
+//                                    .foregroundColor(.red)
+//                                    .frame(width: 300, height: 200)
+//                            case .empty:
+//                                ProgressView()
+//                                    .frame(width: 300, height: 200)
+//                            @unknown default:
+//                                EmptyView()
+//                            }
+//                        }
+//                    } else {
+//                        Color.gray.opacity(0.3)
+//                            .frame(width: 300, height: 200)
+//                            .cornerRadius(10)
+//                    }
+
                         if !recipe.description.isEmpty {
                             Text(recipe.description)
                                 .font(.body)
@@ -135,10 +171,35 @@ struct RecipeDetailView: View {
         }
         .onAppear {
             mutableIngredients = recipe.ingredients
-            fetchImageForRecipe(title: recipe.title)
+            loadRecipeImage()
+            }
+        }
+    func loadRecipeImage() {
+        guard let imgPath = recipe.img else {
+            print("No image path available.")
+            return
+        }
+        getDownloadURL(for: imgPath) { url in
+            if let urlString = url, let url = URL(string: urlString) {
+                DispatchQueue.main.async {
+                    self.imageURL = url
+                    print(url)
+                }
+            }
         }
     }
 
+    func getDownloadURL(for imageName: String, completion: @escaping (String?) -> Void) {
+        let storageRef = Storage.storage().reference(withPath: imageName)
+        storageRef.downloadURL { url, error in
+            if let error = error {
+                print("Error fetching URL: \(error.localizedDescription)")
+                completion(nil)
+            } else if let url = url {
+                completion(url.absoluteString)  // This is the HTTP URL
+            }
+        }
+    }
     private func addRecipeToPlan() {
         guard let selectedTrip = selectedTrip else {
             print("❌ No trip selected!")
@@ -197,49 +258,7 @@ struct RecipeDetailView: View {
         .padding()
         .border(Color(hue: 1.0, saturation: 0.023, brightness: 0.907))
     }
-    func fetchImageForRecipe(title: String) {
-            guard let apiKey = self.apiKey, let baseURL = self.baseURL else {
-                print("API key or base URL is nil")
-                return
-            }
 
-            let queryItems = [
-                URLQueryItem(name: "query", value: title),
-                URLQueryItem(name: "number", value: "1"),
-                URLQueryItem(name: "addRecipeInformation", value: "true")
-            ]
-            var urlComponents = URLComponents(string: "\(baseURL)/recipes/complexSearch")
-            urlComponents?.queryItems = queryItems
-
-            guard let url = urlComponents?.url else {
-                print("Invalid URL components")
-                return
-            }
-
-            var request = URLRequest(url: url)
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue(apiKey, forHTTPHeaderField: "x-rapidapi-key")
-            request.httpMethod = "GET"
-
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("Error fetching image: \(error.localizedDescription)")
-                    return
-                }
-
-                guard let data = data,
-                      let response = try? JSONDecoder().decode(RecipeSearchResponse.self, from: data),
-                      let firstResult = response.results.first,
-                      let imageData = try? Data(contentsOf: URL(string: firstResult.image)!) else {
-                    print("Failed to load image data")
-                    return
-                }
-
-                DispatchQueue.main.async {
-                    self.image = Image(uiImage: UIImage(data: imageData)!)
-                }
-            }.resume()
-        }
     }
 
 struct RecipeSearchResponse: Codable {

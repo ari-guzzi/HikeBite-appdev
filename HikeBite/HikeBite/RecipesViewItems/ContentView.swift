@@ -15,12 +15,6 @@ struct ContentView: View {
     @State private var activeFilters: Set<String> = []
     @State private var showingFilter = false
     @Binding var selectedTrip: Trip?
-    var apiKey: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
-    }
-    var baseURL: String? {
-        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
-    }
     init(selectedTrip: Binding<Trip?>) {
                 self._selectedTrip = selectedTrip
             UITableView.appearance().backgroundColor = .clear
@@ -101,51 +95,6 @@ struct ContentView: View {
     func shouldIncludeResult(_ result: Result) -> Bool {
         activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
     }
-//    func fetchData(searchQuery: String = "") {
-//        let db = Firestore.firestore()
-//        let recipesRef = db.collection("Recipes")
-//
-//        // If search query is provided, filter results based on title
-//        var query: Query = recipesRef
-//        if !searchQuery.isEmpty {
-//            query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
-//                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
-//        }
-//
-//        query.getDocuments { snapshot, error in
-//            if let error = error {
-//                print("❌ Error fetching recipes: \(error.localizedDescription)")
-//                return
-//            }
-//
-//            guard let documents = snapshot?.documents else {
-//                print("⚠️ No recipes found.")
-//                return
-//            }
-//
-//            let fetchedRecipes = documents.compactMap { doc -> Result? in
-//                var result = try? doc.data(as: Result.self)
-//                if let imagePath = result?.imageURL {
-//                    getDownloadURL(for: imagePath) { url in
-//                        result?.imageURL = url
-//                    }
-//                }
-//                return result
-//            }
-////                do {
-////                    return try doc.data(as: Result.self) // Decode documents into Result
-////                } catch {
-////                    print("⚠️ Failed to decode document: \(doc.documentID) - \(error)")
-////                    return nil
-////                }
-////            }
-//
-//            DispatchQueue.main.async {
-//                self.results = fetchedRecipes
-//                print("✅ Fetched \(self.results.count) recipes.")
-//            }
-//        }
-//    }
     func fetchData(searchQuery: String = "") {
         let db = Firestore.firestore()
         let recipesRef = db.collection("Recipes")
