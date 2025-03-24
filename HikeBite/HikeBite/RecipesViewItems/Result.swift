@@ -23,7 +23,7 @@ struct Result: Codable, Identifiable, Equatable {
         case description
         case filter
         case ingredients
-        case img = "image"
+        case img
         case createdBy
         case timestamp
     }

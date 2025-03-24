@@ -189,11 +189,6 @@ struct ContentView: View {
                 }
             }
 
-            group.notify(queue: .main) {  // Notify when all URLs have been fetched
-                self.results = newResults
-                print("✅ Fetched \(self.results.count) recipes with URLs.")
-            }
-
 
             group.notify(queue: .main) {  // Notify when all URLs have been fetched
                 self.results = newResults
@@ -204,26 +199,38 @@ struct ContentView: View {
 
 
 }
-    struct RecipeRow: View {
-        var item: Result
-        var body: some View {
-            VStack(alignment: .center) {
-                HStack {
-                    AsyncImage(url: URL(string: item.img ?? "")) { image in
+struct RecipeRow: View {
+    var item: Result
+
+    var body: some View {
+        VStack(alignment: .center) {
+            HStack {
+                AsyncImage(url: URL(string: item.img ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
                         image.resizable()
-                    } placeholder: {
-                        Color.gray
+                             .aspectRatio(contentMode: .fill)
+                             .frame(width: 100, height: 100)
+                             .cornerRadius(8)
+                    case .empty:
+                        ProgressView()
+                    case .failure(_):
+                        Text("Unable to load image")
+                        .frame(width: 100, height: 100)
+                        .background(Color.gray)
+                        .cornerRadius(8)
+                    @unknown default:
+                        EmptyView()
                     }
-                    .frame(width: 100, height: 100)
-                    .cornerRadius(8)
-                    Text(item.title)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .multilineTextAlignment(.center)
                 }
+                Text(item.title)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
             }
         }
     }
+}
     struct RecipeSearch: Codable {
         let offset, number: Int?
         let results: [Result]
@@ -233,18 +240,21 @@ struct ContentView: View {
         let url: String
         let text: String
     }
-func getDownloadURL(for storagePath: String, completion: @escaping (String?) -> Void) {
-    let storageRef = Storage.storage().reference(forURL: storagePath) // This converts the gs:// URL to a reference
+func getDownloadURL(for imageName: String, completion: @escaping (String?) -> Void) {
+    let storageBaseURL = "gs://hikebite-48dbe.firebasestorage.app/"
+    let fullPath = storageBaseURL + imageName
+    let storageRef = Storage.storage().reference(forURL: fullPath)
     storageRef.downloadURL { url, error in
         if let error = error {
             print("Error fetching URL: \(error.localizedDescription)")
             completion(nil)
         } else if let url = url {
             print("Fetched URL: \(url.absoluteString)")
-            completion(url.absoluteString) // This is the HTTP URL
+            completion(url.absoluteString)  // This is the HTTP URL
         }
     }
 }
+
 
 struct FilterView: View {
     @Binding var activeFilters: Set<String>
