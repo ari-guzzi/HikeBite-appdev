@@ -70,13 +70,13 @@ struct SwapMealView: View {
     }
     // Button to open filter selection
     private var filterButton: some View {
-           Button(action: {
-               showingFilter.toggle()
-           }) {
-               Image(systemName: activeFilters.isEmpty ? "line.horizontal.3.decrease.circle" : "line.horizontal.3.decrease.circle.fill")
-                   .foregroundColor(activeFilters.isEmpty ? .primary : .blue)
-           }
-       }
+        Button(action: {
+            showingFilter.toggle()
+        }) {
+            Image(systemName: activeFilters.isEmpty ? "line.horizontal.3.decrease.circle" : "line.horizontal.3.decrease.circle.fill")
+                .foregroundColor(activeFilters.isEmpty ? .primary : .blue)
+        }
+    }
     // Determines whether a recipe should be included based on filters
     private func shouldIncludeResult(_ result: Result) -> Bool {
         activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter ?? []))

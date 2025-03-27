@@ -26,37 +26,15 @@ struct AddRecipeView: View {
         if let user = viewModel.currentUser {
             NavigationView {
                 Form {
-                    Section(header: Text("Recipe Details")) {
-                        TextField("Recipe Title", text: $title)
-                        TextField("Description", text: $description)
-                    }
-//                    Section(header: Text("Upload Image")) {
-//                        if let image = image {
-//                            Image(uiImage: image)
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(height: 200)
-//                        }
-//                        Button("Select Image") {
-//                            showImagePicker = true
-//                        }
-//                    }
-//                    Section(header: Text("Filters")) {
-//                        ScrollView(.horizontal, showsIndicators: false) {
-//                            HStack {
-//                                ForEach(allFilters, id: \.self) { filter in
-//                                    FilterTag(filter: filter, isSelected: selectedFilters.contains(filter)) {
-//                                        toggleFilter(filter)
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-                    Section(header: Text("Ingredients")) {
-                        ForEach(ingredients.indices, id: \.self) { index in
-                            VStack {
-                                TextField("Ingredient Name", text: $ingredients[index].name)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    recipeDetailsSection()
+                    imageUploadSection()
+                    filtersSection()
+                    ingredientsSection()
+//                    Section(header: Text("Ingredients")) {
+//                        ForEach(ingredients.indices, id: \.self) { index in
+//                            VStack {
+//                                TextField("Ingredient Name", text: $ingredients[index].name)
+//                                    .textFieldStyle(RoundedBorderTextFieldStyle())
 //                                HStack {
 //                                    TextField("Amount", value: $ingredients[index].amount, formatter: NumberFormatter())
 //                                        .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -72,23 +50,12 @@ struct AddRecipeView: View {
 //                                        .textFieldStyle(RoundedBorderTextFieldStyle())
 //                                        .keyboardType(.numberPad)
 //                                }
-                            }
-                            .padding(.vertical, 5)
-                        }
-                        Button("Add Ingredient") {
-                            ingredients.append(IngredientPlain(name: "", amount: nil, unit: "", calories: nil, weight: nil))
-                        }
-                    }
-                    Section {
-                        Button(action: uploadRecipe) {
-                            if isUploading {
-                                ProgressView()
-                            } else {
-                                Text("Upload Recipe")
-                            }
-                        }
-                        .disabled(title.isEmpty || description.isEmpty)
-                    }
+//                            }
+//                            .padding(.vertical, 5)
+//                        }
+//                        ingredientsSection()
+//                    }
+                    submitButtonSection()
                 }
                 .navigationTitle("Add Recipe")
                 .toolbar {
@@ -106,7 +73,84 @@ struct AddRecipeView: View {
             Text("Please go create an account in profile view to upload a recipe.")
         }
     }
-    
+    private func recipeDetailsSection() -> some View {
+        Section(header: Text("Recipe Details")) {
+            TextField("Recipe Title", text: $title)
+            TextField("Description", text: $description)
+        }
+    }
+    private func imageUploadSection() -> some View {
+        Section(header: Text("Upload Image")) {
+            if let image = image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 200)
+            }
+            Button("Select Image") {
+                showImagePicker = true
+            }
+        }
+    }
+    private func filtersSection() -> some View {
+        Section(header: Text("Filters")) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(allFilters, id: \.self) { filter in
+                        FilterTag(filter: filter, isSelected: selectedFilters.contains(filter)) {
+                            toggleFilter(filter)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private func ingredientsSection() -> some View {
+        Section(header: Text("Ingredients")) {
+            ForEach($ingredients.indices, id: \.self) { index in
+                VStack {
+                    TextField("Ingredient Name", text: $ingredients[index].name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    HStack {
+                            TextField("Amount", value: $ingredients[index].amount, formatter: NumberFormatter())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .keyboardType(.decimalPad)
+                                                           
+                        TextField("Unit", text: $ingredients[index].unit)
+                            .placeholder(when: ingredients[index].unit.isEmpty, placeholder: {
+                                Text("Unit").foregroundColor(.gray)
+                            })
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    HStack {
+                        TextField("Calories", value: $ingredients[index].calories, formatter: NumberFormatter())
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                        TextField("Weight (g)", value: $ingredients[index].weight, formatter: NumberFormatter())
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                    }
+                }
+                .padding(.vertical, 5)
+            }
+            Button("Add Ingredient") {
+                ingredients.append(IngredientPlain(name: "", amount: nil, unit: "", calories: nil, weight: nil))
+            }
+        }
+    }
+
+    private func submitButtonSection() -> some View {
+        Section {
+            Button(action: uploadRecipe) {
+                if isUploading {
+                    ProgressView()
+                } else {
+                    Text("Upload Recipe")
+                }
+            }
+            .disabled(title.isEmpty || description.isEmpty)
+        }
+    }
     private func toggleFilter(_ filter: String) {
         if selectedFilters.contains(filter) {
             selectedFilters.remove(filter)
@@ -165,10 +209,6 @@ struct AddRecipeView: View {
         }
         return nil
     }
-
-
-
-    
     private func saveRecipeToFirestore(imageName: String) {
         let newRecipe = Result(
             title: title,
