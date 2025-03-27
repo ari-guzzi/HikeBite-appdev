@@ -11,17 +11,14 @@ struct CreateTripView: View {
     @State private var numberOfDays: Int = 3
     @State private var tripDate: Date = Date()
     @State private var warningMessage: String?
-    
     var templateMaxDays: Int
     var onTripCreated: (String, Int, Date) -> Void
-    
     var body: some View {
         VStack {
             Text("Create a New Trip")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
-            
             TextField("Enter trip name", text: $tripName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
@@ -48,7 +45,6 @@ struct CreateTripView: View {
                     .padding()
                     .transition(.opacity)
             }
-            
             Button(action: {
                 if numberOfDays > templateMaxDays {
                     warningMessage = "❌ Cannot create trip. Requested \(numberOfDays) days, but the template only has \(templateMaxDays) days."

@@ -60,6 +60,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct HikeBiteApp: App {
+    @StateObject private var tripManager = TripManager()
     @StateObject var viewModel = AuthViewModel()
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
@@ -68,7 +69,8 @@ struct HikeBiteApp: App {
             MainView()
         }
         .environmentObject(viewModel)
-        .environmentObject(TripManager())
+        //.environmentObject(TripManager())
+        .environmentObject(tripManager)
         .modelContainer(for: [GroceryItem.self, MealEntry.self, Trip.self], inMemory: false)
     }
 }

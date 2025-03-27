@@ -36,7 +36,7 @@ struct DuplicatePlanView: View {
                 trailing: Button("Duplicate") {
                     guard !newPlanName.isEmpty else { return }
                     duplicatePlan(newPlanName, newPlanDays, newPlanDate)
-                    dismiss() // Close the sheet
+                    dismiss()
                 }
             )
         }

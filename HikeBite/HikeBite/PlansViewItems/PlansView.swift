@@ -37,64 +37,31 @@ struct PlansView: View {
     }
     var body: some View {
         ZStack {
-            Image("topolines")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .edgesIgnoringSafeArea(.all)
-                .opacity(0.08)
-                .blur(radius: 2)
-            VStack(spacing: 0) {
-                ScrollView {
-                    headerView
-                    tripImageView
-                        .offset(y: -70)
-                    Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
-                        .onChange(of: showSnacksConsolidated) { newValue in
-                            viewModel.updateSnacksVisibility(show: newValue)
-                            updateAndPrintSnacks()
-                        }
-                        .frame(maxWidth: UIScreen.main.bounds.width - 10)
-                    HStack {
-                        Button(action: { showDuplicatePlanSheet = true }) {
-                            VStack {
-                                Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
-                                Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
-                            }
-                            
-                        }
-                    }
-                    scrollViewContent
-                        .frame(maxWidth: UIScreen.main.bounds.width - 10)
-                }
-            }
-            .edgesIgnoringSafeArea(.top)
+            backgroundView
+            mainContent
         }
         .padding(0)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                print("📌 PlansView loaded with trip: \(selectedTrip?.name ?? "None")")
                 self.mealEntriesState = mealEntries // Force update from @Query
                 fetchMeals()
                 updateAndPrintSnacks()
             }
         }
-        .onChange(of: mealEntriesState) { _ in
-            print("🔄 mealEntriesState updated! Found \(mealEntriesState.count) meals.")
-        }
 
         .onChange(of: mealEntries) { _ in
             updateMealEntriesState()
         }
-        .onChange(of: selectedTrip) { newTrip in
-            guard let newTrip = newTrip else {
-                print("❌ No trip selected!")
-                return
-            }
-            print("🔄 Trip changed to: \(newTrip.name)")
-            numberOfDays = newTrip.days // Don't delete this
-            tripDate = newTrip.date // Don't delete this
-            fetchMeals()
-        }
+//        .onChange(of: selectedTrip) { newTrip in
+//            guard let newTrip = newTrip else {
+//                print("❌ No trip selected!")
+//                return
+//            }
+//            print("🔄 Trip changed to: \(newTrip.name)")
+//            numberOfDays = newTrip.days // Don't delete this
+//            tripDate = newTrip.date // Don't delete this
+//            fetchMeals()
+//        }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             if let trip = selectedTrip {
                 DuplicatePlanView(originalTrip: trip, duplicatePlan: duplicatePlan)
@@ -114,25 +81,49 @@ struct PlansView: View {
                     mealToSwap: mealToSwap,
                     dismiss: {
                         showingSwapSheet = false
-                        mealToSwap = MealEntry(day: "", meal: "", recipeTitle: "", servings: 1, tripName: "") // Reset mealToSwap
+                        mealToSwap = MealEntry(day: "", meal: "", recipeTitle: "", servings: 1, tripName: "", totalCalories: 0, totalGrams: 0) // Reset mealToSwap
                     }
                 )
                 .id(mealToSwap.id)
                 .onChange(of: mealEntries) { newEntries in
                     DispatchQueue.main.async {
                         self.mealEntriesState = newEntries
-                        print("🔄 UI Update Triggered. Found: \(newEntries.count) meals.")
-                        for meal in newEntries {
-                            print("📋 UI Meal: \(meal.recipeTitle) - Trip: \(meal.tripName) - Day: \(meal.day)")
-                        }
                     }
                 }
             }
         }
     }
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                PlanHeaderView()
+                TripImageView(tripName: selectedTrip?.name ?? "Unknown Trip")
+                    .offset(y: -70)
+                snackToggle
+                DuplicatePlanButton {
+                    showDuplicatePlanSheet = true
+                }
+                scrollViewContent
+            }
+        }
+        .edgesIgnoringSafeArea(.top)
+    }
+    private var backgroundView: some View {
+            Image("topolines")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .opacity(0.08)
+                .blur(radius: 2)
+        }
     private var snackToggle: some View {
         VStack {
-            Toggle("Show Consolidated Snacks", isOn: $showSnacksConsolidated)
+            Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
+                .onChange(of: showSnacksConsolidated) { newValue in
+                    viewModel.updateSnacksVisibility(show: newValue)
+                    updateAndPrintSnacks()
+                }
+                .frame(maxWidth: UIScreen.main.bounds.width - 10)
         }
     }
 
@@ -151,65 +142,9 @@ struct PlansView: View {
                 )
             }
         }
+        .frame(maxWidth: UIScreen.main.bounds.width - 10)
     }
 
-    private var headerView: some View {
-        VStack {
-            Image("vector")
-        }
-    }
-    private var tripImageView: some View {
-            ZStack {
-                // Main image
-                Image("pinetrees")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: UIScreen.main.bounds.width, height: 300)
-                    .clipped()
-                    .cornerRadius(10) // Apply corner radius to the image
-                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                    .overlay(
-                        // Top gradient overlay
-                        LinearGradient(
-                            gradient: Gradient(colors: [.white, .clear]),
-                            startPoint: .top,
-                            endPoint: .center
-                        )
-                        .frame(height: 300)
-                    )
-                    .overlay(
-                        // Bottom gradient overlay within the image
-                        VStack {
-                            Spacer()
-                            LinearGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: .clear, location: 0),
-                                    .init(color: .white, location: 1)
-                                ]),
-                                startPoint: .top,
-                                endPoint: .center
-                            )
-                            .frame(height: 112)
-                        }
-                    )
-                Text(selectedTrip?.name ?? "Unknown Trip")
-                                .font(
-                                Font.custom("Area Normal", size: 24)
-                                .weight(.bold)
-                                )
-                                .foregroundColor(.black)
-                                .frame(width: 287, height: 45.25401, alignment: .topLeading)
-                                .offset(x: -40, y: -90)
-                VStack {
-                    Spacer()
-                    Rectangle()
-                        .fill(Color.white)
-                        .frame(height: 50)
-                        .cornerRadius(10)
-                }
-            }
-            .frame(height: 216) // Fixed height for the whole stack
-    }
     private func updateAndPrintSnacks() {
         if showSnacksConsolidated {
             consolidatedSnacks = viewModel.mealEntries.filter { $0.meal.lowercased() == "snacks" }
@@ -268,17 +203,20 @@ struct PlansView: View {
                     meal: meal.meal,
                     recipeTitle: meal.recipeTitle,
                     servings: meal.servings,
-                    tripName: newTrip.name
+                    tripName: newTrip.name,
+                    totalCalories: meal.totalCalories,  // Ensure these properties are in MealEntry
+                    totalGrams: meal.totalGrams
                 )
                 modelContext.insert(duplicatedMeal)
             }
             try modelContext.save()
-            print("✅ Successfully duplicated plan '\(selectedTrip)' as '\(name)'")
+            print("✅ Successfully duplicated plan '\(selectedTrip?.name ?? "Unknown")' as '\(name)'")
             showDuplicatePlanSheet = false // Close the duplicate sheet
         } catch {
             print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
+
     private func mealsForDay(day: String) -> [MealEntry] {
         guard let tripName = selectedTrip?.name else {
             print("❌ No selected trip! Returning empty meal list.")
@@ -356,6 +294,80 @@ struct PlansView: View {
                 DispatchQueue.main.async {
                     print("❌ Failed to load meals: \(error.localizedDescription)")
                 }
+            }
+        }
+    }
+}
+struct PlanHeaderView: View {
+    var body: some View {
+        VStack {
+            Image("vector")
+        }
+    }
+}
+
+struct TripImageView: View {
+    let tripName: String
+
+    var body: some View {
+        ZStack {
+            Image("pinetrees")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: UIScreen.main.bounds.width, height: 300)
+                .clipped()
+                .cornerRadius(10)
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                .overlay(
+                    LinearGradient(
+                        gradient: Gradient(colors: [.white, .clear]),
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                    .frame(height: 300)
+                )
+                .overlay(
+                    VStack {
+                        Spacer()
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .white, location: 1)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .center
+                        )
+                        .frame(height: 112)
+                    }
+                )
+            Text(tripName ?? "Unknown Trip")
+                .font(
+                    Font.custom("Area Normal", size: 24)
+                        .weight(.bold)
+                )
+                .foregroundColor(.black)
+                .frame(width: 287, height: 45.25401, alignment: .topLeading)
+                .offset(x: -40, y: -90)
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(height: 50)
+                    .cornerRadius(10)
+            }
+        }
+        .frame(height: 216)
+    }
+}
+
+struct DuplicatePlanButton: View {
+    var action: () -> Void
+
+    var body: some View {
+        HStack {
+            VStack {
+                Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
+                Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
             }
         }
     }

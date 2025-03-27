@@ -79,7 +79,7 @@ struct SwapMealView: View {
        }
     // Determines whether a recipe should be included based on filters
     private func shouldIncludeResult(_ result: Result) -> Bool {
-        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
+        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter ?? []))
     }
     private func swapMeal(with newTitle: String) {
         mealToSwap.recipeTitle = newTitle

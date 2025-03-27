@@ -106,14 +106,13 @@ struct PlanSelectionView: View {
             isNavigatingToSelectedTrip = false
             tripManager.fetchTrips(modelContext: modelContext)
         }
-
     }
-    // **Applies a meal plan template to an existing trip**
     private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext, refreshMeals: @escaping () -> Void) {
         print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
         let db = Firestore.firestore()
-        var mealNames: [String: [String: String]] = [:]
+        var mealDetails: [String: [String: (title: String, calories: Int, grams: Int)]] = [:]
         let group = DispatchGroup()
+
         for (templateDay, meals) in template.mealTemplates {
             for (mealType, mealIDs) in meals {
                 for mealID in mealIDs {
@@ -121,39 +120,50 @@ struct PlanSelectionView: View {
                     group.enter()
                     db.collection("Recipes").document(mealIDString).getDocument { snapshot, error in
                         if let document = snapshot, document.exists {
+                            let ingredients = (document.data()?["ingredients"] as? [[String: Any]])?.compactMap { dict -> IngredientPlain? in
+                                // Deserialize the dictionary into IngredientPlain
+                                do {
+                                    let data = try JSONSerialization.data(withJSONObject: dict, options: [])
+                                    return try JSONDecoder().decode(IngredientPlain.self, from: data)
+                                } catch {
+                                    print("Error deserializing ingredient: \(error.localizedDescription)")
+                                    return nil
+                                }
+                            } ?? []
+                            let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
+                            let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
-                            if mealNames[templateDay] == nil {
-                                mealNames[templateDay] = [:]
-                            }
-                            mealNames[templateDay]?[mealType] = mealTitle
+
+                            if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
+                            mealDetails[templateDay]?[mealType] = (title: mealTitle, calories: Int(totalCalories), grams: Int(totalGrams))
                         } else {
                             print("⚠️ Meal ID \(mealID) not found in Recipes collection.")
-                            if mealNames[templateDay] == nil {
-                                mealNames[templateDay] = [:]
-                            }
-                            mealNames[templateDay]?[mealType] = "Not Found"
+                            if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
+                            mealDetails[templateDay]?[mealType] = (title: "Not Found", calories: 0, grams: 0)
                         }
                         group.leave()
                     }
                 }
             }
         }
+
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {
                 let tripDay = "Day \(Int(templateDay.filter { $0.isNumber }) ?? 0)"
-                for (mealType, mealIDs) in meals {
-                    for mealID in mealIDs {
-                        let mealTitle = mealNames[templateDay]?[mealType] ?? "Unknown Meal"
+                for (mealType, _) in meals {
+                    if let mealDetail = mealDetails[templateDay]?[mealType] {
                         let newMeal = MealEntry(
                             id: UUID(),
                             day: tripDay,
                             meal: mealType,
-                            recipeTitle: mealTitle,
+                            recipeTitle: mealDetail.title,
                             servings: 1,
-                            tripName: trip.name
+                            tripName: trip.name,
+                            totalCalories: mealDetail.calories,
+                            totalGrams: mealDetail.grams
                         )
-                        
+
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
                         
@@ -161,27 +171,23 @@ struct PlanSelectionView: View {
                     }
                 }
             }
-            
+
             do {
                 try modelContext.save()
                 print("✅ Successfully saved \(addedMeals.count) meals for trip '\(trip.name)'")
-                
                 DispatchQueue.main.async {
-                    self.fetchMeals()
+                    refreshMeals()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.selectedTab = 2
                         self.dismissTemplates()
                     }
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {                    refreshMeals()
-                }
-                
             } catch {
                 print("❌ Failed to apply template: \(error.localizedDescription)")
             }
         }
     }
-    
+
     // **Creates a new trip from a template and applies meals**
     private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate, refreshMeals: @escaping () -> Void) {
         let templateMaxDays = template.mealTemplates.keys

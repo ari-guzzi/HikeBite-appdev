@@ -12,23 +12,35 @@ struct GroceryList: View {
     @Query private var items: [GroceryItem]
     @Environment(\.modelContext) private var modelContext
     var body: some View {
-        VStack {
-            Text("To Buy")
-            List {
-                ForEach(items.filter { !$0.isCompleted}) { item in
-                    groceryItemView(item: item)
+        ZStack {
+            BackgroundGradient()
+                .ignoresSafeArea(.all)
+            FunnyLines()
+                .ignoresSafeArea(.all)
+            VStack {
+                Text("To Buy")
+                List {
+                    ForEach(items.filter { !$0.isCompleted}) { item in
+                        groceryItemView(item: item)
+                    }
+                    .onDelete(perform: deleteItems)
                 }
-                .onDelete(perform: deleteItems)
-            }
-            Spacer()
-            Text("Completed")
-                .padding()
-            List {
-                ForEach(items.filter { $0.isCompleted}) { item in
-                    groceryItemView(item: item)
+                .listStyle(.plain)
+                .listRowBackground(Color.clear)
+                .scrollIndicators(.hidden)
+                Spacer()
+                Text("Completed")
+                    .padding()
+                List {
+                    ForEach(items.filter { $0.isCompleted}) { item in
+                        groceryItemView(item: item)
+                    }
                 }
+                .listStyle(.plain)
+                .listRowBackground(Color.clear)
+                .scrollIndicators(.hidden)
+                .navigationTitle("Grocery List")
             }
-            .navigationTitle("Grocery List")
         }
     }
     private func deleteItems(at offsets: IndexSet) {

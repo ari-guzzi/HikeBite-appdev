@@ -10,7 +10,7 @@ import SwiftUI
 struct MainView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var tripManager = TripManager()
+    @EnvironmentObject var tripManager: TripManager
     @State private var selectedTab: Int = 0
     @State private var showCreateTrip = false
     @State private var showTripPicker = false

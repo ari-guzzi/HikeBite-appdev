@@ -14,16 +14,19 @@ class MealEntry: Identifiable, Hashable {
     var day: String
     var meal: String
     var recipeTitle: String
-    
     var servings: Int
     var tripName: String
+    var totalCalories: Int
+    var totalGrams: Int
 
-    init(id: UUID = UUID(), day: String, meal: String, recipeTitle: String, servings: Int, tripName: String) {
+    init(id: UUID = UUID(), day: String, meal: String, recipeTitle: String, servings: Int, tripName: String, totalCalories: Int, totalGrams: Int) {
         self.id = id
         self.day = day
         self.meal = meal
         self.recipeTitle = recipeTitle
         self.servings = servings
         self.tripName = tripName
+        self.totalCalories = totalCalories
+        self.totalGrams = totalGrams
     }
 }

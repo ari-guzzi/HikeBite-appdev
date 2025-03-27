@@ -36,7 +36,6 @@ struct TripsView: View {
         self._showLogin = showLogin
         self.numberOfDays = numberOfDays
         self.tripDate = tripDate
-        // This will make the background of all UITableViews in the app transparent.
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none

@@ -14,7 +14,8 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     var recipe: Result
-    var selectedTrip: Trip?
+    //var selectedTrip: Trip?
+    @State private var selectedTrip: Trip? = nil
     @Environment(\.modelContext) private var modelContext
     @State private var mutableIngredients: [IngredientPlain] = []
     @Query private var items: [GroceryItem]
@@ -26,12 +27,15 @@ struct RecipeDetailView: View {
     let meals = ["Breakfast", "Lunch", "Dinner", "Snacks"]
     @State private var image: Image?
     @State private var imageURL: URL?
+    @StateObject var tripManager = TripManager()
+    @State private var totalCalories = 0
+    @State private var totalGrams = 0
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
                     ZStack {
-                        LinearGradient(gradient: Gradient(colors: [Color(red: 0.67, green: 0.85, blue: 0.76),.white]),
+                        LinearGradient(gradient: Gradient(colors: [Color(red: 0.67, green: 0.85, blue: 0.76), .white]),
                                        startPoint: .bottom,
                                        endPoint: .top)
                         .frame(height: UIScreen.main.bounds.height * 0.6)
@@ -40,10 +44,18 @@ struct RecipeDetailView: View {
                             .ignoresSafeArea(.all)
                         VStack {
                             Text(recipe.title)
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .padding(.top)
+                            Text("Total Calories: \(totalCalories)")
+                                .font(
+                                Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
+                                )
+                            Text("Total Grams: \(totalGrams)")
+                                .font(
+                                Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
+                                )
                             if let imageURL = imageURL {
                                 AsyncImage(url: imageURL) { phase in
                                     switch phase {
@@ -97,6 +109,13 @@ struct RecipeDetailView: View {
                                 }
                                 .padding(.horizontal)
                             }
+                            Button("Add to my plan", action: {showAddToPlanSheet = true})
+                                    .font(.headline)
+                                    .padding(10)
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color(red: 0, green: 0.41, blue: 0.22))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(20)
                             if !recipe.filter.isEmpty {
                                 HStack {
                                     Text("Filters:")
@@ -113,66 +132,58 @@ struct RecipeDetailView: View {
                                             .cornerRadius(9)
                                             .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                                     }
+                                    Spacer()
                                 }
-                                .padding(.bottom, 8)
                             }
-                            
                             HStack {
                                 Text("Servings: \(servings)")
                                     .font(.title2)
                                     .font(.system(size: 24, weight: .bold))
                                 Spacer()
                                 Button(action: { if servings > 1 { servings -= 1 } }) {
-                                    Image(systemName: "minus.circle").foregroundColor(.red)
+                                    Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
                                 }
                                 Button(action: { servings += 1 }) {
-                                    Image(systemName: "plus.circle").foregroundColor(.green)
+                                    Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
                                 }
+                                Spacer()
                             }
                             .frame(width: UIScreen.main.bounds.width - 20)
+                            .padding(.bottom, 25)
                         }
                         .frame(width: UIScreen.main.bounds.width - 10)
                     }
                     ZStack {
-                        LinearGradient(gradient: Gradient(colors: [Color(red: 0.67, green: 0.85, blue: 0.76),.white]),
+                        LinearGradient(gradient: Gradient(colors: [Color(red: 0.67, green: 0.85, blue: 0.76), .white]),
                                        startPoint: .top,
                                        endPoint: .center)
-                        .offset(y: -30)
+                            .offset(y: -30)
                         .edgesIgnoringSafeArea([.all])
                         VStack {
                             Text("Ingredients:")
                                 .font(.title2)
                                 .font(.system(size: 24, weight: .bold))
-                                .font(.title2)
                                 .padding(.vertical)
                             ForEach(mutableIngredients.indices, id: \.self) { index in
                                 viewIngredient(ingredient: $mutableIngredients[index], servings: servings)
                             }
                             .frame(width: UIScreen.main.bounds.width - 50)
-                            Button(action: {
-                                showAddToPlanSheet = true
-                            }) {
-                                Text("Add to My Plan")
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                                    .padding()
-                            }
                         }
+                        .offset(y: -10)
                     }
                 }
             }
             .navigationBarTitle("Meal Details", displayMode: .inline)
         }
         .sheet(isPresented: $showAddToPlanSheet) {
-            MealSelectionView(selectedDay: $selectedDay, selectedMeal: $selectedMeal, servings: $servings) {
+            MealSelectionView(selectedTrip: $selectedTrip, selectedDay: $selectedDay, selectedMeal: $selectedMeal, servings: $servings)
+            {
                 addRecipeToPlan()
             }
+            .environmentObject(tripManager)
         }
         .onAppear {
+            updateTotals()
             mutableIngredients = recipe.ingredients
             if let urlString = recipe.img, let imageUrl = URL(string: urlString) {
                 self.imageURL = imageUrl
@@ -232,7 +243,9 @@ struct RecipeDetailView: View {
             meal: selectedMeal,
             recipeTitle: recipe.title,
             servings: servings,
-            tripName: selectedTrip.name
+            tripName: selectedTrip.name,
+            totalCalories: totalCalories,
+            totalGrams: totalGrams
         )
         modelContext.insert(newMealEntry)
         do {
@@ -242,16 +255,24 @@ struct RecipeDetailView: View {
             print("❌ Failed to save meal entry: \(error.localizedDescription)")
         }
     }
+    func updateTotals() {
+            totalCalories = mutableIngredients.reduce(0) { sum, ingredient in
+                sum + (ingredient.calories ?? 0) * servings
+            }
+            totalGrams = mutableIngredients.reduce(0) { sum, ingredient in
+                sum + (ingredient.weight ?? 0) * servings
+            }
+        }
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>, servings: Int) -> some View {
         let ingredientName = ingredient.wrappedValue.name.capitalized
         let adjustedAmount = (ingredient.wrappedValue.amount ?? 0.0) * Double(servings)
         let formattedAmount = "\(String(format: "%.1f", adjustedAmount)) \(ingredient.wrappedValue.unit)"
         let groceryItemName = "\(formattedAmount) of \(ingredientName)"
-        
         HStack {
             VStack(alignment: .leading) {
                 Text(ingredientName).fontWeight(.bold)
+                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 20))
                 Text("Amount: \(formattedAmount)").font(.caption)
                 Text("Calories: \((ingredient.wrappedValue.calories ?? 0) * servings) kcal").font(.caption)
                 Text("Weight: \((ingredient.wrappedValue.weight ?? 0) * servings) g").font(.caption)
@@ -275,7 +296,7 @@ struct RecipeDetailView: View {
             }
         }
         .padding()
-            .cornerRadius(9) 
+            .cornerRadius(9)
             .overlay(
                 RoundedRectangle(cornerRadius: 9)
                     .stroke(Color(red: 0, green: 0.41, blue: 0.22), lineWidth: 1)

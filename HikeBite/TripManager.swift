@@ -15,21 +15,36 @@ class TripManager: ObservableObject {
             objectWillChange.send()  // Forces SwiftUI to refresh
         }
     }
-
     func fetchTrips(modelContext: ModelContext) {
         do {
             let fetchedTrips: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
-            print("📂 TripManager Fetch: \(fetchedTrips.count) trips found.")
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.trips = fetchedTrips
+            if fetchedTrips.isEmpty {
+                print("🚨 No trips found after fetch.")
+            } else {
+                print("📂 TripManager Fetch: \(fetchedTrips.count) trips found.")
             }
+            trips = fetchedTrips
         } catch {
             print("❌ Failed to fetch trips: \(error.localizedDescription)")
         }
     }
+
+//    func fetchTrips(modelContext: ModelContext) {
+//        do {
+//            let fetchedTrips: [Trip] = try modelContext.fetch(FetchDescriptor<Trip>())
+//            print("Fetched trips: \(fetchedTrips.map { $0.name })")
+//            print("📂 TripManager Fetch: \(fetchedTrips.count) trips found.")
+//
+//            DispatchQueue.main.async { [weak self] in
+//                guard let self = self else { return }
+//                self.trips = fetchedTrips
+//            }
+//        } catch {
+//            print("❌ Failed to fetch trips: \(error.localizedDescription)")
+//        }
+//    }
     deinit {
         print("TripManager is being deinitialized")
     }
 }
+

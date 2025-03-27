@@ -8,67 +8,69 @@
 import SwiftUI
 
 struct MealSelectionView: View {
+    @Binding var selectedTrip: Trip?
     @Binding var selectedDay: String
     @Binding var selectedMeal: String
     @Binding var servings: Int
     var onSave: () -> Void
 
-    let days = ["Day 1", "Day 2", "Day 3"]
-    let meals = ["Breakfast", "Lunch", "Dinner", "Snacks"]
-
+    @EnvironmentObject var tripManager: TripManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         NavigationView {
-            VStack {
-                Picker("Select a Day", selection: $selectedDay) {
-                    ForEach(days, id: \.self) { day in
-                        Text(day)
+            Form {
+                Section(header: Text("Select a Trip")) {
+                    if tripManager.trips.isEmpty {
+                        Text("No trips available. Please add a trip first.")
+                    } else {
+                        Picker("Trip", selection: $selectedTrip) {
+                            ForEach(tripManager.trips, id: \.id) { trip in
+                                Text(trip.name).tag(trip as Trip?)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .padding()
 
-                Picker("Select a Meal", selection: $selectedMeal) {
-                    ForEach(meals, id: \.self) { meal in
-                        Text(meal)
+                // Ensure a trip is selected before showing these options
+                if let trip = selectedTrip {
+                    Section(header: Text("Select a Day")) {
+                        Picker("Day", selection: $selectedDay) {
+                            ForEach(1...(trip.days), id: \.self) { day in
+                                Text("Day \(day)")
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
+
+                    Section(header: Text("Select a Meal")) {
+                        Picker("Meal", selection: $selectedMeal) {
+                            ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { meal in
+                                Text(meal)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
+
+                    Section(header: Text("Servings")) {
+                        Stepper("Servings: \(servings)", value: $servings, in: 1...20)
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .padding()
-                HStack {
-                    Text("Servings: \(servings)")
-                        .font(.headline)
-                    Spacer()
-                    Button(action: { if servings > 1 { servings -= 1 } }) {
-                        Image(systemName: "minus.circle")
-                            .foregroundColor(.red)
-                    }
-                    Button(action: { servings += 1 }) {
-                        Image(systemName: "plus.circle")
-                            .foregroundColor(.green)
-                    }
-                }
-                .padding()
-                Button(action: {
+
+                Button("Add to Plan") {
                     onSave()
                     dismiss()
-                }) {
-                    Text("Add to Plan")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                 }
-                .padding()
-                Button(action: { dismiss() }) {
-                    Text("Cancel").foregroundColor(.red)
-                }
-                .padding()
+                .disabled(selectedTrip == nil)
             }
             .navigationTitle("Add to Plan")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(trailing: Button("Cancel", action: { dismiss() }))
+        }
+        .onAppear {
+            tripManager.fetchTrips(modelContext: modelContext)
         }
     }
 }
+

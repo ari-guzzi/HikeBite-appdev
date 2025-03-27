@@ -97,59 +97,90 @@ struct AddMealView: View {
     }
     // Determines whether a recipe should be included based on filters
     private func shouldIncludeResult(_ result: Result) -> Bool {
-        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
+        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter ?? []))
     }
     private func addMeal(recipe: Result) {
-        guard !day.isEmpty, !mealType.isEmpty else {
-            print("❌ Error: Attempting to add a meal with missing day or mealType.")
+        guard !day.isEmpty, !mealType.isEmpty, let recipeId = recipe.id else {
+            print("❌ Error: Attempting to add a meal with missing information.")
             return
         }
-        let newMeal = MealEntry(
-            id: UUID(),
-            day: day,
-            meal: mealType,
-            recipeTitle: recipe.title,
-            servings: 1,
-            tripName: tripName
-        )
-        modelContext.insert(newMeal)
-
-        do {
-            try modelContext.save()
-            print("✅ Added \(recipe.title) to \(tripName) on \(day) for \(mealType)")
-            DispatchQueue.main.async {
-                dismiss()
+        
+        let db = Firestore.firestore()
+        db.collection("Recipes").document(recipeId).getDocument { documentSnapshot, error in
+            guard let document = documentSnapshot, document.exists else {
+                print("Error fetching ingredients: \(error?.localizedDescription ?? "Unknown error")")
+                return
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                refreshMeals()
+            
+            let ingredients = (document.data()?["ingredients"] as? [[String: Any]])?.compactMap { dict -> IngredientPlain? in
+                try? JSONDecoder().decode(IngredientPlain.self, from: JSONSerialization.data(withJSONObject: dict))
+            } ?? []
+            
+            let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
+            let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
+            
+            let newMeal = MealEntry(
+                day: day,
+                meal: mealType,
+                recipeTitle: recipe.title,
+                servings: 1,
+                tripName: tripName,
+                totalCalories: totalCalories,
+                totalGrams: totalGrams
+            )
+            
+            self.modelContext.insert(newMeal)
+            
+            do {
+                try self.modelContext.save()
+                print("✅ Added \(recipe.title) to \(tripName) on \(day) for \(mealType) with \(totalCalories) calories and \(totalGrams) grams.")
+                DispatchQueue.main.async {
+                    self.dismiss()
+                    self.refreshMeals()
+                }
+            } catch {
+                print("❌ Failed to add meal: \(error.localizedDescription)")
             }
-        } catch {
-            print("❌ Failed to add meal: \(error.localizedDescription)")
         }
     }
+
+
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
-        print("📢 Fetching recipes from Firestore (Attempt 1)...")
         db.collection("Recipes").getDocuments { snapshot, error in
-            if let error = error {
-                print("❌ Error fetching recipes: \(error.localizedDescription)")
-                DispatchQueue.main.async { isLoading = false }
-                return
-            }
             guard let documents = snapshot?.documents else {
-                print("⚠️ No recipes found.")
-                DispatchQueue.main.async { isLoading = false }
+                print("⚠️ No recipes found or error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-            print("📜 Raw Firestore Data: \(documents.map { $0.data() })")
-            let fetchedRecipes = documents.compactMap { doc -> Result? in
-                try? doc.data(as: Result.self)
+            var tempRecipes: [Result] = []
+            var tempCaloriesAndGrams: [UUID: (calories: Int, grams: Int)] = [:]  // Dictionary to hold calories and grams
+
+            for document in documents {
+                do {
+                    let recipe = try document.data(as: Result.self)
+                    if let recipeIDString = recipe.id, let recipeUUID = UUID(uuidString: recipeIDString) {
+                        let ingredients = (document.data()["ingredients"] as? [[String: Any]])?.compactMap { dict -> IngredientPlain? in
+                            try? JSONDecoder().decode(IngredientPlain.self, from: JSONSerialization.data(withJSONObject: dict))
+                        } ?? []
+
+                        let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
+                        let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
+                        
+                        tempRecipes.append(recipe)
+                        tempCaloriesAndGrams[recipeUUID] = (totalCalories, totalGrams)
+                    }
+                } catch {
+                    print("Error processing recipe document: \(error)")
+                }
             }
+
+
             DispatchQueue.main.async {
-                self.recipes = fetchedRecipes
+                self.recipes = tempRecipes
+                // Now you have calories and grams stored in a dictionary where you can use them as needed
                 self.isLoading = false
-                print("✅ Successfully fetched \(fetchedRecipes.count) recipes.")
             }
         }
     }
+
 }

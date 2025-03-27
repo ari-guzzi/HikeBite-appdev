@@ -16,10 +16,10 @@ struct ContentView: View {
     @State private var showingFilter = false
     @Binding var selectedTrip: Trip?
     init(selectedTrip: Binding<Trip?>) {
-                self._selectedTrip = selectedTrip
-            UITableView.appearance().backgroundColor = .clear
-            UITableViewCell.appearance().backgroundColor = .clear
-        }
+        self._selectedTrip = selectedTrip
+        UITableView.appearance().backgroundColor = .clear
+        UITableViewCell.appearance().backgroundColor = .clear
+    }
     var body: some View {
         NavigationView {
             ZStack {
@@ -28,7 +28,7 @@ struct ContentView: View {
                                endPoint: .bottom)
                 .edgesIgnoringSafeArea([.top, .leading, .trailing])
                 VStack {
-                    HStack{
+                    HStack {
                         Text("Sort Meals")
                             .foregroundColor(Color("AccentColor"))
                             .padding(.leading, 30)
@@ -48,7 +48,6 @@ struct ContentView: View {
                                 showingFilter = false
                             }
                         }
-                    
                 }
                 
                 .onAppear {
@@ -93,7 +92,7 @@ struct ContentView: View {
         }
     }
     func shouldIncludeResult(_ result: Result) -> Bool {
-        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter))
+        activeFilters.isEmpty || Set(activeFilters).isSubset(of: Set(result.filter ?? []))
     }
     func fetchData(searchQuery: String = "") {
         let db = Firestore.firestore()
@@ -198,7 +197,6 @@ func getDownloadURL(for imageName: String, completion: @escaping (String?) -> Vo
             print("Error fetching URL: \(error.localizedDescription)")
             completion(nil)
         } else if let url = url {
-            print("Fetched URL: \(url.absoluteString)")
             completion(url.absoluteString)  // This is the HTTP URL
         }
     }
