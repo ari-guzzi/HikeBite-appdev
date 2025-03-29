@@ -172,22 +172,20 @@ struct PlansView: View {
         return Section(header: Text(day)
                 .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
                 .frame(maxWidth: .infinity, alignment: .leading)) {
-                DaysView(
-                mealsForDay: mealsForThisDay,
-                deleteMeal: deleteMeal,
-                swapMeal: { meal in
-                    mealToSwap = meal
-                    showingSwapSheet = true
-                },
-                tripName: selectedTrip?.name ?? "Unknown Trip",
-                refreshMeals: { fetchMeals() },
-                day: day,
-                selectedTab: $selectedTab,
-                showSnacksConsolidated: $showSnacksConsolidated
-            )
+                    DaysView(
+                        tripName: selectedTrip?.name ?? "Unknown Trip",
+                        day: day,
+                        deleteMeal: deleteMeal,
+                        swapMeal: { meal in
+                            mealToSwap = meal
+                            showingSwapSheet = true
+                        },
+                        refreshMeals: { fetchMeals() },
+                        selectedTab: $selectedTab,
+                        showSnacksConsolidated: $showSnacksConsolidated
+                    )
         }
     }
-    
     private func updateMealEntriesState() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.mealEntriesState = viewModel.mealEntries

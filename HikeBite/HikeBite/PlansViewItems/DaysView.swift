@@ -5,10 +5,11 @@
 //  Created by Ari Guzzi on 2/22/25.
 //
 
+import SwiftData
 import SwiftUI
 
 struct DaysView: View {
-    var mealsForDay: [MealEntry]
+    //var mealsForDay: [MealEntry]
     var deleteMeal: (MealEntry) -> Void
     var swapMeal: (MealEntry) -> Void
     var tripName: String
@@ -19,6 +20,29 @@ struct DaysView: View {
     @State private var showingAddMealSheet = false
     @State private var selectedMealType = ""
     let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+    @Query private var mealsForDay: [MealEntry]
+
+    init(
+        tripName: String,
+        day: String,
+        deleteMeal: @escaping (MealEntry) -> Void,
+        swapMeal: @escaping (MealEntry) -> Void,
+        refreshMeals: @escaping () -> Void,
+        selectedTab: Binding<Int>,
+        showSnacksConsolidated: Binding<Bool>
+    ) {
+        self.tripName = tripName
+        self.day = day
+        self.deleteMeal = deleteMeal
+        self.swapMeal = swapMeal
+        self.refreshMeals = refreshMeals
+        self._selectedTab = selectedTab
+        self._showSnacksConsolidated = showSnacksConsolidated
+
+        self._mealsForDay = Query(filter: #Predicate<MealEntry> { meal in
+            meal.tripName == tripName && meal.day == day
+        })
+    }
 
     var body: some View {
         VStack {
