@@ -42,6 +42,16 @@ struct PlansView: View {
             mainContent
         }
         .padding(0)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    isShowingPopover = true
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                        .foregroundColor(.gray)
+                }
+            }
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.mealEntriesState = mealEntries // Force update from @Query
@@ -103,13 +113,6 @@ struct PlansView: View {
                 TripImageView(tripName: selectedTrip?.name ?? "Unknown Trip")
                     .offset(y: -70)
                 Text("Total Calories: \(calculateTotals().calories) | Total Weight: \(calculateTotals().grams) g")
-                Button {
-                    self.isShowingPopover = true
-                } label: {
-                    Image(systemName: "gearshape.2")
-                        .foregroundColor(.gray)
-                        .accessibilityLabel("Plan Settings")
-                }
                 scrollViewContent
             }
         }
@@ -363,14 +366,14 @@ struct TripImageView: View {
                         .frame(height: 112)
                     }
                 )
-            Text(tripName ?? "Unknown Trip")
-                .font(
-                    Font.custom("Area Normal", size: 24)
-                        .weight(.bold)
-                )
-                .foregroundColor(.black)
-                .frame(width: 287, height: 45.25401, alignment: .topLeading)
-                .offset(x: -40, y: -90)
+                Text(tripName ?? "Unknown Trip")
+                    .font(
+                        Font.custom("Area Normal", size: 24)
+                            .weight(.bold)
+                    )
+                    .foregroundColor(.black)
+                    .frame(width: 287, height: 45.25401, alignment: .topLeading)
+                    .offset(x: -40, y: -90)
             VStack {
                 Spacer()
                 Rectangle()
