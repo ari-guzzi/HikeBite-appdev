@@ -14,7 +14,7 @@ struct ProfileView: View {
     @Binding var selectedTab: Int
     @Binding var showLogin: Bool
     @EnvironmentObject var viewModel: AuthViewModel
-    
+    @State private var showWelcomeSheet = false
     var upcomingTrips: [Trip] {
         let now = Date()
         let upcoming = tripManager.trips.filter {
@@ -115,22 +115,64 @@ struct ProfileView: View {
                                     }
                                 }
                             }
-                        }
-                        ZStack(alignment: .bottom) {
-                            Image("transparentBackgroundAbstractmountain")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 405, height: 114)
-                                .clipped()
-                                .opacity(0.2)
+                            ZStack(alignment: .bottom) {
+                                Image("transparentBackgroundAbstractmountain")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 405, height: 114)
+                                    .clipped()
+                                    .opacity(0.2)
+                                PlanNewTrip()
+                                    .padding(.bottom, 25)
+                            }
+                            ZStack {
+                                VStack {
+                                    Rectangle()
+                                        .foregroundColor(.clear)
+                                        .frame(width: 413, height: 243)
+                                        .background(
+                                            Image("trees")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 413, height: 243)
+                                                .clipped()
+                                        )
+                                        .cornerRadius(9)
+                                }
+                                VStack {
+                                    Text("Not sure where to start?")
+                                        .font(.title3)
+                                        .foregroundColor(.white)
+                                    ZStack {
+                                        Button {
+                                            showWelcomeSheet = true
+                                        } label: {
+                                            Label("Explore HikeBite", systemImage: "point.topleft.filled.down.to.point.bottomright.curvepath")
+                                                .font(.headline)
+                                                .padding()
+                                                .frame(maxWidth: .infinity)
+                                                .background(Color(.white))
+                                                .foregroundColor(Color("AccentColor"))
+                                                .cornerRadius(30)
+                                                .padding(.horizontal)
+                                                .frame(width: 300)
+                                        }
+                                    }
+                                    .padding(.top, 20)
+                                }
+                                .sheet(isPresented: $showWelcomeSheet) {
+                                    WelcomeToHikeBite()
+                                }
+                                
+                            }
                         }
                     }
                 }
             }
-            .onAppear {
-                if tripManager.trips.isEmpty {
-                    tripManager.fetchTrips(modelContext: modelContext)
-                }
+        }
+        .onAppear {
+            if tripManager.trips.isEmpty {
+                tripManager.fetchTrips(modelContext: modelContext)
             }
         }
     }

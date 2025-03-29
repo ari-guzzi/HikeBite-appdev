@@ -13,59 +13,104 @@ struct CreateTripView: View {
     @State private var warningMessage: String?
     var templateMaxDays: Int
     var onTripCreated: (String, Int, Date) -> Void
+    
     var body: some View {
-        VStack {
-            Text("Create a New Trip")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding()
-            TextField("Enter trip name", text: $tripName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
+        ZStack {
+            Image("topolines")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .opacity(0.08)
+                .blur(radius: 2)
             
-            HStack {
-                Text("Number of Days: \(numberOfDays)")
-                Spacer()
-                Stepper("", value: $numberOfDays, in: 1...14)
-                    .onChange(of: numberOfDays) { newValue in
-                        if newValue > templateMaxDays {
-                            warningMessage = "❌ This template only supports up to \(templateMaxDays) days."
-                        } else {
-                            warningMessage = nil
-                        }
+            VStack {
+                Image("vector")
+                Text("Create a New Trip Plan")
+                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.black)
+                    .frame(width: 369, alignment: .top)
+                    .padding(.bottom, 6)
+                Text("Trip Name")
+                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 32))
+                    .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                    .frame(width: 326, alignment: .leading)
+                TextField("Enter trip name", text: $tripName)
+                    .font(Font.custom("Area Normal", size: 16))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
+                    .frame(width: 326, alignment: .leading)
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 357, height: 100)
+                        .background(Color.white)
+                        .cornerRadius(9)
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    HStack {
+                        Text("Trip Length:")
+                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
+                            .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        
+                        Text("\(numberOfDays) days")
+                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
+                            .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        
+                        Stepper("", value: $numberOfDays, in: 1...14)
+                            .labelsHidden()
                     }
-            }
-            .padding()
-            DatePicker("Trip Date", selection: $tripDate, displayedComponents: .date)
-                .padding()
-            if let warningMessage = warningMessage {
-                Text(warningMessage)
-                    .font(.headline)
-                    .foregroundColor(.red)
-                    .padding()
-                    .transition(.opacity)
-            }
-            Button(action: {
-                if numberOfDays > templateMaxDays {
-                    warningMessage = "❌ Cannot create trip. Requested \(numberOfDays) days, but the template only has \(templateMaxDays) days."
-                } else {
-                    warningMessage = nil
-                    onTripCreated(tripName, numberOfDays, tripDate)
+                    .padding(.horizontal, 10)
                 }
-            }) {
-                Text("Start Planning")
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(tripName.isEmpty || numberOfDays > templateMaxDays ? Color.gray : Color.blue)
-                    .cornerRadius(10)
-                    .padding()
+                .padding()
+                .onChange(of: numberOfDays) { newValue in
+                    if newValue > templateMaxDays {
+                        warningMessage = "❌ This template only supports up to \(templateMaxDays) days."
+                    } else {
+                        warningMessage = nil
+                    }
+                }
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 357, height: 100)
+                        .background(Color.white)
+                        .cornerRadius(9)
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    
+                    DatePicker("Start Date", selection: $tripDate, displayedComponents: .date)
+                        .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 32))
+                        .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        .frame(width: 326, alignment: .leading)
+                        .padding()
+                }
+                if let warningMessage = warningMessage {
+                    Text(warningMessage)
+                        .font(.headline)
+                        .foregroundColor(.red)
+                        .padding(.top, 5)
+                        .transition(.opacity)
+                }
+                Button(action: {
+                    if numberOfDays > templateMaxDays {
+                        warningMessage = "❌ Cannot create trip. Requested \(numberOfDays) days, but the template only has \(templateMaxDays) days."
+                    } else {
+                        warningMessage = nil
+                        onTripCreated(tripName, numberOfDays, tripDate)
+                    }
+                }) {
+                    Text("Create this Trip Plan")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(tripName.isEmpty || numberOfDays > templateMaxDays ? Color.gray : Color("AccentColor"))
+                        .cornerRadius(10)
+                        .padding()
+                }
+                .disabled(tripName.isEmpty || numberOfDays > templateMaxDays)
+                .frame(width: 326, alignment: .leading)
+                Spacer()
             }
-            .disabled(tripName.isEmpty || numberOfDays > templateMaxDays)
-            
-            Spacer()
         }
-        .padding()
-        .animation(.easeInOut, value: warningMessage)
     }
 }
+

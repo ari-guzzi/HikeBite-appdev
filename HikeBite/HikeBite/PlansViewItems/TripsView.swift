@@ -93,7 +93,8 @@ struct TripsView: View {
         }
         .onChange(of: selectedTrip) { newValue in
             if newValue != nil {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                // Give it a slight delay to allow view to appear before pushing
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     shouldNavigateToPlans = true
                 }
             }
@@ -207,9 +208,9 @@ struct TripsView: View {
                                                                selectedTab: $selectedTab)
                                     ) {
                                         UpcomingTripCardPlansView(trip: trip)
-                                            .onAppear {
-                                                self.selectedTrip = trip
-                                            }
+//                                            .onAppear {
+//                                                self.selectedTrip = trip
+//                                            }
                                     }
                                     .simultaneousGesture(TapGesture().onEnded {
                                         self.selectedTrip = trip
@@ -262,12 +263,6 @@ struct TripsView: View {
                 }
                 .padding()
                 Spacer()
-//                Button(action: {
-//                    selectedTrip = trip
-//                    selectedTab = 2
-//                }) {
-//                    Image(systemName: "calendar.circle.fill").foregroundColor(.black).padding()
-//                }
             }
             .listRowBackground(Color.clear)
             .frame(width: UIScreen.main.bounds.width - 40, height: 56)
@@ -293,64 +288,6 @@ struct TripsView: View {
             }
         } catch {
             print("❌ Failed to save trip: \(error.localizedDescription)")
-        }
-    }
-    private struct PlanNewTrip: View {
-        var body: some View {
-            VStack {
-                Text("Plan a new trip")
-                    .font(
-                        Font.custom("Area Normal", size: 24)
-                            .weight(.bold)
-                    )
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.black)
-                ZStack {
-                    Rectangle()
-                        .foregroundColor(.clear)
-                        .frame(width: 360, height: 58)
-                        .background(.white)
-                        .cornerRadius(9)
-                    HStack {
-                        Text("Trip name")
-                            .font(
-                                Font.custom("Area Normal", size: 16)
-                                    .weight(.bold)
-                            )
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(Color(red: 0.15, green: 0.6, blue: 0.38).opacity(0.4))
-                        Spacer()
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(width: 4, height: 25)
-                            .background(Color(red: 0.15, green: 0.6, blue: 0.38).opacity(0.4))
-                            .cornerRadius(9)
-                        Spacer()
-                        Text("Date")
-                            .font(
-                                Font.custom("Area Normal", size: 16)
-                                    .weight(.bold)
-                            )
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(Color(red: 0.15, green: 0.6, blue: 0.38).opacity(0.4))
-                        Spacer()
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(width: 4, height: 25)
-                            .background(Color(red: 0.15, green: 0.6, blue: 0.38).opacity(0.4))
-                            .cornerRadius(9)
-                        Spacer()
-                        Text("# of days")
-                            .font(
-                                Font.custom("Area Normal", size: 16)
-                                    .weight(.bold)
-                            )
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(Color(red: 0.15, green: 0.6, blue: 0.38).opacity(0.4))
-                    }
-                    .frame(width: 300)
-                }
-            }
         }
     }
 }
