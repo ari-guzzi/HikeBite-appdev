@@ -200,21 +200,25 @@ struct TripsView: View {
                             HStack(spacing: 15) {
                                 ForEach(upcomingTrips) { trip in
                                     NavigationLink(
-                                        destination: PlansView(tripManager: tripManager,
-                                                               numberOfDays: trip.days,
-                                                               tripDate: trip.date,
-                                                               selectedTrip: $selectedTrip,
-                                                               modelContext: modelContext,
-                                                               selectedTab: $selectedTab)
+                                        destination: PlansView(
+                                            tripManager: tripManager,
+                                            numberOfDays: trip.days,
+                                            tripDate: trip.date,
+                                            selectedTrip: Binding(
+                                                get: { trip },
+                                                set: { _ in self.selectedTrip = trip }
+                                            ),
+                                            modelContext: modelContext,
+                                            selectedTab: $selectedTab)
                                     ) {
                                         UpcomingTripCardPlansView(trip: trip)
 //                                            .onAppear {
 //                                                self.selectedTrip = trip
 //                                            }
                                     }
-                                    .simultaneousGesture(TapGesture().onEnded {
-                                        self.selectedTrip = trip
-                                    })
+//                                    .simultaneousGesture(TapGesture().onEnded {
+//                                        self.selectedTrip = trip
+//                                    })
                                 }
                             }
                         }
