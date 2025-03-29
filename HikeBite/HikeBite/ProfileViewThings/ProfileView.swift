@@ -14,35 +14,42 @@ struct ProfileView: View {
     @Binding var selectedTab: Int
     @Binding var showLogin: Bool
     @EnvironmentObject var viewModel: AuthViewModel
-
+    
     var upcomingTrips: [Trip] {
         let now = Date()
-        let upcoming = tripManager.trips.filter { $0.date >= now }
-        print("⏳ Filtering upcoming trips: \(upcoming.count) found")
+        let upcoming = tripManager.trips.filter {
+            if let endDate = Calendar.current.date(byAdding: .day, value: $0.days, to: $0.date) {
+                return endDate >= now
+            }
+            return false
+        }
         return upcoming
     }
-
+    
     var previousTrips: [Trip] {
         let now = Date()
-        let past = tripManager.trips.filter { $0.date < now }
-        print("⏳ Filtering previous trips: \(past.count) found")
+        let past = tripManager.trips.filter {
+            if let endDate = Calendar.current.date(byAdding: .day, value: $0.days, to: $0.date) {
+                return endDate < now
+            }
+            return false
+        }
         return past
     }
     init(tripManager: TripManager, selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, showLogin: Binding<Bool>) {
         self._tripManager = ObservedObject(initialValue: tripManager)
-            self._selectedTrip = selectedTrip
-            self._selectedTab = selectedTab
-            self._showLogin = showLogin
-        // This will make the background of all UITableViews in the app transparent.
+        self._selectedTrip = selectedTrip
+        self._selectedTab = selectedTab
+        self._showLogin = showLogin
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
-//        for familyName in UIFont.familyNames {
-//            print(familyName)
-//            for fontName in UIFont.fontNames(forFamilyName: familyName) {
-//                print("--\(fontName)")
-//            }
-//        }
+        //        for familyName in UIFont.familyNames {
+        //            print(familyName)
+        //            for fontName in UIFont.fontNames(forFamilyName: familyName) {
+        //                print("--\(fontName)")
+        //            }
+        //        }
     }
     var body: some View {
         NavigationStack {
@@ -76,52 +83,46 @@ struct ProfileView: View {
                                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                             )
                             .cornerRadius(9)
-
+                        
                     }
                     .padding()
-                    if tripManager.trips.isEmpty {
-                        Text("No trips yet. Create a new one!")
-                            .foregroundColor(.gray)
-                            .padding()
-                    } else {
+                    ScrollView {
                         ScrollView {
-                            ScrollView {
-                                if !upcomingTrips.isEmpty {
-                                    ZStack {
-                                        FunnyLines()
-                                        VStack {
-                                            HStack {
-                                                Text("Upcoming Trips")
-                                                    .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                                    .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                                    .padding(.leading, 30)
-                                                Spacer()
-                                            }
-                                            ScrollView(.horizontal, showsIndicators: false) {
-                                                HStack(spacing: 10) {
-                                                    ForEach(upcomingTrips) { trip in
-                                                        Button(action: {
-                                                            selectedTrip = trip
-                                                            selectedTab = 2
-                                                        }) {
-                                                            TripCardView(trip: trip)
-                                                        }
+                            if !upcomingTrips.isEmpty {
+                                ZStack {
+                                    FunnyLines()
+                                    VStack {
+                                        HStack {
+                                            Text("Upcoming Trips")
+                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
+                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
+                                                .padding(.leading, 30)
+                                            Spacer()
+                                        }
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 10) {
+                                                ForEach(upcomingTrips) { trip in
+                                                    Button(action: {
+                                                        selectedTrip = trip
+                                                        selectedTab = 2
+                                                    }) {
+                                                        TripCardView(trip: trip)
                                                     }
                                                 }
-                                                .padding(.horizontal)
                                             }
+                                            .padding(.horizontal)
                                         }
                                     }
                                 }
                             }
-                            ZStack(alignment: .bottom) {
-                                Image("transparentBackgroundAbstractmountain")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 405, height: 114)
-                                    .clipped()
-                                    .opacity(0.2)
-                            }
+                        }
+                        ZStack(alignment: .bottom) {
+                            Image("transparentBackgroundAbstractmountain")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 405, height: 114)
+                                .clipped()
+                                .opacity(0.2)
                         }
                     }
                 }

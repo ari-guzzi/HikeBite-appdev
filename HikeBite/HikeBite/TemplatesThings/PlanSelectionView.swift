@@ -36,13 +36,16 @@ struct PlanSelectionView: View {
                         .foregroundColor(.gray)
                         .padding()
             } else {
-                Picker("Select Trip", selection: $selectedTrip) {
-                    ForEach(tripManager.trips, id: \.id) { trip in
-                        Text(trip.name).tag(trip as Trip?)
+                HStack {
+                    Text("Select a trip to add this plan to:")
+                    Picker("Select Trip", selection: $selectedTrip) {
+                        ForEach(tripManager.trips, id: \.id) { trip in
+                            Text(trip.name).tag(trip as Trip?)
+                        }
                     }
+                    .pickerStyle(MenuPickerStyle())
+                    .padding()
                 }
-                .pickerStyle(MenuPickerStyle())
-                .padding()
             }
             if let trip = selectedTrip {
                 let templateMaxDays = template.mealTemplates.keys.compactMap { Int($0.filter { $0.isNumber }) }.max() ?? 0
@@ -71,7 +74,7 @@ struct PlanSelectionView: View {
                             Text("Add to Current Plan: \(trip.name)")
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color.green)
+                                .background(Color("AccentLight"))
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
@@ -91,7 +94,7 @@ struct PlanSelectionView: View {
                 Text("Add to New Plan")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color("AccentColor"))
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }

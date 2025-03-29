@@ -17,16 +17,26 @@ struct TripsView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @State var numberOfDays: Int
     @State var tripDate: Date
-
+    @State private var shouldNavigateToPlans = false
     var upcomingTrips: [Trip] {
         let now = Date()
-        let upcoming = tripManager.trips.filter { $0.date >= now }
+        let upcoming = tripManager.trips.filter {
+            if let endDate = Calendar.current.date(byAdding: .day, value: $0.days, to: $0.date) {
+                return endDate >= now
+            }
+            return false
+        }
         return upcoming
     }
 
     var previousTrips: [Trip] {
         let now = Date()
-        let past = tripManager.trips.filter { $0.date < now }
+        let past = tripManager.trips.filter {
+            if let endDate = Calendar.current.date(byAdding: .day, value: $0.days, to: $0.date) {
+                return endDate < now
+            }
+            return false
+        }
         return past
     }
     init(tripManager: TripManager, selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, showLogin: Binding<Bool>, numberOfDays: Int, tripDate: Date) {
@@ -51,6 +61,20 @@ struct TripsView: View {
             ZStack {
                 BackgroundGradient()
                 VStack(spacing: 0) {
+                    NavigationLink(
+                        destination: PlansView(
+                            tripManager: tripManager,
+                            numberOfDays: selectedTrip?.days ?? 0,
+                            tripDate: selectedTrip?.date ?? Date(),
+                            selectedTrip: $selectedTrip,
+                            modelContext: modelContext,
+                            selectedTab: $selectedTab
+                        ),
+                        isActive: $shouldNavigateToPlans
+                    ) {
+                        EmptyView()
+                    }
+                    .hidden()
                     header
                     tripContent
                         .frame(width: UIScreen.main.bounds.width)
@@ -67,6 +91,14 @@ struct TripsView: View {
                 tripManager.fetchTrips(modelContext: modelContext)
             }
         }
+        .onChange(of: selectedTrip) { newValue in
+            if newValue != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    shouldNavigateToPlans = true
+                }
+            }
+        }
+
     } // body
     private var header: some View {
         HStack {

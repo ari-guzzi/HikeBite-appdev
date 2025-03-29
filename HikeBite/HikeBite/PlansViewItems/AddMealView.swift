@@ -169,42 +169,4 @@ struct AddMealView: View {
             }
         }
     }
-//    private func fetchRecipesFromFirebase() {
-//        let db = Firestore.firestore()
-//        db.collection("Recipes").getDocuments { snapshot, error in
-//            guard let documents = snapshot?.documents else {
-//                print("⚠️ No recipes found or error: \(error?.localizedDescription ?? "Unknown error")")
-//                return
-//            }
-//            var tempRecipes: [Result] = []
-//            var tempCaloriesAndGrams: [UUID: (calories: Int, grams: Int)] = [:]  // Dictionary to hold calories and grams
-//
-//            for document in documents {
-//                do {
-//                    let recipe = try document.data(as: Result.self)
-//                    if let recipeIDString = recipe.id, let recipeUUID = UUID(uuidString: recipeIDString) {
-//                        let ingredients = (document.data()["ingredients"] as? [[String: Any]])?.compactMap { dict -> IngredientPlain? in
-//                            try? JSONDecoder().decode(IngredientPlain.self, from: JSONSerialization.data(withJSONObject: dict))
-//                        } ?? []
-//
-//                        let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
-//                        let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
-//                        
-//                        tempRecipes.append(recipe)
-//                        tempCaloriesAndGrams[recipeUUID] = (totalCalories, totalGrams)
-//                    }
-//                } catch {
-//                    print("Error processing recipe document: \(error)")
-//                }
-//            }
-//
-//
-//            DispatchQueue.main.async {
-//                self.recipes = tempRecipes
-//                // Now you have calories and grams stored in a dictionary where you can use them as needed
-//                self.isLoading = false
-//            }
-//        }
-//    }
-
 }

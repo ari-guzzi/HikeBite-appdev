@@ -20,30 +20,36 @@ struct TemplatePreviewView: View {
     @Environment(\.modelContext) private var modelContext
     var dismissTemplates: () -> Void
     var body: some View {
-        VStack {
-            Text(template.title)
-                .font(.largeTitle)
-                .padding()
-            
-            List {
-                ForEach(template.mealTemplates.keys.sorted(), id: \.self) { day in
-                    Section(header: Text(day.capitalized)) {
-                        ForEach(template.mealTemplates[day]!.keys.sorted(), id: \.self) { mealType in
-                            Text("\(mealType.capitalized): \(mealNames[day]?[mealType] ?? "Loading...")")
+        ZStack {
+            BackgroundGradient()
+                .ignoresSafeArea(.all)
+            FunnyLines()
+                .ignoresSafeArea(.all)
+            VStack {
+                Text(template.title)
+                    .font(.largeTitle)
+                    .padding()
+                
+                List {
+                    ForEach(template.mealTemplates.keys.sorted(), id: \.self) { day in
+                        Section(header: Text(day.capitalized)) {
+                            ForEach(template.mealTemplates[day]!.keys.sorted(), id: \.self) { mealType in
+                                Text("\(mealType.capitalized): \(mealNames[day]?[mealType] ?? "Loading...")")
+                            }
                         }
                     }
                 }
+                Button {
+                    showPlanSelection = true
+                } label: {
+                    Label("Use This Template", systemImage: "checkmark.circle")
+                        .padding()
+                        .background(Color("AccentColor"))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding()
             }
-            Button {
-                showPlanSelection = true
-            } label: {
-                Label("Use This Template", systemImage: "checkmark.circle")
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-            }
-            .padding()
         }
         .onAppear {
             fetchMealNames()

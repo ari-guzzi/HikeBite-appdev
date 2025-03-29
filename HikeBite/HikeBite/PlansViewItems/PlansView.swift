@@ -24,6 +24,7 @@ struct PlansView: View {
     @State var tripDate: Date
     @Binding var selectedTab: Int
     @Binding var selectedTrip: Trip?
+    @State private var isShowingPopover = false
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
@@ -48,20 +49,9 @@ struct PlansView: View {
                 updateAndPrintSnacks()
             }
         }
-
         .onChange(of: mealEntries) { _ in
             updateMealEntriesState()
         }
-//        .onChange(of: selectedTrip) { newTrip in
-//            guard let newTrip = newTrip else {
-//                print("❌ No trip selected!")
-//                return
-//            }
-//            print("🔄 Trip changed to: \(newTrip.name)")
-//            numberOfDays = newTrip.days // Don't delete this
-//            tripDate = newTrip.date // Don't delete this
-//            fetchMeals()
-//        }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             if let trip = selectedTrip {
                 DuplicatePlanView(originalTrip: trip, duplicatePlan: duplicatePlan)
@@ -92,6 +82,19 @@ struct PlansView: View {
                 }
             }
         }
+        .popover(
+                    isPresented: $isShowingPopover, arrowEdge: .bottom
+        ) {
+            snackToggle
+            DuplicatePlanButton {
+                showDuplicatePlanSheet = true
+            }
+        }
+    }
+    private func calculateTotals() -> (calories: Int, grams: Int) {
+        let totalCalories = mealEntriesState.reduce(0) { $0 + $1.totalCalories }
+        let totalGrams = mealEntriesState.reduce(0) { $0 + $1.totalGrams }
+        return (totalCalories, totalGrams)
     }
     private var mainContent: some View {
         VStack(spacing: 0) {
@@ -99,9 +102,13 @@ struct PlansView: View {
                 PlanHeaderView()
                 TripImageView(tripName: selectedTrip?.name ?? "Unknown Trip")
                     .offset(y: -70)
-                snackToggle
-                DuplicatePlanButton {
-                    showDuplicatePlanSheet = true
+                Text("Total Calories: \(calculateTotals().calories) | Total Weight: \(calculateTotals().grams) g")
+                Button {
+                    self.isShowingPopover = true
+                } label: {
+                    Image(systemName: "gearshape.2")
+                        .foregroundColor(.gray)
+                        .accessibilityLabel("Plan Settings")
                 }
                 scrollViewContent
             }
@@ -109,13 +116,13 @@ struct PlansView: View {
         .edgesIgnoringSafeArea(.top)
     }
     private var backgroundView: some View {
-            Image("topolines")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .edgesIgnoringSafeArea(.all)
-                .opacity(0.08)
-                .blur(radius: 2)
-        }
+        Image("topolines")
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .edgesIgnoringSafeArea(.all)
+            .opacity(0.08)
+            .blur(radius: 2)
+    }
     private var snackToggle: some View {
         VStack {
             Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
@@ -126,7 +133,6 @@ struct PlansView: View {
                 .frame(maxWidth: UIScreen.main.bounds.width - 10)
         }
     }
-
     private var scrollViewContent: some View {
         ScrollView {
             ForEach(days, id: \.self, content: mealSectionView)
@@ -137,14 +143,13 @@ struct PlansView: View {
                     mealToSwap = meal
                     showingSwapSheet = true
                 },
-                   tripName: selectedTrip?.name ?? "Unknown Trip",
-                   refreshMeals: { fetchMeals() }
+                           tripName: selectedTrip?.name ?? "Unknown Trip",
+                           refreshMeals: { fetchMeals() }
                 )
             }
         }
         .frame(maxWidth: UIScreen.main.bounds.width - 10)
     }
-
     private func updateAndPrintSnacks() {
         if showSnacksConsolidated {
             consolidatedSnacks = viewModel.mealEntries.filter { $0.meal.lowercased() == "snacks" }
@@ -161,7 +166,6 @@ struct PlansView: View {
             print("Snacks consolidation is off.")
         }
     }
-
     private func mealSectionView(for day: String) -> some View {
         let mealsForThisDay = mealsForDay(day: day)
         print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
@@ -183,6 +187,7 @@ struct PlansView: View {
             )
         }
     }
+    
     private func updateMealEntriesState() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.mealEntriesState = viewModel.mealEntries
@@ -263,13 +268,33 @@ struct PlansView: View {
     }
     private func deleteMeal(_ meal: MealEntry) {
         modelContext.delete(meal)
+        refreshMeals()
+        fetchMeals()
         do {
+            refreshMeals()
             try modelContext.save()
-            print("✅ Deleted meal: \(meal.recipeTitle)")
+            fetchMeals()
+            // Remove the meal from the current state to immediately reflect changes
+            mealEntriesState.removeAll { $0.id == meal.id }
+            print("Meal deleted successfully.")
+            refreshMeals() // Call refresh to ensure UI is in sync with the latest data state.
         } catch {
-            print("❌ Error deleting meal: \(error.localizedDescription)")
+            print("Error deleting meal: \(error.localizedDescription)")
         }
     }
+
+    private func refreshMeals() {
+        DispatchQueue.main.async {
+            self.mealEntriesState = self.mealEntriesState.filter { !$0.isDeleted }
+            print("State after deletion: \(self.mealEntriesState.map { $0.id })")
+        }
+    }
+
+    private func fetchFilteredMeals() -> [MealEntry] {
+        // Implement fetching logic here
+        return []
+    }
+
     private func fetchMeals() {
         print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
         
