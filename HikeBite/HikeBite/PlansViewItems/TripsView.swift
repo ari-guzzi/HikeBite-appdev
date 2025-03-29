@@ -212,13 +212,7 @@ struct TripsView: View {
                                             selectedTab: $selectedTab)
                                     ) {
                                         UpcomingTripCardPlansView(trip: trip)
-//                                            .onAppear {
-//                                                self.selectedTrip = trip
-//                                            }
                                     }
-//                                    .simultaneousGesture(TapGesture().onEnded {
-//                                        self.selectedTrip = trip
-//                                    })
                                 }
                             }
                         }

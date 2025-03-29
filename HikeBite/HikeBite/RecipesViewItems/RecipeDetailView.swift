@@ -31,6 +31,7 @@ struct RecipeDetailView: View {
     @State private var totalCalories = 0
     @State private var totalGrams = 0
     var body: some View {
+        let columns = [GridItem(.adaptive(minimum: 80), spacing: 10)]
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
@@ -124,7 +125,7 @@ struct RecipeDetailView: View {
                                         .padding(.vertical, 4)
                                     Spacer()
                                 }
-                                HStack {
+                                LazyVGrid(columns: columns, alignment: .leading, spacing: 3) {
                                     ForEach(recipe.filter, id: \.self) { filter in
                                         Text(filter)
                                             .padding(8)
@@ -132,24 +133,39 @@ struct RecipeDetailView: View {
                                             .cornerRadius(9)
                                             .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                                     }
+                                }
+
+//                                HStack {
+//                                    ForEach(recipe.filter, id: \.self) { filter in
+//                                        Text(filter)
+//                                            .padding(8)
+//                                            .background(Color(red: 0.91, green: 1, blue: 0.96))
+//                                            .cornerRadius(9)
+//                                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+//                                    }
+//                                    Spacer()
+//                                }
+                            }
+                            ZStack {
+                                Color(red: 0.67, green: 0.85, blue: 0.76)
+                                    .edgesIgnoringSafeArea(.all)
+                                HStack {
+                                    Text("Servings: \(servings)")
+                                        .font(.title2)
+                                        .font(.system(size: 24, weight: .bold))
+                                    Spacer()
+                                    Button(action: { if servings > 1 { servings -= 1 } }) {
+                                        Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
+                                    }
+                                    Button(action: { servings += 1 }) {
+                                        Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
+                                    }
                                     Spacer()
                                 }
+                                .frame(width: UIScreen.main.bounds.width - 20)
+                                .padding(.bottom, 25)
+                                .background(Color(red: 0.67, green: 0.85, blue: 0.76))
                             }
-                            HStack {
-                                Text("Servings: \(servings)")
-                                    .font(.title2)
-                                    .font(.system(size: 24, weight: .bold))
-                                Spacer()
-                                Button(action: { if servings > 1 { servings -= 1 } }) {
-                                    Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
-                                }
-                                Button(action: { servings += 1 }) {
-                                    Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
-                                }
-                                Spacer()
-                            }
-                            .frame(width: UIScreen.main.bounds.width - 20)
-                            .padding(.bottom, 25)
                         }
                         .frame(width: UIScreen.main.bounds.width - 10)
                     }
@@ -183,8 +199,8 @@ struct RecipeDetailView: View {
             .environmentObject(tripManager)
         }
         .onAppear {
-            updateTotals()
             mutableIngredients = recipe.ingredients
+            updateTotals()
             if let urlString = recipe.img, let imageUrl = URL(string: urlString) {
                 self.imageURL = imageUrl
                 print("Using URL: \(imageUrl)")

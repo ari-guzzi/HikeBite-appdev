@@ -39,7 +39,7 @@ struct MealSelectionView: View {
                     Section(header: Text("Select a Day")) {
                         Picker("Day", selection: $selectedDay) {
                             ForEach(1...(trip.days), id: \.self) { day in
-                                Text("Day \(day)")
+                                Text("Day \(day)").tag("Day \(day)")
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
