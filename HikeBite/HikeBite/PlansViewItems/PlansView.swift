@@ -39,7 +39,9 @@ struct PlansView: View {
     var body: some View {
         ZStack {
             backgroundView
+                .blur(radius: isShowingPopover ? 4 : 0)
             mainContent
+                .blur(radius: isShowingPopover ? 4 : 0)
             if isShowingPopover {
                 Color.black.opacity(0.001) // invisible but tappable
                     .ignoresSafeArea()
