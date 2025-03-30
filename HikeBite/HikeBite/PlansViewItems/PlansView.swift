@@ -40,12 +40,35 @@ struct PlansView: View {
         ZStack {
             backgroundView
             mainContent
+            if isShowingPopover {
+                Color.black.opacity(0.001) // invisible but tappable
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        isShowingPopover = false
+                    }
+                VStack(alignment: .center, spacing: 16) {
+                    snackToggle
+                    DuplicatePlanButton {
+                        showDuplicatePlanSheet = true
+                    }
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 8)
+                .frame(width: 240)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+                .position(x: UIScreen.main.bounds.width - 50, y: 100)
+            }
         }
         .padding(0)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    isShowingPopover = true
+                    isShowingPopover.toggle()
                 } label: {
                     Image(systemName: "gearshape.fill")
                         .foregroundColor(.gray)
@@ -92,14 +115,6 @@ struct PlansView: View {
                 }
             }
         }
-        .popover(
-                    isPresented: $isShowingPopover, arrowEdge: .bottom
-        ) {
-            snackToggle
-            DuplicatePlanButton {
-                showDuplicatePlanSheet = true
-            }
-        }
     }
     private func calculateTotals() -> (calories: Int, grams: Int) {
         let totalCalories = mealEntriesState.reduce(0) { $0 + $1.totalCalories }
@@ -128,7 +143,7 @@ struct PlansView: View {
     }
     private var snackToggle: some View {
         VStack {
-            Toggle("Show Snacks/Trip instead of Snacks/Day", isOn: $showSnacksConsolidated)
+            Toggle("Show Snacks per Trip instead of per Day", isOn: $showSnacksConsolidated)
                 .onChange(of: showSnacksConsolidated) { newValue in
                     viewModel.updateSnacksVisibility(show: newValue)
                     updateAndPrintSnacks()

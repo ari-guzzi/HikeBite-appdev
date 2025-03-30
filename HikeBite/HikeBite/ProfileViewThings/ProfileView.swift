@@ -15,6 +15,10 @@ struct ProfileView: View {
     @Binding var showLogin: Bool
     @EnvironmentObject var viewModel: AuthViewModel
     @State private var showWelcomeSheet = false
+    @State private var showCreatePlanSheet = false
+    @State private var numberOfDays: Int = 0
+    @State private var tripDate: Date = Date()
+
     var upcomingTrips: [Trip] {
         let now = Date()
         let upcoming = tripManager.trips.filter {
@@ -71,6 +75,7 @@ struct ProfileView: View {
                         }
                     }
                     ProfileNameView()
+                ScrollView {
                     NavigationLink(destination: GroceryList()) {
                         Text("View Grocery List")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
@@ -86,7 +91,6 @@ struct ProfileView: View {
                         
                     }
                     .padding()
-                    ScrollView {
                         ScrollView {
                             if !upcomingTrips.isEmpty {
                                 ZStack {
@@ -122,8 +126,10 @@ struct ProfileView: View {
                                     .frame(width: 405, height: 114)
                                     .clipped()
                                     .opacity(0.2)
-                                PlanNewTrip()
-                                    .padding(.bottom, 25)
+                                Button(action: { showCreatePlanSheet = true }) {
+                                    PlanNewTrip()
+                                        .padding(.bottom, 25)
+                                }
                             }
                             ZStack {
                                 VStack {
@@ -170,10 +176,33 @@ struct ProfileView: View {
                 }
             }
         }
+        .sheet(isPresented: $showCreatePlanSheet) {
+            CreatePlanView { name, days, date in
+                saveNewPlan(name: name, days: days, date: date)
+                tripManager.fetchTrips(modelContext: modelContext)
+            }
+        }
         .onAppear {
             if tripManager.trips.isEmpty {
                 tripManager.fetchTrips(modelContext: modelContext)
             }
+        }
+    }
+    private func saveNewPlan(name: String, days: Int, date: Date) {
+        do {
+            let newTrip = Trip(name: name, days: days, date: date)
+            modelContext.insert(newTrip)
+            try modelContext.save()
+            print("✅ New trip saved successfully")
+            DispatchQueue.main.async {
+                self.selectedTrip = newTrip
+                self.numberOfDays = newTrip.days
+                self.tripDate = newTrip.date
+                showCreatePlanSheet = false
+                selectedTab = 2
+            }
+        } catch {
+            print("❌ Failed to save trip: \(error.localizedDescription)")
         }
     }
 }
