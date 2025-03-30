@@ -42,6 +42,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Override Firebase App Check provider to prevent DeviceCheck leaks
         let providerFactory = NoOpAppCheckProviderFactory()
         AppCheck.setAppCheckProviderFactory(providerFactory)
+        let settings = Firestore.firestore().settings
+            settings.isPersistenceEnabled = false  // Disable offline persistence
+            Firestore.firestore().settings = settings
+        
         return true
     }
     // Force Disable DeviceCheck API by Swizzling its Method (Last Resort)
