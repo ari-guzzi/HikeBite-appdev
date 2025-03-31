@@ -2,7 +2,9 @@ import SwiftUI
 
 struct WelcomeToHikeBite: View {
     @State private var currentPage = 0
-
+    @State private var showRegistrationSheet = false
+    @State private var showLoginSheet = false
+    @State private var showLogin = false
     var body: some View {
         TabView(selection: $currentPage) {
             OnboardingPageView(
@@ -52,14 +54,20 @@ struct WelcomeToHikeBite: View {
                 textColor: .black,
                 buttonText: "Create a HikeBite account",
                 buttonAction: {
-                    // link to signup HERE
+                    showRegistrationSheet = true // link to signup HERE
                 },
                 secondaryButtonText: "I already have an account",
                 secondaryButtonAction: {
-                    // link to login HERE
+                    showLoginSheet = true
                 }
             )
             .tag(3)
+            .sheet(isPresented: $showRegistrationSheet) {
+                RegistrationView(showLogin: $showLogin)
+            }
+            .sheet(isPresented: $showLoginSheet) {
+                LoginView(showLogin: $showLogin)
+            }
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
         .ignoresSafeArea()
