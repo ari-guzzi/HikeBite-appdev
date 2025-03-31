@@ -18,16 +18,10 @@ struct WelcomeToHikeBite: View {
 
             OnboardingPageView(
                 title: "Not sure where to start?",
-                subtitle: "Use a HikeBite HikeBite Template \nto help plan meals for your trip",
+                subtitle: "Use a HikeBite HikeBite Template\nfor a premade meal plan for \nyour trip or search through \nour meal ideas to create your own.",
                 description: " ",
                 backgroundImage: "campsite",
-                textColor: .white,
-                buttonText: "See more on our website",
-                buttonAction: {
-                    if let url = URL(string: "https://hikebitetrail.com/") {
-                        UIApplication.shared.open(url)
-                    }
-                }
+                textColor: .white
             )
             .tag(1)
 
@@ -39,7 +33,7 @@ struct WelcomeToHikeBite: View {
                 textColor: .white,
                 buttonText: "HikeBite expert tips",
                 buttonAction: {
-                    if let url = URL(string: "https://hikebitetrail.com/") {
+                    if let url = URL(string: "https://hikebitetrail.com/adventure-tips") {
                         UIApplication.shared.open(url)
                     }
                 }
@@ -107,16 +101,19 @@ struct OnboardingPageView: View {
 
                 VStack(spacing: 12) {
                     if backgroundImage == "stovepeople" {
-                        LinearGradient(
+                        /*LinearGradient(
                             gradient: Gradient(colors: [Color.white.opacity(    0.8), Color("279A62").opacity(0.8)]),
                             startPoint: .bottomLeading,
                             endPoint: .top
                         )
+
                         .frame(height: 200)
                         .cornerRadius(10)
                         .padding(.horizontal, 20)
+
                         .overlay(
-                            VStack(spacing: 12) {
+                            */
+                            VStack(spacing: 40) {
                                 Text(title)
                                     .font(.largeTitle)
                                     .bold()
@@ -131,7 +128,6 @@ struct OnboardingPageView: View {
                                 }
                             }
                             .padding()
-                        )
                     } else {
                         Text(title)
                             .font(.largeTitle)
