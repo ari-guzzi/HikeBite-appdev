@@ -18,7 +18,13 @@ struct ProfileView: View {
     @State private var showCreatePlanSheet = false
     @State private var numberOfDays: Int = 0
     @State private var tripDate: Date = Date()
+    @Query var entries: [MealEntry]
+    //@State var results: [Result] = []
+    let results: [Result]
+    @Binding var selectedTemplate: MealPlanTemplate?
+    @Binding var showTemplatePreview: Bool
 
+    var isLoadingRecipes: Bool
     var upcomingTrips: [Trip] {
         let now = Date()
         let upcoming = tripManager.trips.filter {
@@ -40,11 +46,25 @@ struct ProfileView: View {
         }
         return past
     }
-    init(tripManager: TripManager, selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, showLogin: Binding<Bool>) {
+    init(
+        tripManager: TripManager,
+        selectedTrip: Binding<Trip?>,
+        selectedTab: Binding<Int>,
+        showLogin: Binding<Bool>,
+        results: [Result],
+        isLoadingRecipes: Bool,
+        selectedTemplate: Binding<MealPlanTemplate?>,
+        showTemplatePreview: Binding<Bool>
+    ) {
         self._tripManager = ObservedObject(initialValue: tripManager)
         self._selectedTrip = selectedTrip
         self._selectedTab = selectedTab
         self._showLogin = showLogin
+        self._selectedTemplate = selectedTemplate
+        self._showTemplatePreview = showTemplatePreview
+        self.results = results
+        self.isLoadingRecipes = isLoadingRecipes
+
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
@@ -75,22 +95,22 @@ struct ProfileView: View {
                         }
                     }
                     ProfileNameView()
-                ScrollView {
-                    NavigationLink(destination: GroceryList()) {
-                        Text("View Grocery List")
-                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
-                            .foregroundColor(.black)
-                            .padding(10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 9)
-                                    .stroke(Color(red: 0.15, green: 0.6, blue: 0.38), lineWidth: 1)
-                                    .background(Color.white)
-                                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                            )
-                            .cornerRadius(9)
-                        
-                    }
-                    .padding()
+                    ScrollView {
+                        NavigationLink(destination: GroceryList()) {
+                            Text("View Grocery List")
+                                .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
+                                .foregroundColor(.black)
+                                .padding(10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 9)
+                                        .stroke(Color(red: 0.15, green: 0.6, blue: 0.38), lineWidth: 1)
+                                        .background(Color.white)
+                                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                                )
+                                .cornerRadius(9)
+                            
+                        }
+                        .padding()
                         ScrollView {
                             if !upcomingTrips.isEmpty {
                                 ZStack {
@@ -116,21 +136,36 @@ struct ProfileView: View {
                                             }
                                             .padding(.horizontal)
                                         }
+                                        TryOutATemplate(
+                                            selectedTemplate: $selectedTemplate,
+                                            showTemplatePreview: $showTemplatePreview,
+                                            selectedTab: $selectedTab
+                                        )
+                                        Spacer()
                                     }
                                 }
                             }
-                            ZStack(alignment: .bottom) {
-                                Image("transparentBackgroundAbstractmountain")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 405, height: 114)
-                                    .clipped()
-                                    .opacity(0.2)
-                                Button(action: { showCreatePlanSheet = true }) {
-                                    PlanNewTrip()
-                                        .padding(.bottom, 25)
+                            VStack {
+                                ZStack(alignment: .bottom) {
+                                    Image("transparentBackgroundAbstractmountain")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 405, height: 114)
+                                        .clipped()
+                                        .opacity(0.2)
+                                    Button("Create a new trip plan", action: { showCreatePlanSheet = true })
+                                        .padding(.horizontal, 30)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 30)
+                                                .fill(Color("AccentColor"))
+                                        )
+                                        .foregroundColor(.white)
+                                        .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
+                                        .padding(.bottom, 30)
                                 }
                             }
+                            .padding(.top, 60)
                             ZStack {
                                 VStack {
                                     Rectangle()
@@ -169,7 +204,16 @@ struct ProfileView: View {
                                 .sheet(isPresented: $showWelcomeSheet) {
                                     WelcomeToHikeBite()
                                 }
-                                
+                            }
+                            if isLoadingRecipes {
+                                ProgressView("Loading meal ideas...")
+                                    .padding()
+                            } else {
+                                DiscoverMealIdeas(
+                                    results: results,
+                                    entries: entries
+                                )
+                                .offset(y: -10)
                             }
                         }
                     }

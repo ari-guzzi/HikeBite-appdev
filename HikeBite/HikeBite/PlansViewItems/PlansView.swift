@@ -128,7 +128,7 @@ struct PlansView: View {
             ScrollView {
                 PlanHeaderView()
                 TripImageView(tripName: selectedTrip?.name ?? "Unknown Trip")
-                    .offset(y: -70)
+                    .offset(y: -10)
                 Text("Total Calories: \(calculateTotals().calories) | Total Weight: \(calculateTotals().grams) g")
                 scrollViewContent
             }

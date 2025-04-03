@@ -12,15 +12,33 @@ import SwiftUI
 
 struct Templates: View {
     @StateObject var viewModel: TemplateViewModel
-    @State var selectedTemplate: MealPlanTemplate?
+    //@State var selectedTemplate: MealPlanTemplate?
     @Binding var selectedTrip: Trip?
-    @State private var isShowingPreview = false
+    //@State private var isShowingPreview = false
     @Binding var selectedTab: Int
     @State private var hasAttemptedFirstLoad = false
+    @Binding var externalSelectedTemplate: MealPlanTemplate?
+    @Binding var externalShowPreview: Bool
+//    var selectedTemplate: MealPlanTemplate? {
+//        get { externalSelectedTemplate }
+//        set { externalSelectedTemplate = newValue }
+//    }
+//    var isShowingPreview: Bool {
+//        get { externalShowPreview }
+//        set { externalShowPreview = newValue }
+//    }
     
-    init(selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, fetchMeals: @escaping () -> Void) {
+    init(
+        selectedTrip: Binding<Trip?>,
+        selectedTab: Binding<Int>,
+        fetchMeals: @escaping () -> Void,
+        externalSelectedTemplate: Binding<MealPlanTemplate?>,
+        externalShowPreview: Binding<Bool>
+    ) {
         _selectedTrip = selectedTrip
         _selectedTab = selectedTab
+        _externalSelectedTemplate = externalSelectedTemplate
+        _externalShowPreview = externalShowPreview
         _viewModel = StateObject(wrappedValue: TemplateViewModel(fetchMeals: fetchMeals))
     }
     var body: some View {
@@ -50,9 +68,9 @@ struct Templates: View {
                                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 16) {
                                     ForEach(viewModel.templates) { template in
                                         Button {
-                                            selectedTemplate = template
+                                            externalSelectedTemplate = template
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                                isShowingPreview = true
+                                                externalShowPreview = true
                                             }
                                         } label: {
                                             VStack {
@@ -106,17 +124,19 @@ struct Templates: View {
                         }
                     }
                     .sheet(isPresented: Binding(
-                        get: { isShowingPreview && selectedTemplate != nil },
-                        set: { isShowingPreview = $0 }
+                        get: { externalShowPreview && externalSelectedTemplate != nil },
+                        set: { externalShowPreview = $0 }
                     )) {
-                        if var selectedTemplate = selectedTemplate {
+                        if var selectedTemplate = externalSelectedTemplate {
                             TemplatePreviewView(
                                 template: selectedTemplate,
                                 selectedTrip: $selectedTrip,
                                 selectedTab: $selectedTab,
                                 dismissTemplates: {
-                                    isShowingPreview = false
-                                    selectedTemplate = MealPlanTemplate(id: "", title: "", img: "", mealTemplates: [:])
+                                    externalShowPreview = false
+//                                    selectedTemplate = MealPlanTemplate(id: "", title: "", img: "", mealTemplates: [:])
+                                    externalSelectedTemplate = MealPlanTemplate(id: "", title: "", img: "", mealTemplates: [:])
+
                                 }
                             )
                             .id(selectedTemplate.id)
