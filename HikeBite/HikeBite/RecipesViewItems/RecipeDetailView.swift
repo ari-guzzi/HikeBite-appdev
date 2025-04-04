@@ -134,7 +134,7 @@ struct RecipeDetailView: View {
                                             .background(Color(red: 0.91, green: 1, blue: 0.96))
                                             .cornerRadius(20)
                                             .fixedSize() // prevents word wrap
-                                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                                     }
                                 }
                                 .padding(.horizontal, 5)

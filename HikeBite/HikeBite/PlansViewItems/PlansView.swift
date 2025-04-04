@@ -25,6 +25,7 @@ struct PlansView: View {
     @Binding var selectedTab: Int
     @Binding var selectedTrip: Trip?
     @State private var isShowingPopover = false
+    @State private var isShowingSummary = false
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
@@ -97,6 +98,11 @@ struct PlansView: View {
                 saveNewPlan(name: name, days: days, date: date)
             }
         }
+        .sheet(isPresented: $isShowingSummary) {
+            if let trip = selectedTrip {
+                    TripSummaryView(trip: trip, allMeals: mealEntriesState)
+                }
+        }
         .sheet(isPresented: Binding(
             get: { showingSwapSheet && mealToSwap != nil },
             set: { showingSwapSheet = $0 }
@@ -131,6 +137,17 @@ struct PlansView: View {
                     .offset(y: -10)
                 Text("Total Calories: \(calculateTotals().calories) | Total Weight: \(calculateTotals().grams) g")
                 scrollViewContent
+                Button("Summarize Trip", action: { isShowingSummary = true })
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 30)
+                            .fill(Color("AccentColor"))
+                    )
+                    .foregroundColor(.white)
+                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
+                Text("All trips are automatically saved for offline use.")
+                    .font(.caption)
             }
         }
         .edgesIgnoringSafeArea(.top)
