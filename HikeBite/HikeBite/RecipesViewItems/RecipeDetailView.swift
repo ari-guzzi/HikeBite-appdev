@@ -45,7 +45,7 @@ struct RecipeDetailView: View {
                             .ignoresSafeArea(.all)
                         VStack {
                             Text(recipe.title)
-                                .frame(maxWidth: .infinity)
+                                .frame(width: UIScreen.main.bounds.width)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .padding(.top)
@@ -125,47 +125,44 @@ struct RecipeDetailView: View {
                                         .padding(.vertical, 4)
                                     Spacer()
                                 }
-                                LazyVGrid(columns: columns, alignment: .leading, spacing: 3) {
+                                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
                                     ForEach(recipe.filter, id: \.self) { filter in
-                                        Text(filter)
-                                            .padding(8)
+                                        Text(filter.capitalized)
+                                            .font(.system(size: 14, weight: .medium))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 8)
                                             .background(Color(red: 0.91, green: 1, blue: 0.96))
-                                            .cornerRadius(9)
-                                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                                            .cornerRadius(20)
+                                            .fixedSize() // prevents word wrap
+                                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                                     }
                                 }
-
-//                                HStack {
-//                                    ForEach(recipe.filter, id: \.self) { filter in
-//                                        Text(filter)
-//                                            .padding(8)
-//                                            .background(Color(red: 0.91, green: 1, blue: 0.96))
-//                                            .cornerRadius(9)
-//                                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-//                                    }
-//                                    Spacer()
-//                                }
+                                .padding(.horizontal, 5)
                             }
                             ZStack {
                                 Color(red: 0.67, green: 0.85, blue: 0.76)
                                     .edgesIgnoringSafeArea(.all)
-                                HStack {
-                                    Text("Servings: \(servings)")
-                                        .font(.title2)
-                                        .font(.system(size: 24, weight: .bold))
-                                    Spacer()
-                                    Button(action: { if servings > 1 { servings -= 1 } }) {
-                                        Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
+                                VStack {
+                                    HStack {
+                                        Text("Servings: \(servings)")
+                                            .font(.title2)
+                                            .font(.system(size: 24, weight: .bold))
+                                        Spacer()
+                                        Button(action: { if servings > 1 { servings -= 1 } }) {
+                                            Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
+                                        }
+                                        Button(action: { servings += 1 }) {
+                                            Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
+                                        }
+                                        Spacer()
                                     }
-                                    Button(action: { servings += 1 }) {
-                                        Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
-                                    }
-                                    Spacer()
+                                    .frame(width: UIScreen.main.bounds.width - 20)
+                                    .padding(.bottom, 25)
+                                    //.background(Color(red: 0.67, green: 0.85, blue: 0.76))
                                 }
-                                .frame(width: UIScreen.main.bounds.width - 20)
-                                .padding(.bottom, 25)
-                                .background(Color(red: 0.67, green: 0.85, blue: 0.76))
                             }
+                            .frame(width: UIScreen.main.bounds.width)
+                            .background(Color(red: 0.67, green: 0.85, blue: 0.76))
                         }
                         .frame(width: UIScreen.main.bounds.width - 10)
                     }

@@ -25,6 +25,8 @@ struct MainView: View {
     @State private var isLoadingRecipes = true
     @State var selectedTemplate: MealPlanTemplate? = nil
     @State var showTemplatePreview: Bool = false
+    @State var selectedRecipe: Result? = nil
+    @State var showRecipeDetail: Bool = false
 
     @State private var selectedTrip: Trip? {
         didSet {
@@ -33,16 +35,23 @@ struct MainView: View {
             }
         }
     }
+    init() {
+        UITabBar.appearance().backgroundColor = UIColor.white
+    }
     var body: some View {
         TabView(selection: $selectedTab) {
-            ProfileView(tripManager: tripManager,
-                        selectedTrip: $selectedTrip,
-                        selectedTab: $selectedTab,
-                        showLogin: $showLogin,
-                        results: results,
-                        isLoadingRecipes: isLoadingRecipes,
-                        selectedTemplate: $selectedTemplate,
-                        showTemplatePreview: $showTemplatePreview)
+            ProfileView(
+                tripManager: tripManager,
+                selectedTrip: $selectedTrip,
+                selectedTab: $selectedTab,
+                showLogin: $showLogin,
+                results: results,
+                isLoadingRecipes: isLoadingRecipes,
+                selectedTemplate: $selectedTemplate,
+                showTemplatePreview: $showTemplatePreview,
+                selectedRecipe: $selectedRecipe,
+                showRecipeDetail: $showRecipeDetail
+            )
                 .tabItem { Label("Profile", systemImage: "person.fill") }
                 .tag(0)
 
@@ -70,8 +79,12 @@ struct MainView: View {
                 }
             .tag(2)
 
-            ContentView(selectedTrip: $selectedTrip)
-                .tabItem {
+            ContentView(
+                selectedTrip: $selectedTrip,
+                externalSelectedRecipe: $selectedRecipe,
+                externalShowDetail: $showRecipeDetail
+            )
+            .tabItem {
                     Label("Meals", systemImage: "fork.knife")
                 }
                 .tag(3)

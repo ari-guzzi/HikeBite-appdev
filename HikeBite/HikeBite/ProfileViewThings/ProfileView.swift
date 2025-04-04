@@ -21,9 +21,11 @@ struct ProfileView: View {
     @Query var entries: [MealEntry]
     //@State var results: [Result] = []
     let results: [Result]
+    
     @Binding var selectedTemplate: MealPlanTemplate?
     @Binding var showTemplatePreview: Bool
-
+    @Binding var selectedRecipe: Result?
+    @Binding var showRecipeDetail: Bool
     var isLoadingRecipes: Bool
     var upcomingTrips: [Trip] {
         let now = Date()
@@ -54,7 +56,9 @@ struct ProfileView: View {
         results: [Result],
         isLoadingRecipes: Bool,
         selectedTemplate: Binding<MealPlanTemplate?>,
-        showTemplatePreview: Binding<Bool>
+        showTemplatePreview: Binding<Bool>,
+        selectedRecipe: Binding<Result?>,
+        showRecipeDetail: Binding<Bool>
     ) {
         self._tripManager = ObservedObject(initialValue: tripManager)
         self._selectedTrip = selectedTrip
@@ -62,9 +66,11 @@ struct ProfileView: View {
         self._showLogin = showLogin
         self._selectedTemplate = selectedTemplate
         self._showTemplatePreview = showTemplatePreview
+        self._selectedRecipe = selectedRecipe
+        self._showRecipeDetail = showRecipeDetail
         self.results = results
         self.isLoadingRecipes = isLoadingRecipes
-
+        
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
@@ -78,9 +84,18 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
-                               startPoint: .top,
-                               endPoint: .bottom)
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: .white, location: 0.0),
+                        .init(color: Color("AccentLight"), location: 0.965),
+                        .init(color: .white, location: 1.0)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+//                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
+//                                               startPoint: .top,
+//                                               endPoint: .bottom)
                 .edgesIgnoringSafeArea([.top, .leading, .trailing])
                 VStack {
                     if viewModel.currentUser == nil {
@@ -211,9 +226,12 @@ struct ProfileView: View {
                             } else {
                                 DiscoverMealIdeas(
                                     results: results,
-                                    entries: entries
+                                    entries: entries,
+                                    selectedTab: $selectedTab,
+                                    selectedRecipe: $selectedRecipe,
+                                    showRecipeDetail: $showRecipeDetail
                                 )
-                                .offset(y: -10)
+                                .offset(y: -12)
                             }
                         }
                     }

@@ -18,7 +18,7 @@ struct FunnyLines: View {
             .padding(0)
             .contentShape(Rectangle())
             .layoutPriority(1)
-            .blur(radius: 2)
+            .blur(radius: 0.75)
     }
 }
 

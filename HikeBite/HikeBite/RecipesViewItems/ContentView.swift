@@ -15,59 +15,134 @@ struct ContentView: View {
     @State private var activeFilters: Set<String> = []
     @State private var showingFilter = false
     @Binding var selectedTrip: Trip?
-    init(selectedTrip: Binding<Trip?>) {
+    @Binding var externalSelectedRecipe: Result?
+    @Binding var externalShowDetail: Bool
+    init(
+        selectedTrip: Binding<Trip?>,
+        externalSelectedRecipe: Binding<Result?>,
+        externalShowDetail: Binding<Bool>
+    ) {
         self._selectedTrip = selectedTrip
+        self._externalSelectedRecipe = externalSelectedRecipe
+        self._externalShowDetail = externalShowDetail
+
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
     }
-    var body: some View {
-        NavigationView {
-            ZStack {
-                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
-                               startPoint: .top,
-                               endPoint: .bottom)
-                .edgesIgnoringSafeArea([.top, .leading, .trailing])
-                VStack {
-                    HStack {
-                        Text("Sort Meals")
-                            .foregroundColor(Color("AccentColor"))
-                            .padding(.leading, 30)
-                        filterButton
-                        Spacer()
-                    }
-                    filteredList
+
+//    var body: some View {
+//        NavigationStack {
+//            ZStack {
+//                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
+//                               startPoint: .top,
+//                               endPoint: .bottom)
+//                .edgesIgnoringSafeArea([.top, .leading, .trailing])
+//                FunnyLines()
+//                VStack {
+//                    HStack {
+//                        Text("Sort Meals")
+//                            .foregroundColor(Color("AccentColor"))
+//                            .padding(.leading, 30)
+//                        filterButton
+//                        Spacer()
+//                    }
+//                    filteredList
+//                        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
+//                        .onChange(of: searchText) { newValue in
+//                            fetchData(searchQuery: newValue)
+//                        }
+//                        .navigationTitle("Meal Ideas")
+//                    
+//                        .sheet(isPresented: $showingFilter) {
+//                            FilterView(activeFilters: $activeFilters) {
+//                                showingFilter = false
+//                            }
+//                        }
+//                }
+//                
+//                .onAppear {
+//                    if FirebaseApp.app() != nil {
+//                        fetchData()
+//                    }
+//                }
+//                .toolbar {
+//                    ToolbarItem(placement: .navigationBarTrailing) {
+//                        NavigationLink(destination: AddRecipeView()) {
+//                            HStack{ Text("Upload a meal")
+//                                Image(systemName: "plus")
+//                                    .foregroundColor(.black)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            .navigationDestination(isPresented: $externalShowDetail) {
+//                if let selected = externalSelectedRecipe {
+//                    RecipeDetailView(recipe: selected)
+//                }
+//            }
+//        }
+//    }
+        var body: some View {
+            NavigationStack {
+                ZStack {
+                    LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
+                                   startPoint: .top,
+                                   endPoint: .bottom)
+                        .edgesIgnoringSafeArea(.all)
+                    FunnyLines()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .edgesIgnoringSafeArea(.all)
                     
-                        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
-                        .onChange(of: searchText) { newValue in
-                            fetchData(searchQuery: newValue)
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            Text("Sort Meals")
+                                .foregroundColor(Color("AccentColor"))
+                                .padding(.leading, 30)
+                            filterButton
+                            Spacer()
                         }
-                        .navigationTitle("Meal Ideas")
-                    
-                        .sheet(isPresented: $showingFilter) {
-                            FilterView(activeFilters: $activeFilters) {
-                                showingFilter = false
+
+                        filteredList
+                            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
+                            .onChange(of: searchText) { newValue in
+                                fetchData(searchQuery: newValue)
                             }
-                        }
+                            .navigationTitle("Meal Ideas")
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top)
                 }
-                
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        NavigationLink(destination: AddRecipeView()) {
+                            HStack {
+                                Text("Upload a meal")
+                                    .foregroundColor(.accentColor)
+                                Image(systemName: "plus")
+                            }
+                            .foregroundColor(.black)
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingFilter) {
+                    FilterView(activeFilters: $activeFilters) {
+                        showingFilter = false
+                    }
+                }
+                .navigationDestination(isPresented: $externalShowDetail) {
+                    if let selected = externalSelectedRecipe {
+                        RecipeDetailView(recipe: selected)
+                    }
+                }
                 .onAppear {
                     if FirebaseApp.app() != nil {
                         fetchData()
                     }
                 }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(destination: AddRecipeView()) {
-                            HStack{ Text("Upload a meal")
-                                Image(systemName: "plus")
-                                    .foregroundColor(.black)
-                            }
-                        }
-                    }
-                }
             }
         }
-    }
+
     var filteredList: some View {
         List(results.filter(shouldIncludeResult), id: \.id) { item in
             NavigationLink(destination: RecipeDetailView(recipe: item)) {
