@@ -27,6 +27,7 @@ struct MainView: View {
     @State var showTemplatePreview: Bool = false
     @State var selectedRecipe: Result? = nil
     @State var showRecipeDetail: Bool = false
+    @State private var isAuthenticated = false
 
     @State private var selectedTrip: Trip? {
         didSet {
@@ -94,7 +95,7 @@ struct MainView: View {
             fetchSpecificRecipes()
         }
         .sheet(isPresented: $showLogin) { // Show LoginView as a sheet when needed
-            LoginView(showLogin: $showLogin)
+            LoginView(showLogin: $showLogin, isAuthenticated: $isAuthenticated)
         }
         .sheet(isPresented: $showCreateTrip) {
             CreatePlanView { name, days, date in

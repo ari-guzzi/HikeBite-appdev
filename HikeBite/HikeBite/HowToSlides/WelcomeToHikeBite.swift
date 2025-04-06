@@ -1,10 +1,14 @@
 import SwiftUI
 
 struct WelcomeToHikeBite: View {
+    @Binding var isPresented: Bool
     @State private var currentPage = 0
     @State private var showRegistrationSheet = false
     @State private var showLoginSheet = false
     @State private var showLogin = false
+    @State private var isAuthenticated = false
+    @EnvironmentObject var viewModel: AuthViewModel
+
     var body: some View {
         TabView(selection: $currentPage) {
             OnboardingPageView(
@@ -15,7 +19,7 @@ struct WelcomeToHikeBite: View {
                 textColor: .white
             )
             .tag(0)
-
+            
             OnboardingPageView(
                 title: "Not sure where to start?",
                 subtitle: "Use a HikeBite HikeBite Template\nfor a premade meal plan for \nyour trip or search through \nour meal ideas to create your own.",
@@ -24,7 +28,7 @@ struct WelcomeToHikeBite: View {
                 textColor: .white
             )
             .tag(1)
-
+            
             OnboardingPageView(
                 title: "New to backpacking?",
                 subtitle: "Read tips from our certified experts \n to help plan your next adventure",
@@ -39,28 +43,70 @@ struct WelcomeToHikeBite: View {
                 }
             )
             .tag(2)
-
-            OnboardingPageView(
-                title: " ",
-                subtitle: nil,
-                description: nil,
-                backgroundImage: "backgroundimage",
-                textColor: .black,
-                buttonText: "Create a HikeBite account",
-                buttonAction: {
-                    showRegistrationSheet = true // link to signup HERE
-                },
-                secondaryButtonText: "I already have an account",
-                secondaryButtonAction: {
-                    showLoginSheet = true
+            //            OnboardingPageView(
+            //                title: " ",
+            //                subtitle: nil,
+            //                description: nil,
+            //                backgroundImage: "backgroundimage",
+            //                textColor: .black,
+            //                buttonText: "Create a HikeBite account",
+            //                buttonAction: {
+            //                    showRegistrationSheet = true // link to signup HERE
+            //                },
+            //                secondaryButtonText: "I already have an account",
+            //                secondaryButtonAction: {
+            //                    showLoginSheet = true
+            //                }
+            //            )
+            //            .tag(3)
+            Group {
+                if viewModel.currentUser == nil {
+                    OnboardingPageView(
+                        title: " ",
+                        subtitle: nil,
+                        description: nil,
+                        backgroundImage: "backgroundimage",
+                        textColor: .black,
+                        buttonText: "Create a HikeBite account",
+                        buttonAction: {
+                            showRegistrationSheet = true
+                        },
+                        secondaryButtonText: "I already have an account",
+                        secondaryButtonAction: {
+                            showLoginSheet = true
+                        }
+                    )
+                    .tag(3)
+                } else {
+                    OnboardingPageView(
+                        title: " ",
+                        subtitle: nil,
+                        description: nil,
+                        backgroundImage: "backgroundimage",
+                        textColor: .black,
+                        buttonText: "Get Started",
+                        buttonAction: {
+                            isPresented = false
+                        }
+                    )
+                    .tag(3)
                 }
-            )
-            .tag(3)
+            }
+            .onChange(of: isAuthenticated) { newValue in
+                if newValue {
+                    showLoginSheet = false
+                    showRegistrationSheet = false
+                    isPresented = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isAuthenticated = false // reset it after dismissal
+                    }
+                }
+            }
             .sheet(isPresented: $showRegistrationSheet) {
-                RegistrationView(showLogin: $showLogin)
+                RegistrationView(showLogin: $showLogin, isAuthenticated: $isAuthenticated)
             }
             .sheet(isPresented: $showLoginSheet) {
-                LoginView(showLogin: $showLogin)
+                LoginView(showLogin: $showLogin, isAuthenticated: $isAuthenticated)
             }
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
@@ -101,18 +147,6 @@ struct OnboardingPageView: View {
 
                 VStack(spacing: 12) {
                     if backgroundImage == "stovepeople" {
-                        /*LinearGradient(
-                            gradient: Gradient(colors: [Color.white.opacity(    0.8), Color("279A62").opacity(0.8)]),
-                            startPoint: .bottomLeading,
-                            endPoint: .top
-                        )
-
-                        .frame(height: 200)
-                        .cornerRadius(10)
-                        .padding(.horizontal, 20)
-
-                        .overlay(
-                            */
                             VStack(spacing: 40) {
                                 Text(title)
                                     .font(.largeTitle)
@@ -175,8 +209,4 @@ struct OnboardingPageView: View {
             .padding(.vertical, 30)
         }
     }
-}
-
-#Preview {
-    WelcomeToHikeBite()
 }

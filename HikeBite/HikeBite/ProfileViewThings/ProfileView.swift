@@ -217,7 +217,7 @@ struct ProfileView: View {
                                     .padding(.top, 20)
                                 }
                                 .sheet(isPresented: $showWelcomeSheet) {
-                                    WelcomeToHikeBite()
+                                    WelcomeToHikeBite(isPresented: $showWelcomeSheet)
                                 }
                             }
                             if isLoadingRecipes {

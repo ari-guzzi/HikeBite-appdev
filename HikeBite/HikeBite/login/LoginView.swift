@@ -20,7 +20,8 @@ struct LoginView: View {
     @State private var password: String = ""
     @Binding var showLogin: Bool
     @EnvironmentObject var viewModel: AuthViewModel
-    
+    @Binding var isAuthenticated: Bool
+
     var body: some View {
             NavigationStack {
                 ZStack {
@@ -54,7 +55,15 @@ struct LoginView: View {
                     Button {
                         Task {
                             try await viewModel.signIn(withEmail: email, password: password)
+
+                            // Wait for Firebase Auth to fully update the user
+                            while viewModel.currentUser == nil {
+                                try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 sec
+                            }
+
+                            // Then update UI state
                             showLogin = false
+                            isAuthenticated = true
                         }
                     } label: {
                         HStack {
@@ -73,7 +82,7 @@ struct LoginView: View {
                     Spacer()
                     //sign up button
                     NavigationLink {
-                        RegistrationView(showLogin: $showLogin)
+                        RegistrationView(showLogin: $showLogin, isAuthenticated: $isAuthenticated)
                             .navigationBarBackButtonHidden()
                     } label: {
                         HStack(spacing:3) {

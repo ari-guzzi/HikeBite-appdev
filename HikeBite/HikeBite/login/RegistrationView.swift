@@ -27,6 +27,8 @@ struct RegistrationView: View {
     @State private var selectedImage: UIImage?
         @State private var isImagePickerPresented = false
     @EnvironmentObject var viewModel: AuthViewModel
+    @Binding var isAuthenticated: Bool
+
     var body: some View {
             ZStack {
                 LinearGradient(
@@ -107,6 +109,7 @@ struct RegistrationView: View {
                                                        fullname: fullName,
                                                        image: selectedImage)
                         showLogin = false
+                        isAuthenticated = true
                     }
                 } label: {
                     HStack {
