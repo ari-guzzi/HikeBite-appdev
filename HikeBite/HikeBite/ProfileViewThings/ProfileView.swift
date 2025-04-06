@@ -123,20 +123,13 @@ struct ProfileView: View {
                                         .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                                 )
                                 .cornerRadius(9)
-                            
                         }
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                         .padding()
                         ScrollView {
                             ZStack {
                                 FunnyLines()
                                 VStack {
-                                    //                                        HStack {
-                                    //                                            Text("Upcoming Trips")
-                                    //                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                    //                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                    //                                                .padding(.leading, 30)
-                                    //                                            Spacer()
-                                    //                                        }
                                     if !upcomingTrips.isEmpty {
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             HStack(spacing: 10) {

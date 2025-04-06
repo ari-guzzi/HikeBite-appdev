@@ -31,6 +31,8 @@ struct TryOutATemplate: View {
                             template: template
                         )
                     }
+                    .padding(.bottom, 10)
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                 }
                 .padding(.horizontal)
             }
@@ -67,10 +69,8 @@ struct TemplateBox: View {
                         .font(.headline)
                         .foregroundColor(.black)
                         .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-                    
+                        .padding(.top, 8)                 
                     Spacer()
-                    
                     Text("\(dayCount) day\(dayCount > 1 ? "s" : "")")
                         .font(
                             Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
@@ -81,7 +81,7 @@ struct TemplateBox: View {
                 .frame(width: 120, height: 100)
                 .background(Color.white)
                 .cornerRadius(16)
-                .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
             }
         }
     }
