@@ -131,13 +131,13 @@ struct ProfileView: View {
                                 ZStack {
                                     FunnyLines()
                                     VStack {
-                                        HStack {
-                                            Text("Upcoming Trips")
-                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                                .padding(.leading, 30)
-                                            Spacer()
-                                        }
+//                                        HStack {
+//                                            Text("Upcoming Trips")
+//                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
+//                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
+//                                                .padding(.leading, 30)
+//                                            Spacer()
+//                                        }
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             HStack(spacing: 10) {
                                                 ForEach(upcomingTrips) { trip in
@@ -158,6 +158,7 @@ struct ProfileView: View {
                                         )
                                         Spacer()
                                     }
+                                    .offset(y: 50)
                                 }
                             }
                             VStack {
@@ -180,7 +181,7 @@ struct ProfileView: View {
                                         .padding(.bottom, 30)
                                 }
                             }
-                            .padding(.top, 60)
+                            .padding(.top, 100)
                             ZStack {
                                 VStack {
                                     Rectangle()

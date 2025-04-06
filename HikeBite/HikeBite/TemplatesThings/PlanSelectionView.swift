@@ -33,8 +33,8 @@ struct PlanSelectionView: View {
                 .padding()
             if tripManager.trips.isEmpty {
                 Text("No available trips.")
-                        .foregroundColor(.gray)
-                        .padding()
+                    .foregroundColor(.gray)
+                    .padding()
             } else {
                 HStack {
                     Text("Select a trip to add this plan to:")
@@ -64,7 +64,7 @@ struct PlanSelectionView: View {
                         EmptyView()
                     }
                     .hidden()  // Hide since it's just used to trigger navigation
-
+                    
                     if trip.days <= templateMaxDays {
                         Button {
                             print("🔄 Applying template to existing trip: \(trip.name)")
@@ -79,7 +79,7 @@ struct PlanSelectionView: View {
                                 .cornerRadius(10)
                         }
                         .padding()
-                    
+                        
                     } else {
                         Text("⚠️ This template has **\(templateMaxDays) days**, but your current selected trip has **\(trip.days) days**.")
                             .foregroundColor(.red)
@@ -115,7 +115,7 @@ struct PlanSelectionView: View {
         let db = Firestore.firestore()
         var mealDetails: [String: [String: MealDetail]] = [:]
         let group = DispatchGroup()
-
+        
         for (templateDay, meals) in template.mealTemplates {
             for (mealType, mealIDs) in meals {
                 for mealID in mealIDs {
@@ -137,7 +137,7 @@ struct PlanSelectionView: View {
                             let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
                             let mealIDString = String(mealID)
-
+                            
                             if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
                             mealDetails[templateDay]?[mealType] = MealDetail(
                                 id: mealIDString,
@@ -160,7 +160,7 @@ struct PlanSelectionView: View {
                 }
             }
         }
-
+        
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {
@@ -178,7 +178,7 @@ struct PlanSelectionView: View {
                             totalCalories: mealDetail.calories,
                             totalGrams: mealDetail.grams
                         )
-
+                        
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
                         
@@ -186,7 +186,7 @@ struct PlanSelectionView: View {
                     }
                 }
             }
-
+            
             do {
                 try modelContext.save()
                 print("✅ Successfully saved \(addedMeals.count) meals for trip '\(trip.name)'")
@@ -202,8 +202,8 @@ struct PlanSelectionView: View {
             }
         }
     }
-
-    // **Creates a new trip from a template and applies meals**
+    
+    // Creates a new trip from a template and applies meals**
     private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate, refreshMeals: @escaping () -> Void) {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
@@ -221,21 +221,18 @@ struct PlanSelectionView: View {
             selectedTrip = newTrip
             print("🔄 New trip selected: \(newTrip.name)")
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            print("🚀 Ensuring trip is saved before applying meals")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             applyTemplateToTrip(template, trip: newTrip, modelContext: modelContext, refreshMeals: {
-                print("📥 Meals applied, now refreshing UI")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    fetchMeals() // 🚀 Ensures meals are loaded AFTER save
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    fetchMeals()
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     selectedTab = 2
                     self.dismissTemplates()
                 }
             })
         }
-
     }
 }
 struct MealDetail {
