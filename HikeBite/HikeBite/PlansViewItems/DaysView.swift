@@ -21,6 +21,7 @@ struct DaysView: View {
     @State private var selectedMealType = ""
     let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snacks"]
     @Query private var mealsForDay: [MealEntry]
+    @Binding var selectedMealEntry: MealEntry?
 
     init(
         tripName: String,
@@ -29,7 +30,8 @@ struct DaysView: View {
         swapMeal: @escaping (MealEntry) -> Void,
         refreshMeals: @escaping () -> Void,
         selectedTab: Binding<Int>,
-        showSnacksConsolidated: Binding<Bool>
+        showSnacksConsolidated: Binding<Bool>,
+        selectedMealEntry: Binding<MealEntry?>
     ) {
         self.tripName = tripName
         self.day = day
@@ -38,11 +40,13 @@ struct DaysView: View {
         self.refreshMeals = refreshMeals
         self._selectedTab = selectedTab
         self._showSnacksConsolidated = showSnacksConsolidated
+        self._selectedMealEntry = selectedMealEntry
 
         self._mealsForDay = Query(filter: #Predicate<MealEntry> { meal in
             meal.tripName == tripName && meal.day == day
         })
     }
+
 
     var body: some View {
         VStack {
@@ -111,9 +115,14 @@ struct DaysView: View {
             Button(action: { deleteMeal(meal); refreshMeals() }) {
                 Image(systemName: "xmark.circle.fill").foregroundColor(.red).padding(.trailing, 10)
             }
-            Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
-                .font(.body)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            Button(action: {
+                selectedMealEntry = meal
+            }) {
+                Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
+                    .font(.body)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             Button(action: { swapMeal(meal) }) {
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill").foregroundColor(.blue).padding(.leading, 10)
             }

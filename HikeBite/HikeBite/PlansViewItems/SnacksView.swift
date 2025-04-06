@@ -14,7 +14,8 @@ struct SnacksView: View {
     var tripName: String
     var refreshMeals: () -> Void
     @State private var showingAddMealSheet = false
-    
+    @Binding var selectedMealEntry: MealEntry?
+
     var body: some View {
         Section(header:
                     HStack {
@@ -42,9 +43,13 @@ struct SnacksView: View {
                                     .foregroundColor(.red)
                                     .padding(.trailing, 10)
                             }
-                            Text("\(snack.recipeTitle) \(snack.servings > 1 ? "(\(snack.servings) servings)" : "")")
-                                .font(.body)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Button(action: {
+                                selectedMealEntry = snack
+                            }) {
+                                Text("\(snack.recipeTitle) \(snack.servings > 1 ? "(\(snack.servings) servings)" : "")")
+                                    .font(.body)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                             Button(action: { swapMeal(snack) }) {
                                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                                     .foregroundColor(.blue)

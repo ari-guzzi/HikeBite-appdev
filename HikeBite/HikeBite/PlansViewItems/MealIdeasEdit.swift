@@ -1,8 +1,8 @@
 //
-//  RecipeDetailView.swift
+//  MealIdeasEdit.swift
 //  HikeBite
 //
-//  Created by Ari Guzzi on 1/13/25.
+//  Created by Ari Guzzi on 4/5/25.
 //
 import Combine
 import Firebase
@@ -12,7 +12,8 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-struct RecipeDetailView: View {
+struct MealIdeasEdit: View {
+    @Binding var mealEntry: MealEntry
     var recipe: Result
     //var selectedTrip: Trip?
     @State private var selectedTrip: Trip? = nil
@@ -30,6 +31,15 @@ struct RecipeDetailView: View {
     @StateObject var tripManager = TripManager()
     @State private var totalCalories = 0
     @State private var totalGrams = 0
+    @Environment(\.dismiss) private var dismiss
+    let screenWidth = UIScreen.main.bounds.width
+    var onDismiss: (() -> Void)?
+    init(mealEntry: Binding<MealEntry>, recipe: Result, onDismiss: (() -> Void)? = nil) {
+        self._mealEntry = mealEntry
+        self.recipe = recipe 
+        self._servings = State(initialValue: mealEntry.wrappedValue.servings)
+        self.onDismiss = onDismiss
+    }
     var body: some View {
         let columns = [GridItem(.adaptive(minimum: 80), spacing: 10)]
         NavigationView {
@@ -44,43 +54,19 @@ struct RecipeDetailView: View {
                         FunnyLines()
                             .ignoresSafeArea(.all)
                         VStack {
-                            Text(recipe.title)
-                                .frame(width: UIScreen.main.bounds.width)
+                            Text(mealEntry.recipeTitle)
+                                .frame(width: screenWidth)
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .padding(.top)
                             Text("Total Calories: \(totalCalories)")
                                 .font(
-                                Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
+                                    Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
                                 )
                             Text("Total Grams: \(totalGrams)")
                                 .font(
-                                Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
+                                    Font.custom("--FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16)
                                 )
-                            if let imageURL = imageURL {
-                                AsyncImage(url: imageURL) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image.resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 300, height: 200)
-                                            .cornerRadius(10)
-                                    case .failure(_):
-                                        Text("Unable to load image")
-                                            .frame(width: 300, height: 200)
-                                            .background(Color.gray)
-                                    case .empty:
-                                        ProgressView()
-                                            .frame(width: 300, height: 200)
-                                    @unknown default:
-                                        EmptyView()
-                                    }
-                                }
-                            } else {
-                                Color.gray.opacity(0.3)
-                                    .frame(width: 300, height: 200)
-                                    .cornerRadius(10)
-                            }
                             if !recipe.description.isEmpty {
                                 Text(recipe.description)
                                     .font(.body)
@@ -88,89 +74,48 @@ struct RecipeDetailView: View {
                                     .padding(.horizontal)
                                     .padding(.top, 4)
                             }
-                            if let createdBy = recipe.createdBy, !createdBy.isEmpty {
-                                HStack {
-                                    Text("Created by: ")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text(createdBy)
-                                        .font(.subheadline)
-                                        .bold()
-                                }
-                                .padding(.horizontal)
-                            }
-                            if let timestamp = recipe.timestamp {
-                                HStack {
-                                    Text("Uploaded on: ")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text(timestamp.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.subheadline)
-                                        .bold()
-                                }
-                                .padding(.horizontal)
-                            }
-                            Button("Add to my plan", action: {showAddToPlanSheet = true})
-                                    .font(.headline)
-                                    .padding(10)
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color(red: 0, green: 0.41, blue: 0.22))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(20)
-                            if !recipe.filter.isEmpty {
-                                HStack {
-                                    Text("Filters:")
-                                        .font(.system(size: 24, weight: .bold))
-                                        .font(.title2)
-                                        .padding(.vertical, 4)
-                                    Spacer()
-                                }
-                                LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-                                    ForEach(recipe.filter, id: \.self) { filter in
-                                        Text(filter.capitalized)
-                                            .font(.system(size: 14, weight: .medium))
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(Color(red: 0.91, green: 1, blue: 0.96))
-                                            .cornerRadius(20)
-                                            .fixedSize() // prevents word wrap
-                                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                                    }
-                                }
-                                .padding(.horizontal, 5)
-                            }
-                            ZStack {
-                                Color(red: 0.67, green: 0.85, blue: 0.76)
-                                    .edgesIgnoringSafeArea(.all)
-                                VStack {
-                                    HStack {
-                                        Text("Servings: \(servings)")
-                                            .font(.title2)
-                                            .font(.system(size: 24, weight: .bold))
-                                        Spacer()
-                                        Button(action: { if servings > 1 { servings -= 1 } }) {
-                                            Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
-                                        }
-                                        Button(action: { servings += 1 }) {
-                                            Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
-                                        }
-                                        Spacer()
-                                    }
-                                    .frame(width: UIScreen.main.bounds.width - 20)
-                                    .padding(.bottom, 25)
-                                    //.background(Color(red: 0.67, green: 0.85, blue: 0.76))
+                            Button("Save Changes") {
+                                mealEntry.servings = servings
+                                mealEntry.totalCalories = totalCalories
+                                mealEntry.totalGrams = totalGrams
+                                do {
+                                    try modelContext.save()
+                                    print("✅ Meal entry updated")
+                                    onDismiss?()
+                                    dismiss()
+                                } catch {
+                                    print("❌ Failed to update meal entry: \(error.localizedDescription)")
                                 }
                             }
-                            .frame(width: UIScreen.main.bounds.width)
-                            .background(Color(red: 0.67, green: 0.85, blue: 0.76))
+                            .font(.headline)
+                            .padding(10)
+                            .frame(maxWidth: .infinity)
+                            .background(Color(red: 0, green: 0.41, blue: 0.22))
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            filterChipsView()
+                            HStack {
+                                Text("Servings: \(servings)")
+                                    .font(.title2)
+                                    .font(.system(size: 24, weight: .bold))
+                                Spacer()
+                                Button(action: { if servings > 1 { servings -= 1 } }) {
+                                    Image(systemName: "minus.circle").font(.system(size: 24)).foregroundColor(.red)
+                                }
+                                Button(action: { servings += 1 }) {
+                                    Image(systemName: "plus.circle").font(.system(size: 24)).foregroundColor(.green)
+                                }
+                                Spacer()
+                            }
+                            .frame(width: screenWidth - 20)
                         }
-                        .frame(width: UIScreen.main.bounds.width - 10)
+                        .frame(width: screenWidth - 10)
                     }
                     ZStack {
                         LinearGradient(gradient: Gradient(colors: [Color(red: 0.67, green: 0.85, blue: 0.76), .white]),
                                        startPoint: .top,
                                        endPoint: .center)
-                            .offset(y: -30)
+                        .offset(y: -30)
                         .edgesIgnoringSafeArea([.all])
                         VStack {
                             Text("Ingredients:")
@@ -180,29 +125,20 @@ struct RecipeDetailView: View {
                             ForEach(mutableIngredients.indices, id: \.self) { index in
                                 viewIngredient(ingredient: $mutableIngredients[index], servings: servings)
                             }
-                            .frame(width: UIScreen.main.bounds.width - 50)
+                            .frame(width: screenWidth - 50)
                         }
-                        .offset(y: -10)
+                        .offset(y: -100)
                     }
                 }
+                .offset(y: -80)
             }
             .navigationBarTitle("Meal Details", displayMode: .inline)
-        }
-        .sheet(isPresented: $showAddToPlanSheet) {
-            MealSelectionView(selectedTrip: $selectedTrip, selectedDay: $selectedDay, selectedMeal: $selectedMeal, servings: $servings)
-            {
-                addRecipeToPlan()
-            }
-            .environmentObject(tripManager)
         }
         .onAppear {
             mutableIngredients = recipe.ingredients
             updateTotals()
             if let urlString = recipe.img, let imageUrl = URL(string: urlString) {
                 self.imageURL = imageUrl
-                print("Using URL: \(imageUrl)")
-            } else {
-                print("Invalid URL string: \(recipe.img ?? "nil")")
             }
         }
     }
@@ -270,13 +206,13 @@ struct RecipeDetailView: View {
         }
     }
     func updateTotals() {
-            totalCalories = mutableIngredients.reduce(0) { sum, ingredient in
-                sum + (ingredient.calories ?? 0) * servings
-            }
-            totalGrams = mutableIngredients.reduce(0) { sum, ingredient in
-                sum + (ingredient.weight ?? 0) * servings
-            }
+        totalCalories = mutableIngredients.reduce(0) { sum, ingredient in
+            sum + (ingredient.calories ?? 0) * servings
         }
+        totalGrams = mutableIngredients.reduce(0) { sum, ingredient in
+            sum + (ingredient.weight ?? 0) * servings
+        }
+    }
     @ViewBuilder
     func viewIngredient(ingredient: Binding<IngredientPlain>, servings: Int) -> some View {
         let ingredientName = ingredient.wrappedValue.name.capitalized
@@ -310,10 +246,34 @@ struct RecipeDetailView: View {
             }
         }
         .padding()
-            .cornerRadius(9)
-            .overlay(
-                RoundedRectangle(cornerRadius: 9)
-                    .stroke(Color(red: 0, green: 0.41, blue: 0.22), lineWidth: 1)
-                )
+        .cornerRadius(9)
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Color(red: 0, green: 0.41, blue: 0.22), lineWidth: 1)
+        )
+    }
+    @ViewBuilder
+    func filterChipsView() -> some View {
+        if !recipe.filter.isEmpty {
+            HStack {
+                Text("Filters:")
+                    .font(.system(size: 24, weight: .bold))
+                    .padding(.vertical, 4)
+                Spacer()
+            }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 10)], alignment: .leading, spacing: 12) {
+                ForEach(recipe.filter, id: \.self) { filter in
+                    Text(filter.capitalized)
+                        .font(.system(size: 14, weight: .medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(red: 0.91, green: 1, blue: 0.96))
+                        .cornerRadius(20)
+                        .fixedSize()
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                }
+            }
+            .padding(.horizontal, 5)
+        }
     }
 }

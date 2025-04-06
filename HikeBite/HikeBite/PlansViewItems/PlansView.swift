@@ -26,6 +26,10 @@ struct PlansView: View {
     @Binding var selectedTrip: Trip?
     @State private var isShowingPopover = false
     @State private var isShowingSummary = false
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedMealEntry: MealEntry?
+    @State private var selectedRecipe: Result?
+
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
@@ -39,13 +43,10 @@ struct PlansView: View {
     }
     var body: some View {
         ZStack {
-            backgroundView
-                .blur(radius: isShowingPopover ? 4 : 0)
-            mainContent
-                .blur(radius: isShowingPopover ? 4 : 0)
+            backgroundView.blur(radius: isShowingPopover ? 4 : 0)
+            mainContent.blur(radius: isShowingPopover ? 4 : 0)
             if isShowingPopover {
-                Color.black.opacity(0.001) // invisible but tappable
-                    .ignoresSafeArea()
+                Color.black.opacity(0.001).ignoresSafeArea()
                     .onTapGesture {
                         isShowingPopover = false
                     }
@@ -55,39 +56,26 @@ struct PlansView: View {
                         showDuplicatePlanSheet = true
                     }
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(12)
-                .shadow(radius: 8)
-                .frame(width: 240)
+                .padding().background(Color.white).cornerRadius(12).shadow(radius: 8).frame(width: 240)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
-                .position(x: UIScreen.main.bounds.width - 50, y: 100)
+                    RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                ).position(x: UIScreen.main.bounds.width - 50, y: 100)
             }
         }
         .padding(0)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    isShowingPopover.toggle()
-                } label: {
-                    Image(systemName: "gearshape.fill")
-                        .foregroundColor(.gray)
-                }
-            }
+            ToolbarItem(placement: .navigationBarTrailing) { Button { isShowingPopover.toggle() } label: { Image(systemName: "gearshape.fill").foregroundColor(.gray) } }
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.mealEntriesState = mealEntries // Force update from @Query
                 fetchMeals()
                 updateAndPrintSnacks()
+                tripManager.fetchRecipes()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { print("📋 Recipes loaded: \(tripManager.allRecipes.map { $0.title })") }
             }
         }
-        .onChange(of: mealEntries) { _ in
-            updateMealEntriesState()
-        }
+        .onChange(of: mealEntries) { _ in updateMealEntriesState() }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             if let trip = selectedTrip {
                 DuplicatePlanView(originalTrip: trip, duplicatePlan: duplicatePlan)
@@ -98,10 +86,28 @@ struct PlansView: View {
                 saveNewPlan(name: name, days: days, date: date)
             }
         }
+        .sheet(item: $selectedMealEntry) { meal in
+            if let result = getResultForMeal(meal) {
+                MealIdeasEdit(
+                    mealEntry: Binding(get: { meal }, set: { selectedMealEntry = $0 }),
+                    recipe: result,
+                    onDismiss: {
+                        fetchMeals()
+                    }
+                )
+            } else {
+                Text("⚠️ Recipe not found for '\(meal.recipeTitle)'")
+            }
+        }
         .sheet(isPresented: $isShowingSummary) {
             if let trip = selectedTrip {
-                    TripSummaryView(trip: trip, allMeals: mealEntriesState)
+                TripSummaryView(trip: trip, allMeals: mealEntriesState,
+                                onDone: {
+                    selectedTab = 0
+                    selectedTrip = nil
                 }
+                )
+            }
         }
         .sheet(isPresented: Binding(
             get: { showingSwapSheet && mealToSwap != nil },
@@ -112,7 +118,7 @@ struct PlansView: View {
                     mealToSwap: mealToSwap,
                     dismiss: {
                         showingSwapSheet = false
-                        mealToSwap = MealEntry(day: "", meal: "", recipeTitle: "", servings: 1, tripName: "", totalCalories: 0, totalGrams: 0) // Reset mealToSwap
+                        mealToSwap = MealEntry(day: "", meal: "", recipeID: "", recipeTitle: "", servings: 1, tripName: "", totalCalories: 0, totalGrams: 0) // Reset mealToSwap
                     }
                 )
                 .id(mealToSwap.id)
@@ -179,9 +185,11 @@ struct PlansView: View {
                            swapMeal: { meal in
                     mealToSwap = meal
                     showingSwapSheet = true
+                    
                 },
                            tripName: selectedTrip?.name ?? "Unknown Trip",
-                           refreshMeals: { fetchMeals() }
+                           refreshMeals: { fetchMeals() },
+                           selectedMealEntry: $selectedMealEntry
                 )
             }
         }
@@ -207,21 +215,22 @@ struct PlansView: View {
         let mealsForThisDay = mealsForDay(day: day)
         print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
         return Section(header: Text(day)
-                .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
-                .frame(maxWidth: .infinity, alignment: .leading)) {
-                    DaysView(
-                        tripName: selectedTrip?.name ?? "Unknown Trip",
-                        day: day,
-                        deleteMeal: deleteMeal,
-                        swapMeal: { meal in
-                            mealToSwap = meal
-                            showingSwapSheet = true
-                        },
-                        refreshMeals: { fetchMeals() },
-                        selectedTab: $selectedTab,
-                        showSnacksConsolidated: $showSnacksConsolidated
-                    )
-        }
+            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
+            .frame(maxWidth: .infinity, alignment: .leading)) {
+                DaysView(
+                    tripName: selectedTrip?.name ?? "Unknown Trip",
+                    day: day,
+                    deleteMeal: deleteMeal,
+                    swapMeal: { meal in
+                        mealToSwap = meal
+                        showingSwapSheet = true
+                    },
+                    refreshMeals: { fetchMeals() },
+                    selectedTab: $selectedTab,
+                    showSnacksConsolidated: $showSnacksConsolidated,
+                    selectedMealEntry: $selectedMealEntry
+                )
+            }
     }
     private func updateMealEntriesState() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -241,6 +250,7 @@ struct PlansView: View {
                 let duplicatedMeal = MealEntry(
                     day: meal.day,
                     meal: meal.meal,
+                    recipeID: meal.recipeID,
                     recipeTitle: meal.recipeTitle,
                     servings: meal.servings,
                     tripName: newTrip.name,
@@ -262,9 +272,6 @@ struct PlansView: View {
             print("❌ No selected trip! Returning empty meal list.")
             return []
         }
-
-        print("🔎 Checking meals for trip: \(tripName) on \(day)")
-
         let meals = mealEntriesState.filter {
             let mealDay = $0.day.trimmingCharacters(in: .whitespacesAndNewlines)
             let queryDay = day.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -321,7 +328,7 @@ struct PlansView: View {
     private func refreshMeals() {
         DispatchQueue.main.async {
             self.mealEntriesState = self.mealEntriesState.filter { !$0.isDeleted }
-            print("State after deletion: \(self.mealEntriesState.map { $0.id })")
+            // print("State after deletion: \(self.mealEntriesState.map { $0.id })")
         }
     }
 
@@ -331,7 +338,7 @@ struct PlansView: View {
     }
 
     private func fetchMeals() {
-        print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
+        // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
         
         DispatchQueue.global(qos: .userInitiated).async {
             do {
@@ -341,12 +348,12 @@ struct PlansView: View {
                 DispatchQueue.main.async {
                     let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
                     DispatchQueue.main.async {
-                        print("🔄 Clearing UI meals before loading new ones...")
+                        // print("🔄 Clearing UI meals before loading new ones...")
                         self.mealEntriesState.removeAll()
 
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                             self.mealEntriesState = filteredMeals
-                            print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+                           // print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
                         }
                     }
                 }
@@ -357,6 +364,17 @@ struct PlansView: View {
             }
         }
     }
+    func getResultForMeal(_ meal: MealEntry) -> Result? {
+        for recipe in tripManager.allRecipes {
+            print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")
+            if recipe.id == meal.recipeID {
+                return recipe
+            }
+        }
+        print("❌ No match found for recipeID: \(meal.recipeID)")
+        return nil
+    }
+
 }
 struct PlanHeaderView: View {
     var body: some View {

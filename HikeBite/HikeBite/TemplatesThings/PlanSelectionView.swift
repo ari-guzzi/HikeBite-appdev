@@ -113,7 +113,7 @@ struct PlanSelectionView: View {
     private func applyTemplateToTrip(_ template: MealPlanTemplate, trip: Trip, modelContext: ModelContext, refreshMeals: @escaping () -> Void) {
         print("🔄 Applying template '\(template.title)' to trip '\(trip.name)' with \(trip.days) days...")
         let db = Firestore.firestore()
-        var mealDetails: [String: [String: (title: String, calories: Int, grams: Int)]] = [:]
+        var mealDetails: [String: [String: MealDetail]] = [:]
         let group = DispatchGroup()
 
         for (templateDay, meals) in template.mealTemplates {
@@ -136,13 +136,24 @@ struct PlanSelectionView: View {
                             let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
                             let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
+                            let mealIDString = String(mealID)
 
                             if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
-                            mealDetails[templateDay]?[mealType] = (title: mealTitle, calories: Int(totalCalories), grams: Int(totalGrams))
+                            mealDetails[templateDay]?[mealType] = MealDetail(
+                                id: mealIDString,
+                                title: mealTitle,
+                                calories: Int(totalCalories),
+                                grams: Int(totalGrams)
+                            )
                         } else {
                             print("⚠️ Meal ID \(mealID) not found in Recipes collection.")
                             if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
-                            mealDetails[templateDay]?[mealType] = (title: "Not Found", calories: 0, grams: 0)
+                            mealDetails[templateDay]?[mealType] = MealDetail(
+                                id: "not found",
+                                title: "not found",
+                                calories: 0,
+                                grams: 0
+                            )
                         }
                         group.leave()
                     }
@@ -160,6 +171,7 @@ struct PlanSelectionView: View {
                             id: UUID(),
                             day: tripDay,
                             meal: mealType,
+                            recipeID: mealDetail.id,
                             recipeTitle: mealDetail.title,
                             servings: 1,
                             tripName: trip.name,
@@ -225,4 +237,10 @@ struct PlanSelectionView: View {
         }
 
     }
+}
+struct MealDetail {
+    let id: String
+    let title: String
+    let calories: Int
+    let grams: Int
 }

@@ -11,10 +11,9 @@ struct TripSummaryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @State private var meals: [MealEntry] = []
-
     var trip: Trip
     var allMeals: [MealEntry]
-
+    var onDone: () -> Void
     var body: some View {
         VStack {
             ScrollView {
@@ -58,6 +57,7 @@ struct TripSummaryView: View {
 
             Button("Close") {
                 dismiss()
+                onDone()
             }
             .padding(.horizontal, 30)
             .padding(.vertical, 12)

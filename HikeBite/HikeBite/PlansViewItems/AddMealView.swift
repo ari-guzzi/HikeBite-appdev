@@ -122,6 +122,7 @@ struct AddMealView: View {
             let newMeal = MealEntry(
                 day: day,
                 meal: mealType,
+                recipeID: recipe.id ?? "",
                 recipeTitle: recipe.title,
                 servings: 1,
                 tripName: tripName,
