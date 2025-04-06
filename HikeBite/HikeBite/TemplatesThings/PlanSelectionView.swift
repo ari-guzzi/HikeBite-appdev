@@ -23,6 +23,7 @@ struct PlanSelectionView: View {
     @State private var showWarningSheet = false
     @State private var warningMessage: String = ""
     @State private var isNavigatingToSelectedTrip = false
+    
     var body: some View {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
@@ -221,18 +222,20 @@ struct PlanSelectionView: View {
             selectedTrip = newTrip
             print("🔄 New trip selected: \(newTrip.name)")
         }
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             applyTemplateToTrip(template, trip: newTrip, modelContext: modelContext, refreshMeals: {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     fetchMeals()
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     selectedTab = 2
-                    self.dismissTemplates()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.dismissTemplates()
+                    }
                 }
             })
         }
+
     }
 }
 struct MealDetail {

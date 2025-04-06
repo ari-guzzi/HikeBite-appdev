@@ -16,29 +16,111 @@ struct DuplicatePlanView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("New Plan Name")) {
-                    TextField("Enter plan name", text: $newPlanName)
+        ZStack {
+            Image("topolines")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .opacity(0.08)
+                .blur(radius: 2)
+            VStack {
+                Image("vector")
+                Text("Duplicate this Trip for a New Plan")
+                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.black)
+                    .frame(width: 369, alignment: .top)
+                    .padding(.bottom, 6)
+                Text("Trip Name")
+                    .font(
+                        Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 32)
+                    )
+                    .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                    .frame(width: 326, alignment: .leading)
+                HStack {
+                    TextField("Enter trip name", text: $newPlanName)
+                        .font(Font.custom("Area Normal", size: 16))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                        .frame(width: 326, alignment: .leading)
                 }
-
-                Section(header: Text("Number of Days")) {
-                    Stepper("\(newPlanDays) Days", value: $newPlanDays, in: 1...10)
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 357, height: 100)
+                        .background(Color.white)
+                        .cornerRadius(9)
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    
+                    HStack {
+                        Text("Trip Length:")
+                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
+                            .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        
+                        
+                        Text("\(newPlanDays) days")
+                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
+                            .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        
+                        Stepper("", value: $newPlanDays, in: 1...14)
+                            .labelsHidden()
+                    }
+                    .padding(.horizontal, 10)
                 }
-
-                Section(header: Text("Start Date")) {
-                    DatePicker("Select Date", selection: $newPlanDate, displayedComponents: .date)
+                .padding()
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.clear)
+                        .frame(width: 357, height: 100)
+                        .background(Color.white)
+                        .cornerRadius(9)
+                        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+                    DatePicker("Start Date", selection: $newPlanDate, displayedComponents: .date)
+                        .font(
+                            Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 32)
+                        )
+                        .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
+                        .frame(width: 326, alignment: .leading)
+                        .padding()
                 }
-            }
-            .navigationTitle("Duplicate Plan")
-            .navigationBarItems(
-                leading: Button("Cancel") { dismiss() },
-                trailing: Button("Duplicate") {
+                Button(action: {
                     guard !newPlanName.isEmpty else { return }
                     duplicatePlan(newPlanName, newPlanDays, newPlanDate)
                     dismiss()
+                }) { Text("Duplicate Trip")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(newPlanName.isEmpty ? Color.gray : Color("AccentColor"))
+                        .cornerRadius(10)
+                        .padding()
                 }
-            )
+                .disabled(newPlanName.isEmpty)
+                .frame(width: 326, alignment: .leading)
+                Spacer()
+            }
         }
+//            Form {
+//                Section(header: Text("New Plan Name")) {
+//                    TextField("Enter plan name", text: $newPlanName)
+//                }
+//
+//                Section(header: Text("Number of Days")) {
+//                    Stepper("\(newPlanDays) Days", value: $newPlanDays, in: 1...10)
+//                }
+//
+//                Section(header: Text("Start Date")) {
+//                    DatePicker("Select Date", selection: $newPlanDate, displayedComponents: .date)
+//                }
+//            }
+//            .navigationTitle("Duplicate Plan")
+//            .navigationBarItems(
+//                leading: Button("Cancel") { dismiss() },
+//                trailing: Button("Duplicate") {
+//                    guard !newPlanName.isEmpty else { return }
+//                    duplicatePlan(newPlanName, newPlanDays, newPlanDate)
+//                    dismiss()
+//                }
+//            )
     }
 }

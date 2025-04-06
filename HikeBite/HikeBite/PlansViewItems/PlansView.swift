@@ -72,7 +72,12 @@ struct PlansView: View {
                 fetchMeals()
                 updateAndPrintSnacks()
                 tripManager.fetchRecipes()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { print("📋 Recipes loaded: \(tripManager.allRecipes.map { $0.title })") }
+                // DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { print("📋 Recipes loaded: \(tripManager.allRecipes.map { $0.title })") }
+            }
+        }
+        .onDisappear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                tripManager.hasNavigatedForSelectedTrip = false
             }
         }
         .onChange(of: mealEntries) { _ in updateMealEntriesState() }
@@ -180,16 +185,14 @@ struct PlansView: View {
         ScrollView {
             ForEach(days, id: \.self, content: mealSectionView)
             if showSnacksConsolidated {
-                SnacksView(snacks: consolidatedSnacks,
-                           deleteMeal: deleteMeal,
-                           swapMeal: { meal in
+                SnacksView(snacks: consolidatedSnacks, deleteMeal: deleteMeal, swapMeal: { meal in
                     mealToSwap = meal
                     showingSwapSheet = true
                     
                 },
-                           tripName: selectedTrip?.name ?? "Unknown Trip",
-                           refreshMeals: { fetchMeals() },
-                           selectedMealEntry: $selectedMealEntry
+                   tripName: selectedTrip?.name ?? "Unknown Trip",
+                   refreshMeals: { fetchMeals() },
+                   selectedMealEntry: $selectedMealEntry
                 )
             }
         }
@@ -213,7 +216,7 @@ struct PlansView: View {
     }
     private func mealSectionView(for day: String) -> some View {
         let mealsForThisDay = mealsForDay(day: day)
-        print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
+        // print("📆 Rendering \(mealsForThisDay.count) meals for \(day)")
         return Section(header: Text(day)
             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 32))
             .frame(maxWidth: .infinity, alignment: .leading)) {
@@ -281,7 +284,7 @@ struct PlansView: View {
             return matches
         }
 
-        print("📆 Found \(meals.count) meals for trip \(tripName) on \(day)")
+        // print("📆 Found \(meals.count) meals for trip \(tripName) on \(day)")
         return meals
     }
 
@@ -339,7 +342,6 @@ struct PlansView: View {
 
     private func fetchMeals() {
         // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
-        
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync {
@@ -366,7 +368,7 @@ struct PlansView: View {
     }
     func getResultForMeal(_ meal: MealEntry) -> Result? {
         for recipe in tripManager.allRecipes {
-            print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")
+            // print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")
             if recipe.id == meal.recipeID {
                 return recipe
             }
@@ -442,11 +444,19 @@ struct DuplicatePlanButton: View {
     var action: () -> Void
 
     var body: some View {
-        HStack {
+        Button(action: action) {
             VStack {
-                Image(systemName: "doc.on.doc").foregroundColor(Color("AccentColor"))
-                Text("Duplicate Plan").foregroundColor(Color("AccentColor"))
+                Image(systemName: "doc.on.doc")
+                    .foregroundColor(Color("AccentColor"))
+                Text("Duplicate Plan")
+                    .foregroundColor(Color("AccentColor"))
             }
+            .padding(8)
+            .background(Color.white)
+            .cornerRadius(8)
+            .shadow(radius: 3)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
+

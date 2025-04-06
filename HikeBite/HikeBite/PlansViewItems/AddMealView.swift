@@ -147,7 +147,7 @@ struct AddMealView: View {
 
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
-        print("📢 Fetching recipes from Firestore (Attempt 1)...")
+        // print("📢 Fetching recipes from Firestore (Attempt 1)...")
         db.collection("Recipes").getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching recipes: \(error.localizedDescription)")

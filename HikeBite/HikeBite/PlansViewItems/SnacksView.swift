@@ -48,6 +48,7 @@ struct SnacksView: View {
                             }) {
                                 Text("\(snack.recipeTitle) \(snack.servings > 1 ? "(\(snack.servings) servings)" : "")")
                                     .font(.body)
+                                    .foregroundColor(.black)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             Button(action: { swapMeal(snack) }) {

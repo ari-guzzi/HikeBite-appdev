@@ -89,7 +89,7 @@ class TemplateViewModel: ObservableObject {
                 self.hasLoadedOnce = true
                 self.retryCount = 0
                 self.isLoading = false
-                print("✅ Fully loaded templates:", self.templates)
+                // print("✅ Fully loaded templates:", self.templates)
             }
         }
     }

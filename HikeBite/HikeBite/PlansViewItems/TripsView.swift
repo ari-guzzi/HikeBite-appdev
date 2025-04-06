@@ -18,6 +18,8 @@ struct TripsView: View {
     @State var numberOfDays: Int
     @State var tripDate: Date
     @State private var shouldNavigateToPlans = false
+    @State private var activeTrip: Trip? = nil
+    // @State private var hasNavigatedFromSelectedTrip = false
     var upcomingTrips: [Trip] {
         let now = Date()
         let upcoming = tripManager.trips.filter {
@@ -28,7 +30,7 @@ struct TripsView: View {
         }
         return upcoming
     }
-
+    
     var previousTrips: [Trip] {
         let now = Date()
         let past = tripManager.trips.filter {
@@ -49,12 +51,12 @@ struct TripsView: View {
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
-//        for familyName in UIFont.familyNames {
-//            print(familyName)
-//            for fontName in UIFont.fontNames(forFamilyName: familyName) {
-//                print("--\(fontName)")
-//            }
-//        }
+        //        for familyName in UIFont.familyNames {
+        //            print(familyName)
+        //            for fontName in UIFont.fontNames(forFamilyName: familyName) {
+        //                print("--\(fontName)")
+        //            }
+        //        }
     }
     var body: some View {
         NavigationStack {
@@ -81,8 +83,17 @@ struct TripsView: View {
                 }
             }
             .onAppear {
-                print("🔄 ProfileView appeared. Fetching trips...")
+                print("🔄 Tripsview appeared. Fetching trips...")
                 tripManager.fetchTrips(modelContext: modelContext)
+                if let trip = selectedTrip, !tripManager.hasNavigatedForSelectedTrip {
+                        print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
+                        //DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            tripManager.hasNavigatedForSelectedTrip = true
+                            shouldNavigateToPlans = true
+                        //}
+                } else {
+                    print("🛑 Skipping auto-navigation, already navigated for selected trip")
+                }
             }
         }
         .sheet(isPresented: $showCreatePlanSheet) {
@@ -92,12 +103,10 @@ struct TripsView: View {
             }
         }
         .onChange(of: selectedTrip) { newValue in
-            if newValue != nil {
-                // Give it a slight delay to allow view to appear before pushing
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    shouldNavigateToPlans = true
-                }
-            }
+            guard let trip = newValue else { return }
+            print("✳️ selectedTrip changed to \(trip.name)")
+            tripManager.hasNavigatedForSelectedTrip = true
+            shouldNavigateToPlans = true
         }
 
     } // body
@@ -125,70 +134,68 @@ struct TripsView: View {
     private var tripContent: some View {
         Group {
             if tripManager.trips.isEmpty {
-                Text("No trips yet. Create a new one!")
-                    .foregroundColor(.gray)
-                    .padding()
-                Button(action: { showCreatePlanSheet = true }) {
-                    HStack {
-                        Text("Create New Trip Plan").foregroundColor(Color("AccentColor"))
-                        Image(systemName: "plus.circle").foregroundColor(Color("AccentColor"))
-                    }
-                }
+                emptyTripsView
             } else {
-                ScrollView {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 0) {
-                            upcomingTripsView
+                tripListContent
+            }
+        }
+    }
+    private var emptyTripsView: some View {
+        VStack {
+            Text("No trips yet. Create a new one!")
+                .foregroundColor(.gray)
+                .padding()
+            Button(action: { showCreatePlanSheet = true }) {
+                HStack {
+                    Text("Create New Trip Plan").foregroundColor(Color("AccentColor"))
+                    Image(systemName: "plus.circle").foregroundColor(Color("AccentColor"))
+                }
+            }
+        }
+    }
+    private var tripListContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                upcomingTripsView
+                previousTripsSection
+            }
+        }
+    }
+    private var previousTripsSection: some View {
+        ZStack(alignment: .bottom) {
+            BottomMountain()
+            if !previousTrips.isEmpty {
+                VStack(alignment: .leading) {
+                    Text("Previous Trips")
+                        .font(Font.custom("Area Normal", size: 24).weight(.bold))
+                        .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
+                        .padding(.leading, 20)
+                    List(previousTrips) { trip in
+                        Button {
+                            selectedTrip = trip
+                        } label: {
+                            tripRow(trip: trip)
                         }
-                        ZStack(alignment: .bottom) {
-                            BottomMountain()
-                            if !previousTrips.isEmpty {
-                                if !previousTrips.isEmpty {
-                                    VStack(alignment: .leading) {
-                                        Text("Previous Trips")
-                                            .font(Font.custom("Area Normal", size: 24).weight(.bold))
-                                            .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-                                            .padding(.leading, 20)
-                                        List(previousTrips) { trip in
-                                            NavigationLink(
-                                                destination: PlansView(
-                                                    tripManager: tripManager,
-                                                    numberOfDays: trip.days,
-                                                    tripDate: trip.date,
-                                                    selectedTrip: Binding(
-                                                        get: { trip },
-                                                        set: { _ in self.selectedTrip = trip }
-                                                    ),
-                                                    modelContext: modelContext,
-                                                    selectedTab: $selectedTab)
-                                            ) {
-                                                tripRow(trip: trip)
-                                            }
-                                            .listStyle(.plain)
-                                            .listRowBackground(Color.clear)
-                                            .scrollIndicators(.hidden)
-
-                                        }
-                                        .scrollIndicators(.hidden)
-                                        .background(Color.clear)
-                                      .listStyle(PlainListStyle())
-                                      .frame(height: 300)
-                                    }
-                                }
-                            }
-                        }
+                        .listStyle(.plain)
+                        .listRowBackground(Color.clear)
+                        .scrollIndicators(.hidden)
                     }
+                    .offset(x: 5)
+                    .scrollIndicators(.hidden)
+                    .background(Color.clear)
+                    .listStyle(PlainListStyle())
+                    .frame(height: 300)
                 }
             }
         }
     }
     private var upcomingTripsView: some View {
-        ZStack() {
+        ZStack {
             FunnyLines()
             VStack {
                 if !upcomingTrips.isEmpty {
                     VStack(alignment: .leading, spacing: 0) {
-                        HStack(spacing: 10){
+                        HStack(spacing: 10) {
                             Text("Upcoming Trips")
                                 .font(Font.custom("Area Normal", size: 24).weight(.bold))
                                 .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
@@ -199,29 +206,21 @@ struct TripsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 15) {
                                 ForEach(upcomingTrips) { trip in
-                                    NavigationLink(
-                                        destination: PlansView(
-                                            tripManager: tripManager,
-                                            numberOfDays: trip.days,
-                                            tripDate: trip.date,
-                                            selectedTrip: Binding(
-                                                get: { trip },
-                                                set: { _ in self.selectedTrip = trip }
-                                            ),
-                                            modelContext: modelContext,
-                                            selectedTab: $selectedTab)
-                                    ) {
+                                    Button {
+                                        selectedTrip = trip
+                                    } label: {
                                         UpcomingTripCardPlansView(trip: trip)
                                     }
+                                    
                                 }
                             }
                         }
-                            .padding(.horizontal)
-                        }
+                        .padding(.horizontal)
                     }
+                }
                 Button(action: { showCreatePlanSheet = true }) {
                     PlanNewTrip()
-                    .padding()
+                        .padding()
                 }
             }
         }
@@ -243,35 +242,37 @@ struct TripsView: View {
         tripManager.trips.removeAll { $0.id == trip.id }
     }
     private func tripRow(trip: Trip) -> some View {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(trip.name).font(
-                        Font.custom("Area Normal", size: 16)
+        HStack {
+            VStack(alignment: .leading) {
+                Text(trip.name).font(
+                    Font.custom("Area Normal", size: 16)
                         .weight(.heavy)
-                        )
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.black)
-                    Text(trip.date.formatted(date: .long, time: .omitted))
-                        .font(
+                )
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+                Text(trip.date.formatted(date: .long, time: .omitted))
+                    .font(
                         Font.custom("Fields", size: 16)
-                        .weight(.medium)
-                        )
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.black)
-                }
-                .padding()
-                Spacer()
+                            .weight(.medium)
+                    )
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.black)
             }
-            .listRowBackground(Color.clear)
-            .frame(width: UIScreen.main.bounds.width - 40, height: 56)
-                .background(Color.white)
-                .cornerRadius(9)
-                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                .listRowInsets(EdgeInsets())
-                //.padding(.horizontal, 16)
-                .padding(.vertical, 3)
+            .padding()
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.black)
+                .padding(.trailing, 10)
+        }
+        .scrollIndicators(.hidden)
+        .listRowBackground(Color.clear)
+        .frame(width: UIScreen.main.bounds.width - 35, height: 56)
+        .background(Color.white)
+        .cornerRadius(9)
+        .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+        .listRowInsets(EdgeInsets())
+        .padding(.vertical, 3)
     }
-    
     private func saveNewPlan(name: String, days: Int, date: Date) {
         do {
             let newTrip = Trip(name: name, days: days, date: date)

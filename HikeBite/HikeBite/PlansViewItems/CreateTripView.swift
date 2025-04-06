@@ -13,7 +13,6 @@ struct CreateTripView: View {
     @State private var warningMessage: String?
     var templateMaxDays: Int
     var onTripCreated: (String, Int, Date) -> Void
-    
     var body: some View {
         ZStack {
             Image("topolines")
@@ -22,7 +21,6 @@ struct CreateTripView: View {
                 .edgesIgnoringSafeArea(.all)
                 .opacity(0.08)
                 .blur(radius: 2)
-            
             VStack {
                 Image("vector")
                 Text("Create a New Trip Plan")
@@ -51,11 +49,9 @@ struct CreateTripView: View {
                         Text("Trip Length:")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
                             .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
-                        
                         Text("\(numberOfDays) days")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
                             .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
-                        
                         Stepper("", value: $numberOfDays, in: 1...14)
                             .labelsHidden()
                     }

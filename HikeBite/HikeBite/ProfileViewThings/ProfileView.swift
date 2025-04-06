@@ -127,17 +127,17 @@ struct ProfileView: View {
                         }
                         .padding()
                         ScrollView {
-                            if !upcomingTrips.isEmpty {
-                                ZStack {
-                                    FunnyLines()
-                                    VStack {
-//                                        HStack {
-//                                            Text("Upcoming Trips")
-//                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
-//                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
-//                                                .padding(.leading, 30)
-//                                            Spacer()
-//                                        }
+                            ZStack {
+                                FunnyLines()
+                                VStack {
+                                    //                                        HStack {
+                                    //                                            Text("Upcoming Trips")
+                                    //                                                .font(Font.custom("Area Normal", size: 24).weight(.bold))
+                                    //                                                .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
+                                    //                                                .padding(.leading, 30)
+                                    //                                            Spacer()
+                                    //                                        }
+                                    if !upcomingTrips.isEmpty {
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             HStack(spacing: 10) {
                                                 ForEach(upcomingTrips) { trip in
@@ -151,15 +151,14 @@ struct ProfileView: View {
                                             }
                                             .padding(.horizontal)
                                         }
-                                        TryOutATemplate(
-                                            selectedTemplate: $selectedTemplate,
-                                            showTemplatePreview: $showTemplatePreview,
-                                            selectedTab: $selectedTab
-                                        )
-                                        Spacer()
                                     }
-                                    .offset(y: 50)
+                                    TryOutATemplate(
+                                        selectedTemplate: $selectedTemplate,
+                                        showTemplatePreview: $showTemplatePreview,
+                                        selectedTab: $selectedTab
+                                    )
                                 }
+                                .offset(y: 50)
                             }
                             VStack {
                                 ZStack(alignment: .bottom) {

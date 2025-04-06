@@ -15,6 +15,6 @@ struct MealPlanTemplate: Identifiable, Codable {
     var mealNames: [String: [String: String]] = [:]
 
     enum CodingKeys: String, CodingKey {
-        case id, title, img, mealTemplates // Exclude mealNames from Codable
+        case id, title, img, mealTemplates
     }
 }

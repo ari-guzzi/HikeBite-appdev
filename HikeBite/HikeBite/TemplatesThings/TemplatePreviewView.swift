@@ -55,7 +55,6 @@ struct TemplatePreviewView: View {
             fetchMealNames()
             print("🔍 TemplatePreviewView Appeared")
             print("📝 Meal Templates Loaded:", template.mealTemplates)
-            
             if template.mealTemplates.isEmpty {
                 print("⚠️ mealTemplates is EMPTY! Firebase might not have returned data yet.")
             }

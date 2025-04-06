@@ -10,10 +10,9 @@ struct CreatePlanView: View {
     @State private var tripName: String = ""
     @State private var numberOfDays: Int = 3
     @State private var tripDate: Date = Date()
-    var onPlanCreated: (String, Int, Date) -> Void  // Callback function to save the trip
-    
+    var onPlanCreated: (String, Int, Date) -> Void
     var body: some View {
-        NavigationView {
+        // NavigationView {
             ZStack {
                 Image("topolines")
                     .resizable()
@@ -96,6 +95,6 @@ struct CreatePlanView: View {
                     Spacer()
                 }
             }
-        }
+        // }
     }
 }

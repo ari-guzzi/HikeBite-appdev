@@ -11,6 +11,7 @@ import FirebaseFirestore
 
 @MainActor  // Ensures all updates are done on the main thread
 class TripManager: ObservableObject {
+    @Published var hasNavigatedForSelectedTrip: Bool = false
     @Published var allRecipes: [Result] = []
     @Published var trips: [Trip] = [] {
         didSet {
@@ -48,8 +49,8 @@ class TripManager: ObservableObject {
             for doc in documents {
                 let rawID = doc.documentID
                 let rawData = doc.data()
-                print("📄 Document ID: \(rawID)")
-                print("📄 Raw Data: \(rawData)")
+                // print("📄 Document ID: \(rawID)")
+                // print("📄 Raw Data: \(rawData)")
                 
                 do {
                     let recipe = try doc.data(as: Result.self)
@@ -63,7 +64,7 @@ class TripManager: ObservableObject {
             let recipes: [Result] = documents.compactMap { doc in
                 do {
                     let recipe = try doc.data(as: Result.self)
-                    print("✅ Loaded recipe: \(recipe.title), id: \(recipe.id ?? "nil")")
+                    // print("✅ Loaded recipe: \(recipe.title), id: \(recipe.id ?? "nil")")
                     return recipe
                 } catch {
                     print("❌ Could not decode recipe: \(error.localizedDescription)")
