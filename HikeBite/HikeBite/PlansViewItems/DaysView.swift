@@ -111,25 +111,35 @@ struct DaysView: View {
     }
 
     private func mealItem(meal: MealEntry, deleteMeal: @escaping (MealEntry) -> Void, swapMeal: @escaping (MealEntry) -> Void) -> some View {
-        HStack {
-            Button(action: { deleteMeal(meal); refreshMeals() }) {
-                Image(systemName: "xmark.circle.fill").foregroundColor(.red).padding(.trailing, 10)
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(red: 0.91, green: 1, blue: 0.96))
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
+
+            HStack(spacing: 8) {
+                Button(action: { deleteMeal(meal); refreshMeals() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.red)
+                }
+
+                Button(action: {
+                    selectedMealEntry = meal
+                }) {
+                    Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
+                        .font(.body)
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Button(action: { swapMeal(meal) }) {
+                    Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                        .foregroundColor(.blue)
+                }
             }
-            Button(action: {
-                selectedMealEntry = meal
-            }) {
-                Text("\(meal.recipeTitle) \(meal.servings > 1 ? "(\(meal.servings) servings)" : "")")
-                    .font(.body)
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            Button(action: { swapMeal(meal) }) {
-                Image(systemName: "arrow.triangle.2.circlepath.circle.fill").foregroundColor(.blue).padding(.leading, 10)
-            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
         }
-        .padding(.vertical, 5)
-        .background(Color(red: 0.91, green: 1, blue: 0.96))
-        .cornerRadius(10)
         .padding(.horizontal)
+        .padding(.vertical, 1)
     }
 }

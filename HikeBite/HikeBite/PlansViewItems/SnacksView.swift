@@ -57,11 +57,12 @@ struct SnacksView: View {
                                     .padding(.leading, 10)
                             }
                         }
-                        .padding(.vertical, 5)
-                        .background(Color(.systemGray6))
+                        .padding(.vertical, 10)
+                        .background(Color(red: 0.91, green: 1, blue: 0.96))
                         .cornerRadius(10)
                         .padding(.horizontal)
                     }
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                 }
             }
         }

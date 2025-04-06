@@ -170,21 +170,24 @@ struct TripsView: View {
                         .font(Font.custom("Area Normal", size: 24).weight(.bold))
                         .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
                         .padding(.leading, 20)
-                    List(previousTrips) { trip in
-                        Button {
-                            selectedTrip = trip
-                        } label: {
-                            tripRow(trip: trip)
+                    List {
+                        ForEach(previousTrips) { trip in
+                            Button {
+                                selectedTrip = trip
+                            } label: {
+                                tripRow(trip: trip)
+                            }
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())  // Prevent default padding
                         }
-                        .listStyle(.plain)
-                        .listRowBackground(Color.clear)
-                        .scrollIndicators(.hidden)
+                        .onDelete(perform: deleteTripAt)
                     }
-                    .offset(x: 5)
                     .scrollIndicators(.hidden)
                     .background(Color.clear)
                     .listStyle(PlainListStyle())
                     .frame(height: 300)
+                    .offset(x: 15)
                 }
             }
         }
