@@ -54,6 +54,7 @@ struct DaysView: View {
                 let mealsForType = mealsForDay.filter { $0.meal.caseInsensitiveCompare(mealType) == .orderedSame }
                 let totals = calculateTotals(for: mealsForType)
                 mealTypeSection(mealType, totals: totals)
+                    .padding(.bottom, 12)
             }
         }
         .sheet(isPresented: $showingAddMealSheet) {

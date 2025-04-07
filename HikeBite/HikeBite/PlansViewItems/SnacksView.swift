@@ -57,7 +57,7 @@ struct SnacksView: View {
                                     .padding(.leading, 10)
                             }
                         }
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 15)
                         .background(Color(red: 0.91, green: 1, blue: 0.96))
                         .cornerRadius(10)
                         .padding(.horizontal)

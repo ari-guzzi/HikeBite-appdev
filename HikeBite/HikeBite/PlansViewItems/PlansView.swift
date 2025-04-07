@@ -257,7 +257,7 @@ struct PlansView: View {
                     recipeTitle: meal.recipeTitle,
                     servings: meal.servings,
                     tripName: newTrip.name,
-                    totalCalories: meal.totalCalories,  // Ensure these properties are in MealEntry
+                    totalCalories: meal.totalCalories,
                     totalGrams: meal.totalGrams
                 )
                 modelContext.insert(duplicatedMeal)
