@@ -12,22 +12,11 @@ import SwiftUI
 
 struct Templates: View {
     @StateObject var viewModel: TemplateViewModel
-    //@State var selectedTemplate: MealPlanTemplate?
     @Binding var selectedTrip: Trip?
-    //@State private var isShowingPreview = false
     @Binding var selectedTab: Int
     @State private var hasAttemptedFirstLoad = false
     @Binding var externalSelectedTemplate: MealPlanTemplate?
     @Binding var externalShowPreview: Bool
-//    var selectedTemplate: MealPlanTemplate? {
-//        get { externalSelectedTemplate }
-//        set { externalSelectedTemplate = newValue }
-//    }
-//    var isShowingPreview: Bool {
-//        get { externalShowPreview }
-//        set { externalShowPreview = newValue }
-//    }
-    
     init(
         selectedTrip: Binding<Trip?>,
         selectedTab: Binding<Int>,
@@ -61,10 +50,10 @@ struct Templates: View {
                                        endPoint: .bottom)
                             .edgesIgnoringSafeArea([.top, .leading, .trailing])
 
-                            ScrollView {
-                                ZStack {
-                                    FunnyLines()
-                                        .edgesIgnoringSafeArea(.all)
+                        ScrollView {
+                            ZStack {
+                                FunnyLines()
+                                    .edgesIgnoringSafeArea(.all)
                                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 16) {
                                     ForEach(viewModel.templates) { template in
                                         Button {
@@ -134,9 +123,7 @@ struct Templates: View {
                                 selectedTab: $selectedTab,
                                 dismissTemplates: {
                                     externalShowPreview = false
-//                                    selectedTemplate = MealPlanTemplate(id: "", title: "", img: "", mealTemplates: [:])
                                     externalSelectedTemplate = MealPlanTemplate(id: "", title: "", img: "", mealTemplates: [:])
-
                                 }
                             )
                             .id(selectedTemplate.id)

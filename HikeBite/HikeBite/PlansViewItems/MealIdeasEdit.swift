@@ -15,7 +15,6 @@ import SwiftUI
 struct MealIdeasEdit: View {
     @Binding var mealEntry: MealEntry
     var recipe: Result
-    //var selectedTrip: Trip?
     @State private var selectedTrip: Trip? = nil
     @Environment(\.modelContext) private var modelContext
     @State private var mutableIngredients: [IngredientPlain] = []
@@ -36,7 +35,7 @@ struct MealIdeasEdit: View {
     var onDismiss: (() -> Void)?
     init(mealEntry: Binding<MealEntry>, recipe: Result, onDismiss: (() -> Void)? = nil) {
         self._mealEntry = mealEntry
-        self.recipe = recipe 
+        self.recipe = recipe
         self._servings = State(initialValue: mealEntry.wrappedValue.servings)
         self.onDismiss = onDismiss
     }
@@ -165,7 +164,6 @@ struct MealIdeasEdit: View {
         let pathComponents = url.pathComponents
         // This might need adjustment depending on your specific URL structure
         let imagePath = pathComponents.suffix(2).joined(separator: "/")
-        
         let storageRef = Storage.storage().reference(withPath: imagePath)
         storageRef.downloadURL { url, error in
             DispatchQueue.main.async {
@@ -179,7 +177,6 @@ struct MealIdeasEdit: View {
             }
         }
     }
-    
     private func addRecipeToPlan() {
         guard let selectedTrip = selectedTrip else {
             print("❌ No trip selected!")
@@ -228,11 +225,9 @@ struct MealIdeasEdit: View {
                 Text("Weight: \((ingredient.wrappedValue.weight ?? 0) * servings) g").font(.caption)
             }
             Spacer()
-            
             Button {
                 let newGroceryItem = GroceryItem(name: groceryItemName, isCompleted: false)
                 modelContext.insert(newGroceryItem)
-                
                 do {
                     try modelContext.save()
                     print("✅ Added to grocery list: \(newGroceryItem.name)")

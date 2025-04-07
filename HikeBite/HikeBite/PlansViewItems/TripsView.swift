@@ -30,7 +30,6 @@ struct TripsView: View {
         }
         return upcoming
     }
-    
     var previousTrips: [Trip] {
         let now = Date()
         let past = tripManager.trips.filter {
@@ -86,11 +85,9 @@ struct TripsView: View {
                 print("🔄 Tripsview appeared. Fetching trips...")
                 tripManager.fetchTrips(modelContext: modelContext)
                 if let trip = selectedTrip, !tripManager.hasNavigatedForSelectedTrip {
-                        print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
-                        //DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            tripManager.hasNavigatedForSelectedTrip = true
-                            shouldNavigateToPlans = true
-                        //}
+                    print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
+                    tripManager.hasNavigatedForSelectedTrip = true
+                    shouldNavigateToPlans = true
                 } else {
                     print("🛑 Skipping auto-navigation, already navigated for selected trip")
                 }

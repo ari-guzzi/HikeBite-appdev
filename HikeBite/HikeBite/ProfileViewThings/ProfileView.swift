@@ -19,9 +19,7 @@ struct ProfileView: View {
     @State private var numberOfDays: Int = 0
     @State private var tripDate: Date = Date()
     @Query var entries: [MealEntry]
-    //@State var results: [Result] = []
     let results: [Result]
-    
     @Binding var selectedTemplate: MealPlanTemplate?
     @Binding var showTemplatePreview: Bool
     @Binding var selectedRecipe: Result?
@@ -37,7 +35,6 @@ struct ProfileView: View {
         }
         return upcoming
     }
-    
     var previousTrips: [Trip] {
         let now = Date()
         let past = tripManager.trips.filter {
@@ -70,7 +67,6 @@ struct ProfileView: View {
         self._showRecipeDetail = showRecipeDetail
         self.results = results
         self.isLoadingRecipes = isLoadingRecipes
-        
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
@@ -93,9 +89,6 @@ struct ProfileView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-//                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
-//                                               startPoint: .top,
-//                                               endPoint: .bottom)
                 .edgesIgnoringSafeArea([.top, .leading, .trailing])
                 VStack {
                     if viewModel.currentUser == nil {

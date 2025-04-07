@@ -74,14 +74,10 @@ class AuthViewModel: ObservableObject {
             print("Debug: failed to sign out with error \(error.localizedDescription)")
         }
     }
-    func deleteAccount() {
-        
-    }
     func fetchUser() async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else { return }
         self.currentUser = try? snapshot.data(as: User.self)
-        
         print("Debug: current user is \(self.currentUser)")
     }
 }

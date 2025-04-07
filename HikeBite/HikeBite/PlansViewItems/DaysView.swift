@@ -9,7 +9,6 @@ import SwiftData
 import SwiftUI
 
 struct DaysView: View {
-    //var mealsForDay: [MealEntry]
     var deleteMeal: (MealEntry) -> Void
     var swapMeal: (MealEntry) -> Void
     var tripName: String
@@ -46,8 +45,6 @@ struct DaysView: View {
             meal.tripName == tripName && meal.day == day
         })
     }
-
-
     var body: some View {
         VStack {
             ForEach(mealTypes.filter { $0 != "Snacks" || !showSnacksConsolidated }, id: \.self) { mealType in
@@ -70,13 +67,11 @@ struct DaysView: View {
             )
         }
     }
-
     private func calculateTotals(for meals: [MealEntry]) -> (calories: Int, grams: Int) {
         let totalCalories = meals.reduce(0) { $0 + $1.totalCalories }
         let totalGrams = meals.reduce(0) { $0 + $1.totalGrams }
         return (totalCalories, totalGrams)
     }
-
     @ViewBuilder
     private func mealTypeSection(_ mealType: String, totals: (calories: Int, grams: Int)) -> some View {
         VStack(alignment: .leading) {
@@ -84,7 +79,6 @@ struct DaysView: View {
             mealList(for: mealsForDay.filter { $0.meal.caseInsensitiveCompare(mealType) == .orderedSame })
         }
     }
-
     private func sectionHeader(mealType: String, totals: (calories: Int, grams: Int)) -> some View {
         HStack {
             Text(mealType)
@@ -103,26 +97,22 @@ struct DaysView: View {
             }
         }
     }
-
     @ViewBuilder
     private func mealList(for meals: [MealEntry]) -> some View {
         ForEach(meals, id: \.id) { meal in
             mealItem(meal: meal, deleteMeal: deleteMeal, swapMeal: swapMeal)
         }
     }
-
     private func mealItem(meal: MealEntry, deleteMeal: @escaping (MealEntry) -> Void, swapMeal: @escaping (MealEntry) -> Void) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color(red: 0.91, green: 1, blue: 0.96))
                 .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-
             HStack(spacing: 8) {
                 Button(action: { deleteMeal(meal); refreshMeals() }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.red)
                 }
-
                 Button(action: {
                     selectedMealEntry = meal
                 }) {
@@ -131,7 +121,6 @@ struct DaysView: View {
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-
                 Button(action: { swapMeal(meal) }) {
                     Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                         .foregroundColor(.blue)

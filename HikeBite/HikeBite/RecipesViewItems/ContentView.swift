@@ -25,124 +25,67 @@ struct ContentView: View {
         self._selectedTrip = selectedTrip
         self._externalSelectedRecipe = externalSelectedRecipe
         self._externalShowDetail = externalShowDetail
-
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
     }
-
-//    var body: some View {
-//        NavigationStack {
-//            ZStack {
-//                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
-//                               startPoint: .top,
-//                               endPoint: .bottom)
-//                .edgesIgnoringSafeArea([.top, .leading, .trailing])
-//                FunnyLines()
-//                VStack {
-//                    HStack {
-//                        Text("Sort Meals")
-//                            .foregroundColor(Color("AccentColor"))
-//                            .padding(.leading, 30)
-//                        filterButton
-//                        Spacer()
-//                    }
-//                    filteredList
-//                        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
-//                        .onChange(of: searchText) { newValue in
-//                            fetchData(searchQuery: newValue)
-//                        }
-//                        .navigationTitle("Meal Ideas")
-//                    
-//                        .sheet(isPresented: $showingFilter) {
-//                            FilterView(activeFilters: $activeFilters) {
-//                                showingFilter = false
-//                            }
-//                        }
-//                }
-//                
-//                .onAppear {
-//                    if FirebaseApp.app() != nil {
-//                        fetchData()
-//                    }
-//                }
-//                .toolbar {
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        NavigationLink(destination: AddRecipeView()) {
-//                            HStack{ Text("Upload a meal")
-//                                Image(systemName: "plus")
-//                                    .foregroundColor(.black)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            .navigationDestination(isPresented: $externalShowDetail) {
-//                if let selected = externalSelectedRecipe {
-//                    RecipeDetailView(recipe: selected)
-//                }
-//            }
-//        }
-//    }
-        var body: some View {
-            NavigationStack {
-                ZStack {
-                    LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
-                                   startPoint: .top,
-                                   endPoint: .bottom)
-                        .edgesIgnoringSafeArea(.all)
-                    FunnyLines()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .edgesIgnoringSafeArea(.all)
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack {
-                            Text("Sort Meals")
-                                .foregroundColor(Color("AccentColor"))
-                                .padding(.leading, 30)
-                            filterButton
-                            Spacer()
-                        }
-
-                        filteredList
-                            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
-                            .onChange(of: searchText) { newValue in
-                                fetchData(searchQuery: newValue)
-                            }
-                            .navigationTitle("Meal Ideas")
-                    }
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [.white, Color("AccentLight")]),
+                               startPoint: .top,
+                               endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
+                FunnyLines()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.top)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(destination: AddRecipeView()) {
-                            HStack {
-                                Text("Upload a meal")
-                                    .foregroundColor(.accentColor)
-                                Image(systemName: "plus")
-                            }
-                            .foregroundColor(.black)
+                    .edgesIgnoringSafeArea(.all)
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Text("Sort Meals")
+                            .foregroundColor(Color("AccentColor"))
+                            .padding(.leading, 30)
+                        filterButton
+                        Spacer()
+                    }
+                    filteredList
+                        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "What are you looking for?")
+                        .onChange(of: searchText) { newValue in
+                            fetchData(searchQuery: newValue)
                         }
-                    }
+                        .navigationTitle("Meal Ideas")
                 }
-                .sheet(isPresented: $showingFilter) {
-                    FilterView(activeFilters: $activeFilters) {
-                        showingFilter = false
-                    }
-                }
-                .navigationDestination(isPresented: $externalShowDetail) {
-                    if let selected = externalSelectedRecipe {
-                        RecipeDetailView(recipe: selected)
-                    }
-                }
-                .onAppear {
-                    if FirebaseApp.app() != nil {
-                        fetchData()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.top)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: AddRecipeView()) {
+                        HStack {
+                            Text("Upload a meal")
+                                .foregroundColor(.accentColor)
+                            Image(systemName: "plus")
+                        }
+                        .foregroundColor(.black)
                     }
                 }
             }
+            .sheet(isPresented: $showingFilter) {
+                FilterView(activeFilters: $activeFilters) {
+                    showingFilter = false
+                }
+            }
+            .navigationDestination(isPresented: $externalShowDetail) {
+                if let selected = externalSelectedRecipe {
+                    RecipeDetailView(recipe: selected)
+                }
+            }
+            .onAppear {
+                if FirebaseApp.app() != nil {
+                    fetchData()
+                }
+            }
         }
-
+    }
+    
     var filteredList: some View {
         List(results.filter(shouldIncludeResult), id: \.id) { item in
             NavigationLink(destination: RecipeDetailView(recipe: item)) {
@@ -175,23 +118,19 @@ struct ContentView: View {
         var query: Query = recipesRef
         if !searchQuery.isEmpty {
             query = query.whereField("title", isGreaterThanOrEqualTo: searchQuery)
-                         .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
+                .whereField("title", isLessThanOrEqualTo: searchQuery + "\u{f8ff}")
         }
-
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching recipes: \(error.localizedDescription)")
                 return
             }
-
             guard let documents = snapshot?.documents else {
                 print("⚠️ No recipes found.")
                 return
             }
-
             var newResults = [Result]()  // Temporary storage for fetched results
             let group = DispatchGroup()  // Use a dispatch group to synchronize URL fetching
-
             for document in documents {
                 var result = try? document.data(as: Result.self)
                 if let imagePath = result?.img { // This should be a gs:// URL
@@ -211,16 +150,12 @@ struct ContentView: View {
                     }
                 }
             }
-
-
             group.notify(queue: .main) {  // Notify when all URLs have been fetched
                 self.results = newResults
                 print("✅ Fetched \(self.results.count) recipes with URLs.")
             }
         }
     }
-
-
 }
 struct RecipeRow: View {
     var item: Result
@@ -276,7 +211,6 @@ func getDownloadURL(for imageName: String, completion: @escaping (String?) -> Vo
         }
     }
 }
-
 
 struct FilterView: View {
     @Binding var activeFilters: Set<String>

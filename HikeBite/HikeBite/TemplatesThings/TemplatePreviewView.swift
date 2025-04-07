@@ -28,8 +28,7 @@ struct TemplatePreviewView: View {
             VStack {
                 Text(template.title)
                     .font(.largeTitle)
-                    .padding()
-                
+                    .padding()  
                 List {
                     ForEach(template.mealTemplates.keys.sorted(), id: \.self) { day in
                         Section(header: Text(day.capitalized)) {

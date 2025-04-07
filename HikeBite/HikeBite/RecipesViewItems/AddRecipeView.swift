@@ -30,31 +30,6 @@ struct AddRecipeView: View {
                     imageUploadSection()
                     filtersSection()
                     ingredientsSection()
-//                    Section(header: Text("Ingredients")) {
-//                        ForEach(ingredients.indices, id: \.self) { index in
-//                            VStack {
-//                                TextField("Ingredient Name", text: $ingredients[index].name)
-//                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                HStack {
-//                                    TextField("Amount", value: $ingredients[index].amount, formatter: NumberFormatter())
-//                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                        .keyboardType(.decimalPad)
-//                                    TextField("Unit", text: $ingredients[index].unit.orEmpty())
-//                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                }
-//                                HStack {
-//                                    TextField("Calories", value: $ingredients[index].calories, formatter: NumberFormatter())
-//                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                        .keyboardType(.numberPad)
-//                                    TextField("Weight (g)", value: $ingredients[index].weight, formatter: NumberFormatter())
-//                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                        .keyboardType(.numberPad)
-//                                }
-//                            }
-//                            .padding(.vertical, 5)
-//                        }
-//                        ingredientsSection()
-//                    }
                     submitButtonSection()
                 }
                 .navigationTitle("Add Recipe")
@@ -112,10 +87,9 @@ struct AddRecipeView: View {
                     TextField("Ingredient Name", text: $ingredients[index].name)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     HStack {
-                            TextField("Amount", value: $ingredients[index].amount, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.decimalPad)
-                                                           
+                        TextField("Amount", value: $ingredients[index].amount, formatter: NumberFormatter())
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.decimalPad)
                         TextField("Unit", text: $ingredients[index].unit)
                             .placeholder(when: ingredients[index].unit.isEmpty, placeholder: {
                                 Text("Unit").foregroundColor(.gray)
@@ -138,7 +112,6 @@ struct AddRecipeView: View {
             }
         }
     }
-
     private func submitButtonSection() -> some View {
         Section {
             Button(action: uploadRecipe) {
@@ -163,10 +136,8 @@ struct AddRecipeView: View {
             print("Image data not available")
             return
         }
-        
         let imageName = "recipe_images/\(UUID().uuidString).jpg"
         let storageRef = Storage.storage().reference().child(imageName)
-        
         isUploading = true
         storageRef.putData(imageData, metadata: nil) { metadata, error in
             guard metadata != nil else {
@@ -174,14 +145,12 @@ struct AddRecipeView: View {
                 self.isUploading = false
                 return
             }
-            
             storageRef.downloadURL { url, error in
                 guard let downloadURL = url else {
                     print("Failed to get download URL: \(error?.localizedDescription ?? "unknown error")")
                     self.isUploading = false
                     return
                 }
-                
                 // Extract just the image name from the URL
                 let urlString = downloadURL.absoluteString
                 if let imageNameOnly = self.extractImageName(from: urlString) {
@@ -197,13 +166,11 @@ struct AddRecipeView: View {
         if let url = URL(string: urlString) {
             // Split the path into components
             let pathComponents = url.pathComponents
-            
             // Find the index of the desired directory 'recipe_images'
             if let recipeImagesIndex = pathComponents.firstIndex(of: "recipe_images") {
                 // Construct the desired path from 'recipe_images' onwards
                 let desiredPathComponents = pathComponents.suffix(from: recipeImagesIndex)
                 let cleanedPath = desiredPathComponents.joined(separator: "/")
-                
                 return cleanedPath
             }
         }
@@ -219,7 +186,6 @@ struct AddRecipeView: View {
             createdBy: viewModel.currentUser?.email ?? "unknown",
             timestamp: Date()
         )
-        
         let db = Firestore.firestore()
         do {
             let _ = try db.collection("Recipes").addDocument(from: newRecipe) { error in
@@ -241,7 +207,6 @@ struct AddRecipeView: View {
         let filter: String
         let isSelected: Bool
         let action: () -> Void
-        
         var body: some View {
             Text(filter.capitalized)
                 .padding(.horizontal, 10)
@@ -253,15 +218,15 @@ struct AddRecipeView: View {
                 }
         }
     }
-    extension View {
-        func placeholder<Content: View>(
-            when shouldShow: Bool,
-            alignment: Alignment = .leading,
-            @ViewBuilder placeholder: () -> Content
-        ) -> some View {
-            ZStack(alignment: alignment) {
-                placeholder().opacity(shouldShow ? 1 : 0)
-                self
-            }
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content
+    ) -> some View {
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
         }
     }
+}

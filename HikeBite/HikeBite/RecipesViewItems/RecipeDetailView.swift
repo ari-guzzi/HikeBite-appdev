@@ -14,7 +14,6 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     var recipe: Result
-    //var selectedTrip: Trip?
     @State private var selectedTrip: Trip? = nil
     @Environment(\.modelContext) private var modelContext
     @State private var mutableIngredients: [IngredientPlain] = []
@@ -111,12 +110,12 @@ struct RecipeDetailView: View {
                                 .padding(.horizontal)
                             }
                             Button("Add to my plan", action: {showAddToPlanSheet = true})
-                                    .font(.headline)
-                                    .padding(10)
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color(red: 0, green: 0.41, blue: 0.22))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(20)
+                                .font(.headline)
+                                .padding(10)
+                                .frame(maxWidth: .infinity)
+                                .background(Color(red: 0, green: 0.41, blue: 0.22))
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
                             if !recipe.filter.isEmpty {
                                 HStack {
                                     Text("Filters:")
@@ -158,7 +157,6 @@ struct RecipeDetailView: View {
                                     }
                                     .frame(width: UIScreen.main.bounds.width - 20)
                                     .padding(.bottom, 25)
-                                    //.background(Color(red: 0.67, green: 0.85, blue: 0.76))
                                 }
                             }
                             .frame(width: UIScreen.main.bounds.width)
@@ -229,7 +227,6 @@ struct RecipeDetailView: View {
         let pathComponents = url.pathComponents
         // This might need adjustment depending on your specific URL structure
         let imagePath = pathComponents.suffix(2).joined(separator: "/")
-        
         let storageRef = Storage.storage().reference(withPath: imagePath)
         storageRef.downloadURL { url, error in
             DispatchQueue.main.async {
@@ -243,7 +240,6 @@ struct RecipeDetailView: View {
             }
         }
     }
-    
     private func addRecipeToPlan() {
         guard let selectedTrip = selectedTrip else {
             print("❌ No trip selected!")
@@ -292,11 +288,9 @@ struct RecipeDetailView: View {
                 Text("Weight: \((ingredient.wrappedValue.weight ?? 0) * servings) g").font(.caption)
             }
             Spacer()
-            
             Button {
                 let newGroceryItem = GroceryItem(name: groceryItemName, isCompleted: false)
                 modelContext.insert(newGroceryItem)
-                
                 do {
                     try modelContext.save()
                     print("✅ Added to grocery list: \(newGroceryItem.name)")

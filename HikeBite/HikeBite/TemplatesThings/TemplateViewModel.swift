@@ -19,7 +19,6 @@ class TemplateViewModel: ObservableObject {
     private var retryCount = 0
     @Published var isLoading = true
     var hasLoadedOnce = false
-    
     init(fetchMeals: @escaping () -> Void) {
         self.fetchMeals = fetchMeals
         monitor.start(queue: queue)
@@ -44,7 +43,6 @@ class TemplateViewModel: ObservableObject {
             }
             return
         }
-        
         print("📢 Fetching templates from Firestore (Attempt \(retryCount + 1))...")
         let db = Firestore.firestore()
         DispatchQueue.main.async {

@@ -96,9 +96,7 @@ struct PlansView: View {
                 MealIdeasEdit(
                     mealEntry: Binding(get: { meal }, set: { selectedMealEntry = $0 }),
                     recipe: result,
-                    onDismiss: {
-                        fetchMeals()
-                    }
+                    onDismiss: { fetchMeals() }
                 )
             } else {
                 Text("⚠️ Recipe not found for '\(meal.recipeTitle)'")
@@ -188,7 +186,6 @@ struct PlansView: View {
                 SnacksView(snacks: consolidatedSnacks, deleteMeal: deleteMeal, swapMeal: { meal in
                     mealToSwap = meal
                     showingSwapSheet = true
-                    
                 },
                    tripName: selectedTrip?.name ?? "Unknown Trip",
                    refreshMeals: { fetchMeals() },
@@ -459,4 +456,3 @@ struct DuplicatePlanButton: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-

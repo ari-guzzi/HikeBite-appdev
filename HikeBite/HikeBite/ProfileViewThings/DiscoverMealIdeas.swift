@@ -10,13 +10,10 @@ import SwiftUI
 struct DiscoverMealIdeas: View {
     let results: [Result]
     let entries: [MealEntry]
-    
     let validIDs: Set<String> = ["19", "35", "18"]
-    
     @Binding var selectedTab: Int
     @Binding var selectedRecipe: Result?
     @Binding var showRecipeDetail: Bool
-    
     var body: some View {
         let filteredResults = results.filter { validIDs.contains($0.id ?? "") }
         ZStack {
@@ -50,26 +47,20 @@ struct DiscoverMealIdeas: View {
                             showRecipeDetail = true
                         }
                     }
-                    
                     .frame(width: UIScreen.main.bounds.width - 25)
-                    //Spacer()
                 }
-                //.padding()
             }
             .background(Color.clear)
             .scrollIndicators(.hidden)
             .offset(y: -50)
         }
     }
-    
     struct MealIdeaBox: View {
         let result: Result
         let entry: MealEntry?
         let onAdd: () -> Void
-        
         var body: some View {
-            HStack(alignment: .center) {
-                
+            HStack(alignment: .center) {  
                 // Meal image
                 if let imgURL = result.img, let url = URL(string: imgURL) {
                     AsyncImage(url: url) { image in
@@ -83,26 +74,13 @@ struct DiscoverMealIdeas: View {
                         Color.gray.frame(width: 60, height: 60).cornerRadius(8)
                     }
                 }
-                
                 // Title + calories
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.title)
                         .font(.headline)
                         .foregroundColor(.black)
-                    
-                    //                if let calories = entry?.totalCalories {
-                    //                    Text("\(calories) cal")
-                    //                        .font(.subheadline)
-                    //                        .foregroundColor(.gray)
-                    //                } else {
-                    //                    Text("— cal")
-                    //                        .font(.subheadline)
-                    //                        .foregroundColor(.gray)
-                    //                }
                 }
-                
                 Spacer()
-                
                 // Plus button
                 Button(action: onAdd) {
                     Image(systemName: "plus.circle")

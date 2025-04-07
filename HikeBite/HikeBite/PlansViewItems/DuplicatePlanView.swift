@@ -14,7 +14,6 @@ struct DuplicatePlanView: View {
     var originalTrip: Trip
     var duplicatePlan: (String, Int, Date) -> Void
     @Environment(\.dismiss) private var dismiss
-
     var body: some View {
         ZStack {
             Image("topolines")
@@ -51,17 +50,13 @@ struct DuplicatePlanView: View {
                         .background(Color.white)
                         .cornerRadius(9)
                         .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                    
                     HStack {
                         Text("Trip Length:")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
                             .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
-                        
-                        
                         Text("\(newPlanDays) days")
                             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 24))
                             .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))
-                        
                         Stepper("", value: $newPlanDays, in: 1...14)
                             .labelsHidden()
                     }
@@ -100,27 +95,5 @@ struct DuplicatePlanView: View {
                 Spacer()
             }
         }
-//            Form {
-//                Section(header: Text("New Plan Name")) {
-//                    TextField("Enter plan name", text: $newPlanName)
-//                }
-//
-//                Section(header: Text("Number of Days")) {
-//                    Stepper("\(newPlanDays) Days", value: $newPlanDays, in: 1...10)
-//                }
-//
-//                Section(header: Text("Start Date")) {
-//                    DatePicker("Select Date", selection: $newPlanDate, displayedComponents: .date)
-//                }
-//            }
-//            .navigationTitle("Duplicate Plan")
-//            .navigationBarItems(
-//                leading: Button("Cancel") { dismiss() },
-//                trailing: Button("Duplicate") {
-//                    guard !newPlanName.isEmpty else { return }
-//                    duplicatePlan(newPlanName, newPlanDays, newPlanDate)
-//                    dismiss()
-//                }
-//            )
     }
 }

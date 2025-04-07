@@ -9,14 +9,10 @@ import SwiftUI
 
 struct ProfileNameView: View {
     @EnvironmentObject var viewModel: AuthViewModel
-    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 ZStack {
-//                    LinearGradient(gradient: Gradient(colors: [.blue, .white]), startPoint: .top, endPoint: .bottom)
-//                        .frame(height: 100)
-//                        .edgesIgnoringSafeArea(.top)
                     HStack {
                         NavigationLink(destination: SettingsPage()) {
                             if let imageURL = viewModel.currentUser?.profileImgeURL, let url = URL(string: imageURL) {
@@ -58,7 +54,6 @@ struct ProfileNameView: View {
                                     .font(
                                         Font.custom("FONTSPRINGDEMO-FieldsDisplayExtraBoldRegular", size: 48)
                                             .weight(.heavy)
-                                            
                                     )
                                 Text("Welcome to HikeBite")
                                     .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
@@ -74,4 +69,3 @@ struct ProfileNameView: View {
         }
     }
 }
-

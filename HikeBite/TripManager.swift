@@ -5,9 +5,9 @@
 //  Created by Ari Guzzi on 2/14/25.
 //
 import Combine
+import FirebaseFirestore
 import Foundation
 import SwiftData
-import FirebaseFirestore
 
 @MainActor  // Ensures all updates are done on the main thread
 class TripManager: ObservableObject {
@@ -51,7 +51,6 @@ class TripManager: ObservableObject {
                 let rawData = doc.data()
                 // print("📄 Document ID: \(rawID)")
                 // print("📄 Raw Data: \(rawData)")
-                
                 do {
                     let recipe = try doc.data(as: Result.self)
                     print("✅ Recipe decoded: \(recipe.title), id: \(recipe.id ?? "nil")")
@@ -59,8 +58,6 @@ class TripManager: ObservableObject {
                     print("❌ Failed to decode recipe: \(error)")
                 }
             }
-
-
             let recipes: [Result] = documents.compactMap { doc in
                 do {
                     let recipe = try doc.data(as: Result.self)
@@ -71,17 +68,13 @@ class TripManager: ObservableObject {
                     return nil
                 }
             }
-            
-
             DispatchQueue.main.async {
                 self.allRecipes = recipes
                 print("📖 Total loaded: \(recipes.count)")
             }
         }
     }
-
     deinit {
         print("TripManager is being deinitialized")
     }
 }
-

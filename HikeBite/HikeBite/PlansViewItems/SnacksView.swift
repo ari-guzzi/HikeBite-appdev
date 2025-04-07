@@ -17,8 +17,7 @@ struct SnacksView: View {
     @Binding var selectedMealEntry: MealEntry?
 
     var body: some View {
-        Section(header:
-                    HStack {
+        Section(header: HStack {
             Text("Snacks").font(.title).fontWeight(.bold)
             Spacer()
             Button(action: {

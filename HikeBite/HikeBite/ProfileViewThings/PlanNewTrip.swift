@@ -65,7 +65,6 @@ struct PlanNewTrip: View {
     }
 }
 
-
 #Preview {
     PlanNewTrip()
 }

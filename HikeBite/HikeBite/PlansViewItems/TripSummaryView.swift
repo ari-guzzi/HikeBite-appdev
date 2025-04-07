@@ -73,7 +73,6 @@ struct TripSummaryView: View {
             meals = allMeals.filter { $0.tripName == trip.name }
         }
     }
-
     private var summaryStats: some View {
         let totalCalories = meals.reduce(0) { $0 + $1.totalCalories }
         let totalGrams = meals.reduce(0) { $0 + $1.totalGrams }
@@ -88,9 +87,7 @@ struct TripSummaryView: View {
         .background(Color(.systemGray6))
         .cornerRadius(10)
     }
-
     private var groupedMeals: [String: [MealEntry]] {
         Dictionary(grouping: meals, by: { $0.day })
     }
 }
-

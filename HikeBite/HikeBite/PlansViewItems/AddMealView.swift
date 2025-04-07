@@ -104,21 +104,17 @@ struct AddMealView: View {
             print("❌ Error: Attempting to add a meal with missing information.")
             return
         }
-        
         let db = Firestore.firestore()
         db.collection("Recipes").document(recipeId).getDocument { documentSnapshot, error in
             guard let document = documentSnapshot, document.exists else {
                 print("Error fetching ingredients: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-            
             let ingredients = (document.data()?["ingredients"] as? [[String: Any]])?.compactMap { dict -> IngredientPlain? in
                 try? JSONDecoder().decode(IngredientPlain.self, from: JSONSerialization.data(withJSONObject: dict))
             } ?? []
-            
             let totalCalories = ingredients.reduce(0) { $0 + ($1.calories ?? 0) }
             let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
-            
             let newMeal = MealEntry(
                 day: day,
                 meal: mealType,
@@ -129,9 +125,7 @@ struct AddMealView: View {
                 totalCalories: totalCalories,
                 totalGrams: totalGrams
             )
-            
             self.modelContext.insert(newMeal)
-            
             do {
                 try self.modelContext.save()
                 print("✅ Added \(recipe.title) to \(tripName) on \(day) for \(mealType) with \(totalCalories) calories and \(totalGrams) grams.")
@@ -144,7 +138,6 @@ struct AddMealView: View {
             }
         }
     }
-
     private func fetchRecipesFromFirebase() {
         let db = Firestore.firestore()
         // print("📢 Fetching recipes from Firestore (Attempt 1)...")

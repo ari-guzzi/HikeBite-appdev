@@ -23,7 +23,6 @@ struct PlanSelectionView: View {
     @State private var showWarningSheet = false
     @State private var warningMessage: String = ""
     @State private var isNavigatingToSelectedTrip = false
-    
     var body: some View {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
@@ -65,7 +64,6 @@ struct PlanSelectionView: View {
                         EmptyView()
                     }
                     .hidden()  // Hide since it's just used to trigger navigation
-                    
                     if trip.days <= templateMaxDays {
                         Button {
                             print("🔄 Applying template to existing trip: \(trip.name)")
@@ -80,7 +78,6 @@ struct PlanSelectionView: View {
                                 .cornerRadius(10)
                         }
                         .padding()
-                        
                     } else {
                         Text("⚠️ This template has **\(templateMaxDays) days**, but your current selected trip has **\(trip.days) days**.")
                             .foregroundColor(.red)
@@ -116,7 +113,6 @@ struct PlanSelectionView: View {
         let db = Firestore.firestore()
         var mealDetails: [String: [String: MealDetail]] = [:]
         let group = DispatchGroup()
-        
         for (templateDay, meals) in template.mealTemplates {
             for (mealType, mealIDs) in meals {
                 for mealID in mealIDs {
@@ -138,7 +134,6 @@ struct PlanSelectionView: View {
                             let totalGrams = ingredients.reduce(0) { $0 + ($1.weight ?? 0) }
                             let mealTitle = document.data()?["title"] as? String ?? "Unknown Meal"
                             let mealIDString = String(mealID)
-                            
                             if mealDetails[templateDay] == nil { mealDetails[templateDay] = [:] }
                             mealDetails[templateDay]?[mealType] = MealDetail(
                                 id: mealIDString,
@@ -161,7 +156,6 @@ struct PlanSelectionView: View {
                 }
             }
         }
-        
         group.notify(queue: .main) {
             var addedMeals: [MealEntry] = []
             for (templateDay, meals) in template.mealTemplates {
@@ -179,15 +173,12 @@ struct PlanSelectionView: View {
                             totalCalories: mealDetail.calories,
                             totalGrams: mealDetail.grams
                         )
-                        
                         modelContext.insert(newMeal)
                         addedMeals.append(newMeal)
-                        
                         print("✅ Added Meal: \(newMeal.recipeTitle) - Trip: \(newMeal.tripName) - Day: \(newMeal.day) - MealType: \(mealType)")
                     }
                 }
             }
-            
             do {
                 try modelContext.save()
                 print("✅ Successfully saved \(addedMeals.count) meals for trip '\(trip.name)'")
@@ -203,7 +194,6 @@ struct PlanSelectionView: View {
             }
         }
     }
-    
     // Creates a new trip from a template and applies meals**
     private func createNewTripFromTemplate(name: String, days: Int, date: Date, template: MealPlanTemplate, refreshMeals: @escaping () -> Void) {
         let templateMaxDays = template.mealTemplates.keys

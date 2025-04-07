@@ -72,7 +72,6 @@ struct CreateTripView: View {
                         .background(Color.white)
                         .cornerRadius(9)
                         .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
-                    
                     DatePicker("Start Date", selection: $tripDate, displayedComponents: .date)
                         .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 32))
                         .foregroundColor(Color(red: 0, green: 0.41, blue: 0.22))

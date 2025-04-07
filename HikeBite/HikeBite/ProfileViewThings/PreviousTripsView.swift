@@ -23,8 +23,6 @@ struct PreviousTripsView: View {
                     Text(previousTrip)
                         .font(.title3)
                     Spacer()
-//                    Image(systemName: "chevron.right")
-//                        .foregroundColor(.gray)
                 }
             }
             .listStyle(PlainListStyle())

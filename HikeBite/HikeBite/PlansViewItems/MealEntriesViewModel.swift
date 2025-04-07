@@ -17,7 +17,6 @@ class MealEntriesViewModel: ObservableObject {
         self.tripName = tripName
         fetchMeals(for: tripName)
     }
-    
     func updateSnacksVisibility(show: Bool) {
         DispatchQueue.main.async {
             self.showSnacksConsolidated = show

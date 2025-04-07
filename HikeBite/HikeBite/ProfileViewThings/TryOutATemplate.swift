@@ -37,7 +37,7 @@ struct TryOutATemplate: View {
                 .padding(.horizontal)
             }
         }
-        .frame(width: UIScreen.main.bounds.width - 10)  
+        .frame(width: UIScreen.main.bounds.width - 10)
         .onAppear {
             viewModel.loadTemplatesIfNeeded()
         }
@@ -69,7 +69,7 @@ struct TemplateBox: View {
                         .font(.headline)
                         .foregroundColor(.black)
                         .multilineTextAlignment(.center)
-                        .padding(.top, 8)                 
+                        .padding(.top, 8)
                     Spacer()
                     Text("\(dayCount) day\(dayCount > 1 ? "s" : "")")
                         .font(

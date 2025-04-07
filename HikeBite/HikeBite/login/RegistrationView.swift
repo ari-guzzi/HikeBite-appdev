@@ -124,12 +124,12 @@ struct RegistrationView: View {
                 .disabled(!formIsValid)
                 .opacity(formIsValid ? 1:0.5)
                 .cornerRadius(10)
-                .padding(.top,24)
+                .padding(.top, 24)
                 Spacer()
                 Button {
                     dismiss()
                 } label: {
-                    HStack(spacing:3) {
+                    HStack(spacing: 3) {
                         Text("Already have an account?")
                         Text("Sign In")
                             .fontWeight(.bold)

@@ -12,28 +12,13 @@ import FirebaseFirestore
 import FirebaseStorage
 import SwiftUI
 
-//class AppDelegate: NSObject, UIApplicationDelegate {
-//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-//        FirebaseApp.configure()
-//
-//        #if DEBUG
-//        let providerFactory = AppCheckDebugProviderFactory()
-//        AppCheck.setAppCheckProviderFactory(providerFactory)
-//        print(" Firebase App Check using Debug Mode")
-//        #endif
-//
-//        return true
-//    }
-//}
-
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         let attrs = [
-                NSAttributedString.Key.foregroundColor: UIColor.black, // Adjust color as needed
-                NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 48)!
-            ]
-
-            UINavigationBar.appearance().titleTextAttributes = attrs
+            NSAttributedString.Key.foregroundColor: UIColor.black, // Adjust color as needed
+            NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 48)!
+        ]
+        UINavigationBar.appearance().titleTextAttributes = attrs
         // Aggressively Disable DeviceCheck BEFORE Firebase Initializes
         disableDeviceCheck()
         // Ensure Firebase does not use DeviceCheck
@@ -43,9 +28,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let providerFactory = NoOpAppCheckProviderFactory()
         AppCheck.setAppCheckProviderFactory(providerFactory)
         let settings = Firestore.firestore().settings
-            settings.isPersistenceEnabled = false  // Disable offline persistence
-            Firestore.firestore().settings = settings
-        
+        settings.isPersistenceEnabled = false  // Disable offline persistence
+        Firestore.firestore().settings = settings
         return true
     }
     // Force Disable DeviceCheck API by Swizzling its Method (Last Resort)
@@ -73,7 +57,6 @@ struct HikeBiteApp: App {
             MainView()
         }
         .environmentObject(viewModel)
-        //.environmentObject(TripManager())
         .environmentObject(tripManager)
         .modelContainer(for: [GroceryItem.self, MealEntry.self, Trip.self], inMemory: false)
     }

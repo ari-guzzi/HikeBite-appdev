@@ -14,7 +14,6 @@ class NoOpAppCheckProvider: NSObject, AppCheckProvider {
         completion(fakeToken, nil)
     }
 }
-
 class NoOpAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
         return NoOpAppCheckProvider()

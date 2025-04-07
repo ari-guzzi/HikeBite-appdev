@@ -28,7 +28,6 @@ struct MainView: View {
     @State var selectedRecipe: Result? = nil
     @State var showRecipeDetail: Bool = false
     @State private var isAuthenticated = false
-
     @State private var selectedTrip: Trip? {
         didSet {
             if selectedTrip != nil {
@@ -53,9 +52,8 @@ struct MainView: View {
                 selectedRecipe: $selectedRecipe,
                 showRecipeDetail: $showRecipeDetail
             )
-                .tabItem { Label("Profile", systemImage: "person.fill") }
-                .tag(0)
-
+            .tabItem { Label("Profile", systemImage: "person.fill") }
+            .tag(0)
             Templates(
                 selectedTrip: $selectedTrip,
                 selectedTab: $selectedTab,
@@ -67,28 +65,27 @@ struct MainView: View {
                 Label("Templates", systemImage: "list.bullet.rectangle.portrait")
             }
             .tag(1)
-                TripsView(
-                    tripManager: tripManager,
-                    selectedTrip: $selectedTrip,
-                    selectedTab: $selectedTab,
-                    showLogin: $showLogin,
-                    numberOfDays: numberOfDays,
-                    tripDate: tripDate
-                )
-                .tabItem {
-                    Label("Trips", systemImage: "map.fill")
-                }
+            TripsView(
+                tripManager: tripManager,
+                selectedTrip: $selectedTrip,
+                selectedTab: $selectedTab,
+                showLogin: $showLogin,
+                numberOfDays: numberOfDays,
+                tripDate: tripDate
+            )
+            .tabItem {
+                Label("Trips", systemImage: "map.fill")
+            }
             .tag(2)
-
             ContentView(
                 selectedTrip: $selectedTrip,
                 externalSelectedRecipe: $selectedRecipe,
                 externalShowDetail: $showRecipeDetail
             )
             .tabItem {
-                    Label("Meals", systemImage: "fork.knife")
-                }
-                .tag(3)
+                Label("Meals", systemImage: "fork.knife")
+            }
+            .tag(3)
         }
         .onAppear {
             tripManager.fetchTrips(modelContext: modelContext)
@@ -131,7 +128,6 @@ struct MainView: View {
         let validIDs: Set<String> = ["18", "19", "35"]
         var newResults: [Result] = []
         let group = DispatchGroup()
-
         for id in validIDs {
             group.enter()
             db.collection("Recipes").document(id).getDocument { snapshot, error in
@@ -140,7 +136,6 @@ struct MainView: View {
                     group.leave()
                     return
                 }
-
                 do {
                     var result = try snapshot.data(as: Result.self)
                     if let imgPath = result.img {
@@ -157,19 +152,13 @@ struct MainView: View {
                 } catch {
                     print("❌ Failed to decode recipe \(id): \(error.localizedDescription)")
                 }
-
                 group.leave() // now only once per document
             }
         }
-
         group.notify(queue: .main) {
             self.results = newResults
             self.isLoadingRecipes = false
             print("✅ Fetched specific recipes: \(self.results.map { $0.id ?? "?" })")
         }
     }
-
-
-
-
 }

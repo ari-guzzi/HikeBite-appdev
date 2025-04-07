@@ -13,11 +13,9 @@ struct MealSelectionView: View {
     @Binding var selectedMeal: String
     @Binding var servings: Int
     var onSave: () -> Void
-
     @EnvironmentObject var tripManager: TripManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-
     var body: some View {
         NavigationView {
             Form {
@@ -33,7 +31,6 @@ struct MealSelectionView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                 }
-
                 // Ensure a trip is selected before showing these options
                 if let trip = selectedTrip {
                     Section(header: Text("Select a Day")) {
@@ -44,7 +41,6 @@ struct MealSelectionView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                     }
-
                     Section(header: Text("Select a Meal")) {
                         Picker("Meal", selection: $selectedMeal) {
                             ForEach(["Breakfast", "Lunch", "Dinner", "Snacks"], id: \.self) { meal in
@@ -53,12 +49,10 @@ struct MealSelectionView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                     }
-
                     Section(header: Text("Servings")) {
                         Stepper("Servings: \(servings)", value: $servings, in: 1...20)
                     }
                 }
-
                 Button("Add to Plan") {
                     onSave()
                     dismiss()
@@ -73,4 +67,3 @@ struct MealSelectionView: View {
         }
     }
 }
-
