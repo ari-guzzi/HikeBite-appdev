@@ -5,16 +5,41 @@
 //  Created by Ari Guzzi on 3/8/25.
 //
 
+import SwiftData
 import SwiftUI
 
 struct SnacksView: View {
-    var snacks: [MealEntry]
+    // var snacks: [MealEntry]
     var deleteMeal: (MealEntry) -> Void
     var swapMeal: (MealEntry) -> Void
     var tripName: String
     var refreshMeals: () -> Void
     @State private var showingAddMealSheet = false
     @Binding var selectedMealEntry: MealEntry?
+    @Query private var snacks: [MealEntry]
+    /* @Query(filter: #Predicate<MealEntry> { meal in
+            meal.tripName == tripName && meal.day == "Day 1" && meal.meal == "Snacks"
+        }) private var snacks: [MealEntry] */
+
+    init(
+        tripName: String,
+        deleteMeal: @escaping (MealEntry) -> Void,
+        swapMeal: @escaping (MealEntry) -> Void,
+        refreshMeals: @escaping () -> Void,
+        selectedMealEntry: Binding<MealEntry?>
+    ) {
+        self.tripName = tripName
+        self.deleteMeal = deleteMeal
+        self.swapMeal = swapMeal
+        self.refreshMeals = refreshMeals
+        self._selectedMealEntry = selectedMealEntry
+
+        self._snacks = Query(filter: #Predicate<MealEntry> { meal in
+            meal.tripName == tripName &&
+            meal.day == "Day 1" &&
+            meal.meal == "Snacks"
+        })
+    }
 
     var body: some View {
         Section(header: HStack {
@@ -63,6 +88,7 @@ struct SnacksView: View {
                     }
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 4)
                 }
+                .padding(.bottom, 4)
             }
         }
         .sheet(isPresented: $showingAddMealSheet) {
@@ -70,8 +96,11 @@ struct SnacksView: View {
                 day: "Day 1",
                 mealType: "Snacks",
                 tripName: tripName,
-                dismiss: { showingAddMealSheet = false },
-                refreshMeals: { refreshMeals() }
+                dismiss: {
+                    showingAddMealSheet = false
+                    refreshMeals()
+                },
+                refreshMeals: refreshMeals
             )
         }
     }

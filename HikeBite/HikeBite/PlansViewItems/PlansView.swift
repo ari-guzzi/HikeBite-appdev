@@ -18,7 +18,7 @@ struct PlansView: View {
     @State private var showingSwapSheet = false
     @State private var showCreatePlanSheet = false
     @State private var showDuplicatePlanSheet = false
-    @State private var showSnacksConsolidated = false
+    @State private var showSnacksConsolidated = true
     @State private var consolidatedSnacks: [MealEntry] = []
     @State var numberOfDays: Int
     @State var tripDate: Date
@@ -183,14 +183,25 @@ struct PlansView: View {
         ScrollView {
             ForEach(days, id: \.self, content: mealSectionView)
             if showSnacksConsolidated {
-                SnacksView(snacks: consolidatedSnacks, deleteMeal: deleteMeal, swapMeal: { meal in
-                    mealToSwap = meal
-                    showingSwapSheet = true
-                },
-                   tripName: selectedTrip?.name ?? "Unknown Trip",
-                   refreshMeals: { fetchMeals() },
-                   selectedMealEntry: $selectedMealEntry
+//                SnacksView(snacks: consolidatedSnacks, deleteMeal: deleteMeal, swapMeal: { meal in
+//                    mealToSwap = meal
+//                    showingSwapSheet = true
+//                },
+//                   tripName: selectedTrip?.name ?? "Unknown Trip",
+//                   refreshMeals: { fetchMeals() },
+//                   selectedMealEntry: $selectedMealEntry
+//                )
+                SnacksView(
+                    tripName: selectedTrip?.name ?? "Unknown Trip",
+                    deleteMeal: deleteMeal,
+                    swapMeal: { meal in
+                        mealToSwap = meal
+                        showingSwapSheet = true
+                    },
+                    refreshMeals: { fetchMeals() },
+                    selectedMealEntry: $selectedMealEntry
                 )
+
             }
         }
         .frame(maxWidth: UIScreen.main.bounds.width - 10)
@@ -337,7 +348,7 @@ struct PlansView: View {
         return []
     }
 
-    private func fetchMeals() {
+    func fetchMeals() {
         // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
         DispatchQueue.global(qos: .userInitiated).async {
             do {

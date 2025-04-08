@@ -121,7 +121,9 @@ struct ProfileView: View {
                         .padding()
                         ScrollView {
                             ZStack {
-                                FunnyLines()
+                                if !upcomingTrips.isEmpty {
+                                    FunnyLines()
+                                }
                                 VStack {
                                     if !upcomingTrips.isEmpty {
                                         ScrollView(.horizontal, showsIndicators: false) {
@@ -144,7 +146,8 @@ struct ProfileView: View {
                                         selectedTab: $selectedTab
                                     )
                                 }
-                                .offset(y: 50)
+                                // .offset(y: 50)
+                                .offset(y: upcomingTrips.isEmpty ? 0 : 40)
                             }
                             VStack {
                                 ZStack(alignment: .bottom) {
@@ -166,7 +169,8 @@ struct ProfileView: View {
                                         .padding(.bottom, 30)
                                 }
                             }
-                            .padding(.top, 100)
+                            // .padding(.top, 100)
+                            .padding(.top, upcomingTrips.isEmpty ? 0 : 100)
                             ZStack {
                                 VStack {
                                     Rectangle()

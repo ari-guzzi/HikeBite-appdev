@@ -15,8 +15,8 @@ import SwiftUI
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         let attrs = [
-            NSAttributedString.Key.foregroundColor: UIColor.black, // Adjust color as needed
-            NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 48)!
+            NSAttributedString.Key.foregroundColor: UIColor.black,
+            NSAttributedString.Key.font: UIFont(name: "FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 27)!
         ]
         UINavigationBar.appearance().titleTextAttributes = attrs
         // Aggressively Disable DeviceCheck BEFORE Firebase Initializes

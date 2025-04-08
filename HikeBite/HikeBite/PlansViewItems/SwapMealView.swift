@@ -40,7 +40,7 @@ struct SwapMealView: View {
                     }
                 }
             }
-            .navigationTitle("Choose a Replacement")
+            .navigationTitle("Replace Meal")
             .toolbar {
                 Button("Cancel") { dismiss() }
             }
