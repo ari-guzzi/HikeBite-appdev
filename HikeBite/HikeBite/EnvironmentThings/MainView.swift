@@ -71,7 +71,8 @@ struct MainView: View {
                 selectedTab: $selectedTab,
                 showLogin: $showLogin,
                 numberOfDays: numberOfDays,
-                tripDate: tripDate
+                tripDate: tripDate,
+                allMealEntries: mealEntriesState
             )
             .tabItem {
                 Label("Trips", systemImage: "map.fill")

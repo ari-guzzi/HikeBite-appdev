@@ -29,17 +29,18 @@ struct PlansView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedMealEntry: MealEntry?
     @State private var selectedRecipe: Result?
-
+    @Binding var shouldNavigateToPlans: Bool
     var days: [String] {
         (1...numberOfDays).map { "Day \($0)" }
     }
-    init(tripManager: TripManager, numberOfDays: Int, tripDate: Date, selectedTrip: Binding<Trip?>, modelContext: ModelContext, selectedTab: Binding<Int>) {
+    init(tripManager: TripManager, numberOfDays: Int, tripDate: Date, selectedTrip: Binding<Trip?>, modelContext: ModelContext, selectedTab: Binding<Int>, shouldNavigateToPlans: Binding<Bool>) {
         self.tripManager = tripManager
         self.numberOfDays = numberOfDays
         self.tripDate = tripDate
         self._selectedTrip = selectedTrip
         _viewModel = StateObject(wrappedValue: MealEntriesViewModel(modelContext: modelContext, tripName: selectedTrip.wrappedValue?.name ?? "Unknown Trip"))
         self._selectedTab = selectedTab
+        self._shouldNavigateToPlans = shouldNavigateToPlans
     }
     var body: some View {
         ZStack {
@@ -75,11 +76,13 @@ struct PlansView: View {
                 // DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { print("📋 Recipes loaded: \(tripManager.allRecipes.map { $0.title })") }
             }
         }
-        .onDisappear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                tripManager.hasNavigatedForSelectedTrip = false
-            }
-        }
+//        .onDisappear {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//                //tripManager.hasNavigatedForSelectedTrip = false
+//                tripManager.lastNavigatedTripID = nil
+//                
+//            }
+//        }
         .onChange(of: mealEntries) { _ in updateMealEntriesState() }
         .sheet(isPresented: $showDuplicatePlanSheet) {
             if let trip = selectedTrip {
@@ -102,16 +105,58 @@ struct PlansView: View {
                 Text("⚠️ Recipe not found for '\(meal.recipeTitle)'")
             }
         }
+//        .sheet(isPresented: $isShowingSummary) {
+//            if let trip = selectedTrip {
+//                TripSummaryView(trip: trip, allMeals: mealEntriesState,
+//                                onDone: {
+//                    selectedTab = 0
+//                    selectedTrip = nil
+//                }
+//                )
+//            }
+//        }
+//        .sheet(isPresented: $isShowingSummary) {
+//            if let trip = selectedTrip {
+//                TripSummaryView(
+//                    tripManager: tripManager,
+//                    source: .plansView,
+//                    selectedTrip: $selectedTrip,
+//                    selectedTab: $selectedTab,
+//                    trip: trip,
+//                    allMeals: mealEntriesState,
+//                    onDone: { isShowingSummary = false },
+//                    isPresented: $isShowingSummary
+//                )
+//            } else {
+//                Text("No trip selected.")
+//            }
+//        }
         .sheet(isPresented: $isShowingSummary) {
             if let trip = selectedTrip {
-                TripSummaryView(trip: trip, allMeals: mealEntriesState,
-                                onDone: {
-                    selectedTab = 0
-                    selectedTrip = nil
-                }
-                )
+            TripSummaryView(
+                tripManager: tripManager,
+                source: .plansView,
+                selectedTrip: $selectedTrip,
+                selectedTab: $selectedTab,
+                trip: selectedTrip ?? Trip(name: "", days: 0, date: Date()),  // fallback safety
+                allMeals: mealEntriesState,
+                onDone: {
+                    isShowingSummary = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        selectedTrip = nil
+                        tripManager.lastNavigatedTripID = nil
+                        selectedTab = 2
+                        shouldNavigateToPlans = false
+                    }
+                },
+                isPresented: $isShowingSummary,
+                shouldNavigateToPlans: $shouldNavigateToPlans
+            )
+            } else {
+                Text("No trip selected.")
             }
         }
+
         .sheet(isPresented: Binding(
             get: { showingSwapSheet && mealToSwap != nil },
             set: { showingSwapSheet = $0 }
@@ -277,7 +322,6 @@ struct PlansView: View {
             print("❌ Failed to duplicate plan: \(error.localizedDescription)")
         }
     }
-
     private func mealsForDay(day: String) -> [MealEntry] {
         guard let tripName = selectedTrip?.name else {
             print("❌ No selected trip! Returning empty meal list.")
@@ -291,11 +335,9 @@ struct PlansView: View {
 
             return matches
         }
-
         // print("📆 Found \(meals.count) meals for trip \(tripName) on \(day)")
         return meals
     }
-
     private func cleanUpMealDays() {
         for meal in mealEntriesState {
             if meal.day.contains("Day Day") {
@@ -331,23 +373,15 @@ struct PlansView: View {
             mealEntriesState.removeAll { $0.id == meal.id }
             print("Meal deleted successfully.")
             refreshMeals() // Call refresh to ensure UI is in sync with the latest data state.
-        } catch {
-            print("Error deleting meal: \(error.localizedDescription)")
-        }
+        } catch { print("Error deleting meal: \(error.localizedDescription)") }
     }
-
     private func refreshMeals() {
         DispatchQueue.main.async {
             self.mealEntriesState = self.mealEntriesState.filter { !$0.isDeleted }
             // print("State after deletion: \(self.mealEntriesState.map { $0.id })")
         }
     }
-
-    private func fetchFilteredMeals() -> [MealEntry] {
-        // Implement fetching logic here
-        return []
-    }
-
+    private func fetchFilteredMeals() -> [MealEntry] { return [] }
     func fetchMeals() {
         // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
         DispatchQueue.global(qos: .userInitiated).async {
@@ -368,24 +402,20 @@ struct PlansView: View {
                     }
                 }
             } catch {
-                DispatchQueue.main.async {
-                    print("❌ Failed to load meals: \(error.localizedDescription)")
-                }
+                DispatchQueue.main.async { print("❌ Failed to load meals: \(error.localizedDescription)") }
             }
         }
     }
     func getResultForMeal(_ meal: MealEntry) -> Result? {
         for recipe in tripManager.allRecipes {
             // print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")
-            if recipe.id == meal.recipeID {
-                return recipe
-            }
+            if recipe.id == meal.recipeID { return recipe }
         }
         print("❌ No match found for recipeID: \(meal.recipeID)")
         return nil
     }
-
 }
+                
 struct PlanHeaderView: View {
     var body: some View {
         VStack {

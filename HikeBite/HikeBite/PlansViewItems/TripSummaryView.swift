@@ -4,25 +4,49 @@
 //
 //  Created by Ari Guzzi on 4/4/25.
 //
-
+import SwiftData
 import SwiftUI
 
 struct TripSummaryView: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @ObservedObject var tripManager: TripManager
+    @Environment(\.dismiss) private var dismiss
     @State private var meals: [MealEntry] = []
+    var source: TripSummarySource
+    @Binding var selectedTrip: Trip?
+    @Binding var selectedTab: Int
     var trip: Trip
     var allMeals: [MealEntry]
     var onDone: () -> Void
+    @Binding var isPresented: Bool
+    @Binding var shouldNavigateToPlans: Bool
     var body: some View {
         VStack {
             ScrollView {
                 VStack(spacing: 16) {
-
-                    Text(trip.name)
-                        .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 28))
-                        .padding(.bottom, 4)
-
+                    HStack {
+                        Spacer()
+                        Text(trip.name)
+                            .font(Font.custom("FONTSPRINGDEMO-FieldsDisplaySemiBoldRegular", size: 28))
+                            .padding(.bottom, 4)
+                        Spacer()
+                        Button(action: {
+                            switch source {
+                            case .plansView:
+                                isPresented = false
+                            case .profileView, .tripsView:
+                                isPresented = false
+                                selectedTrip = nil
+                                tripManager.lastNavigatedTripID = nil
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                    selectedTrip = trip
+                                    selectedTab = 2
+                                }
+                            }
+                        }) {
+                            Image(systemName: "square.and.pencil")
+                        }
+                    }
                     Text("Duration: \(trip.days) days")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -55,10 +79,25 @@ struct TripSummaryView: View {
                 .padding()
             }
 
+//            Button("Close") {
+//                dismiss()
+//                onDone()
+//            }
             Button("Close") {
-                dismiss()
-                onDone()
+                switch source {
+                case .plansView:
+                    // If you came *from* PlansView, go back to TripsView
+                    selectedTrip = nil
+                    tripManager.lastNavigatedTripID = nil
+                    selectedTab = 2  // Switch to the profile tab
+                    shouldNavigateToPlans = false
+                    dismiss()        // Dismiss the sheet
+                case .profileView, .tripsView:
+                    dismiss()        // Just dismiss the sheet
+                }
+                onDone() // always call the completion handler
             }
+
             .padding(.horizontal, 30)
             .padding(.vertical, 12)
             .background(
@@ -90,4 +129,9 @@ struct TripSummaryView: View {
     private var groupedMeals: [String: [MealEntry]] {
         Dictionary(grouping: meals, by: { $0.day })
     }
+}
+enum TripSummarySource {
+    case plansView
+    case profileView
+    case tripsView
 }

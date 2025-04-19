@@ -13,6 +13,7 @@ import SwiftData
 class TripManager: ObservableObject {
     @Published var hasNavigatedForSelectedTrip: Bool = false
     @Published var allRecipes: [Result] = []
+    @Published var lastNavigatedTripID: PersistentIdentifier? = nil
     @Published var trips: [Trip] = [] {
         didSet {
             objectWillChange.send()  // Forces SwiftUI to refresh

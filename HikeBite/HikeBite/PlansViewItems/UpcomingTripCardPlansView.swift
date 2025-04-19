@@ -4,11 +4,17 @@
 //
 //  Created by Ari Guzzi on 3/15/25.
 //
-
+import SwiftData
 import SwiftUI
 
 struct UpcomingTripCardPlansView: View {
+    @Binding var shouldNavigateToPlans: Bool
+    @Environment(\.modelContext) private var modelContext
+    @ObservedObject var tripManager: TripManager
     var trip: Trip
+        var allMealEntries: [MealEntry]
+        @Binding var selectedTrip: Trip?
+        @Binding var selectedTab: Int
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -49,6 +55,20 @@ struct UpcomingTripCardPlansView: View {
                             )
                             .foregroundColor(.black)
                             .frame(width: 165, height: 25, alignment: .leading)
+                        NavigationLink(destination: TripSummaryView(
+                            tripManager: tripManager,
+                            source: .tripsView, // or .tripsView
+                            selectedTrip: $selectedTrip,
+                            selectedTab: $selectedTab,
+                            trip: trip,
+                            allMeals: allMealEntries,
+                            onDone: {}, // not needed here
+                            isPresented: .constant(false), // not used
+                            shouldNavigateToPlans: .constant(false)
+                        )) {
+                            Text("View Summary")
+                        }
+
                         HStack {
                             Text(trip.date.formatted(date: .long, time: .omitted))
                                 .font(

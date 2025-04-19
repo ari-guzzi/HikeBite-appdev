@@ -4,7 +4,7 @@
 //
 //  Created by Ari Guzzi on 3/15/25.
 //
-
+import SwiftData
 import SwiftUI
 
 struct TripsView: View {
@@ -19,6 +19,8 @@ struct TripsView: View {
     @State var tripDate: Date
     @State private var shouldNavigateToPlans = false
     @State private var activeTrip: Trip? = nil
+    var allMealEntries: [MealEntry]
+    @State private var mealEntriesState: [MealEntry] = []
     // @State private var hasNavigatedFromSelectedTrip = false
     var upcomingTrips: [Trip] {
         let now = Date()
@@ -40,13 +42,14 @@ struct TripsView: View {
         }
         return past
     }
-    init(tripManager: TripManager, selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, showLogin: Binding<Bool>, numberOfDays: Int, tripDate: Date) {
+    init(tripManager: TripManager, selectedTrip: Binding<Trip?>, selectedTab: Binding<Int>, showLogin: Binding<Bool>, numberOfDays: Int, tripDate: Date, allMealEntries: [MealEntry]) {
         self._tripManager = ObservedObject(initialValue: tripManager)
         self._selectedTrip = selectedTrip
         self._selectedTab = selectedTab
         self._showLogin = showLogin
         self.numberOfDays = numberOfDays
         self.tripDate = tripDate
+        self.allMealEntries = allMealEntries
         UITableView.appearance().backgroundColor = .clear
         UITableViewCell.appearance().backgroundColor = .clear
         UITableView.appearance().separatorStyle = .none
@@ -69,7 +72,8 @@ struct TripsView: View {
                             tripDate: selectedTrip?.date ?? Date(),
                             selectedTrip: $selectedTrip,
                             modelContext: modelContext,
-                            selectedTab: $selectedTab
+                            selectedTab: $selectedTab,
+                            shouldNavigateToPlans: $shouldNavigateToPlans
                         ),
                         isActive: $shouldNavigateToPlans
                     ) {
@@ -81,15 +85,28 @@ struct TripsView: View {
                         .frame(width: UIScreen.main.bounds.width)
                 }
             }
+//            .onAppear {
+//                print("🔄 Tripsview appeared. Fetching trips...")
+//                tripManager.fetchTrips(modelContext: modelContext)
+//                if let trip = selectedTrip, !tripManager.hasNavigatedForSelectedTrip {
+//                    print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
+//                    tripManager.hasNavigatedForSelectedTrip = true
+//                    shouldNavigateToPlans = true
+//                } else {
+//                    print("🛑 Skipping auto-navigation, already navigated for selected trip")
+//                }
+//            }
             .onAppear {
                 print("🔄 Tripsview appeared. Fetching trips...")
                 tripManager.fetchTrips(modelContext: modelContext)
-                if let trip = selectedTrip, !tripManager.hasNavigatedForSelectedTrip {
+                fetchMeals()
+                if let trip = selectedTrip, trip.id != tripManager.lastNavigatedTripID {
                     print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
-                    tripManager.hasNavigatedForSelectedTrip = true
+                    tripManager.lastNavigatedTripID = trip.id
                     shouldNavigateToPlans = true
-                } else {
-                    print("🛑 Skipping auto-navigation, already navigated for selected trip")
+                }
+                else {
+                    print("🛑 Skipping auto-navigation, already navigated to this trip")
                 }
             }
         }
@@ -99,12 +116,24 @@ struct TripsView: View {
                 tripManager.fetchTrips(modelContext: modelContext)
             }
         }
+//        .onChange(of: selectedTrip) { newValue in
+//            guard let trip = newValue else { return }
+//            print("✳️ selectedTrip changed to \(trip.name)")
+//            tripManager.hasNavigatedForSelectedTrip = true
+//            shouldNavigateToPlans = true
+//        }
         .onChange(of: selectedTrip) { newValue in
             guard let trip = newValue else { return }
-            print("✳️ selectedTrip changed to \(trip.name)")
-            tripManager.hasNavigatedForSelectedTrip = true
-            shouldNavigateToPlans = true
+            
+            if trip.id != tripManager.lastNavigatedTripID {
+                print("✳️ selectedTrip changed to \(trip.name), triggering navigation")
+                tripManager.lastNavigatedTripID = trip.id
+                shouldNavigateToPlans = true
+            } else {
+                print("🟡 selectedTrip is same as last navigated. Not navigating.")
+            }
         }
+
 
     } // body
     private var header: some View {
@@ -170,7 +199,12 @@ struct TripsView: View {
                     List {
                         ForEach(previousTrips) { trip in
                             Button {
-                                selectedTrip = trip
+                                //selectedTrip = trip
+                                selectedTrip = nil
+                                tripManager.lastNavigatedTripID = nil
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                    selectedTrip = trip
+                                }
                             } label: {
                                 tripRow(trip: trip)
                             }
@@ -207,11 +241,22 @@ struct TripsView: View {
                             HStack(spacing: 15) {
                                 ForEach(upcomingTrips) { trip in
                                     Button {
-                                        selectedTrip = trip
+                                       // selectedTrip = trip
+                                        selectedTrip = nil
+                                        tripManager.lastNavigatedTripID = nil
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                                            selectedTrip = trip
+                                        }
                                     } label: {
-                                        UpcomingTripCardPlansView(trip: trip)
+                                        UpcomingTripCardPlansView(
+                                            shouldNavigateToPlans: .constant(false),
+                                            tripManager: tripManager,
+                                            trip: trip,
+                                            allMealEntries: mealEntriesState,
+                                            selectedTrip: $selectedTrip,
+                                            selectedTab: $selectedTab
+                                        )
                                     }
-                                    
                                 }
                             }
                         }
@@ -289,4 +334,13 @@ struct TripsView: View {
             print("❌ Failed to save trip: \(error.localizedDescription)")
         }
     }
+    func fetchMeals() {
+        do {
+            let fetchedMeals: [MealEntry] = try modelContext.fetch(FetchDescriptor<MealEntry>())
+            mealEntriesState = fetchedMeals
+        } catch {
+            print("❌ Failed to fetch meal entries: \(error)")
+        }
+    }
+
 }

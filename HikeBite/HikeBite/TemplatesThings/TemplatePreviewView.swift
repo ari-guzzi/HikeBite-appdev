@@ -66,7 +66,8 @@ struct TemplatePreviewView: View {
                 dismissTemplates: {
                     showPlanSelection = false
                     dismissTemplates()},
-                selectedTab: $selectedTab
+                selectedTab: $selectedTab,
+                shouldNavigateToPlans: .constant(true)
             )
         }
     }

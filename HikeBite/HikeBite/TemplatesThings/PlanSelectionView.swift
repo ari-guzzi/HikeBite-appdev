@@ -23,6 +23,7 @@ struct PlanSelectionView: View {
     @State private var showWarningSheet = false
     @State private var warningMessage: String = ""
     @State private var isNavigatingToSelectedTrip = false
+    @Binding var shouldNavigateToPlans: Bool
     var body: some View {
         let templateMaxDays = template.mealTemplates.keys
             .compactMap { Int($0.filter { $0.isNumber }) }
@@ -57,7 +58,8 @@ struct PlanSelectionView: View {
                             tripDate: selectedTrip?.date ?? Date(),
                             selectedTrip: $selectedTrip,
                             modelContext: modelContext,
-                            selectedTab: $selectedTab
+                            selectedTab: $selectedTab,
+                            shouldNavigateToPlans: $shouldNavigateToPlans
                         ),
                         isActive: $isNavigatingToSelectedTrip
                     ) {

@@ -4,11 +4,22 @@
 //
 //  Created by Ari Guzzi on 2/23/25.
 //
-
+import SwiftData
 import SwiftUI
 
+
 struct TripCardView: View {
+    @Binding var shouldNavigateToPlans: Bool
+    @Environment(\.modelContext) private var modelContext
+    @ObservedObject var tripManager: TripManager
     var trip: Trip
+        var allMealEntries: [MealEntry]
+        @Binding var selectedTrip: Trip?
+        @Binding var selectedTab: Int
+    @Binding var summaryTrip: Trip?
+        @Binding var showTripSummarySheet: Bool
+    var openTripSummarySheet: (Trip) -> Void
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 0) {
@@ -47,12 +58,18 @@ struct TripCardView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.black)
                             .frame(width: 277, height: 25, alignment: .leading)
+                        Button(action: {
+                            summaryTrip = trip
+                        }) {
+                            Text("View Summary")
+                        }
+
                         HStack {
                             Text(trip.date.formatted(date: .long, time: .omitted))
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                             Spacer()
-                            Text("View trip")
+                            Text("Edit trip")
                                 .font(.custom("Fields", size: 16))
                                 .fontWeight(.medium)
                                 .foregroundColor(Color(red: 0.02, green: 0.31, blue: 0.23))
