@@ -192,14 +192,14 @@ struct PlansView: View {
     private func updateAndPrintSnacks() {
         if showSnacksConsolidated {
             consolidatedSnacks = viewModel.mealEntries.filter { $0.meal.lowercased() == "snacks" }
-            if consolidatedSnacks.isEmpty {
-                print("No snacks found.")
-            } else {
-                consolidatedSnacks.forEach { snack in
-                    print("Snack: \(snack.recipeTitle), Day: \(snack.day)")
-                }
-            }
-            print("Consolidated snacks updated: \(consolidatedSnacks.count) found")
+//            if consolidatedSnacks.isEmpty {
+//                print("No snacks found.")
+//            } else {
+//                consolidatedSnacks.forEach { snack in
+//                    print("Snack: \(snack.recipeTitle), Day: \(snack.day)")
+//                }
+//            }
+//            print("Consolidated snacks updated: \(consolidatedSnacks.count) found")
         } else {
             consolidatedSnacks = []
             print("Snacks consolidation is off.")
