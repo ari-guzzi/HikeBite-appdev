@@ -11,12 +11,18 @@ struct TripSummaryView: View {
     @Environment(\.modelContext) private var modelContext
     @ObservedObject var tripManager: TripManager
     @Environment(\.dismiss) private var dismiss
-    @State private var meals: [MealEntry] = []
+    // @State private var meals: [MealEntry] = []
     var source: TripSummarySource
     @Binding var selectedTrip: Trip?
     @Binding var selectedTab: Int
     var trip: Trip
-    var allMeals: [MealEntry]
+    // var allMeals: [MealEntry]
+    @Query private var allMealEntries: [MealEntry]
+
+    var filteredMeals: [MealEntry] {
+        allMealEntries.filter { $0.tripName == trip.name }
+    }
+
     var onDone: () -> Void
     @Binding var isPresented: Bool
     @Binding var shouldNavigateToPlans: Bool
@@ -108,16 +114,13 @@ struct TripSummaryView: View {
             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
             .padding(.bottom)
         }
-        .onAppear {
-            meals = allMeals.filter { $0.tripName == trip.name }
-        }
     }
     private var summaryStats: some View {
-        let totalCalories = meals.reduce(0) { $0 + $1.totalCalories }
-        let totalGrams = meals.reduce(0) { $0 + $1.totalGrams }
+        let totalCalories = filteredMeals.reduce(0) { $0 + $1.totalCalories }
+        let totalGrams = filteredMeals.reduce(0) { $0 + $1.totalGrams }
 
         return VStack(alignment: .leading, spacing: 4) {
-            Text("Total Meals: \(meals.count)")
+            Text("Total Meals: \(filteredMeals.count)")
             Text("Total Calories: \(totalCalories)")
             Text("Total Weight: \(totalGrams) g")
         }
@@ -127,7 +130,7 @@ struct TripSummaryView: View {
         .cornerRadius(10)
     }
     private var groupedMeals: [String: [MealEntry]] {
-        Dictionary(grouping: meals, by: { $0.day })
+        Dictionary(grouping: filteredMeals, by: { $0.day })
     }
 }
 enum TripSummarySource {

@@ -61,7 +61,7 @@ struct UpcomingTripCardPlansView: View {
                             selectedTrip: $selectedTrip,
                             selectedTab: $selectedTab,
                             trip: trip,
-                            allMeals: allMealEntries,
+                            //allMeals: allMealEntries,
                             onDone: {}, // not needed here
                             isPresented: .constant(false), // not used
                             shouldNavigateToPlans: .constant(false)

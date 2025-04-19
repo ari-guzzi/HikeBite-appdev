@@ -13,6 +13,7 @@
 		7415CD2A2D3C3E18008C36E1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD292D3C3E18008C36E1 /* FirebaseCore */; };
 		7415CD2C2D3C3F15008C36E1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2B2D3C3F15008C36E1 /* FirebaseAuth */; };
 		7415CD2E2D3C3F22008C36E1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7415CD2D2D3C3F22008C36E1 /* FirebaseStorage */; };
+		74210BD02DB45B05004AED02 /* DuplicatePlanButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74210BCF2DB45B05004AED02 /* DuplicatePlanButton.swift */; };
 		742C8A0A2D4C3A2200DB92CC /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 742C8A092D4C3A2200DB92CC /* FirebaseAppCheck */; };
 		74505E212D35D9E600474952 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74505E202D35D9E600474952 /* SwiftUI.framework */; };
 		7454CBD02D98AE3900081C7E /* PlanNewTrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7454CBCF2D98AE3900081C7E /* PlanNewTrip.swift */; };
@@ -46,6 +47,7 @@
 		7400E1012D35CE1A0013D1FC /* HikeBite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HikeBite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7400E1112D35CE1D0013D1FC /* HikeBiteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HikeBiteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7400E11B2D35CE1D0013D1FC /* HikeBiteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HikeBiteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		74210BCF2DB45B05004AED02 /* DuplicatePlanButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DuplicatePlanButton.swift; path = HikeBite/PlansViewItems/Plansview/DuplicatePlanButton.swift; sourceTree = "<group>"; };
 		74505E1C2D35D9E500474952 /* MealPlanExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MealPlanExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		74505E202D35D9E600474952 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7454CBCF2D98AE3900081C7E /* PlanNewTrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlanNewTrip.swift; path = HikeBite/ProfileViewThings/PlanNewTrip.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		7400E0F82D35CE190013D1FC = {
 			isa = PBXGroup;
 			children = (
+				74210BCF2DB45B05004AED02 /* DuplicatePlanButton.swift */,
 				7454CBCF2D98AE3900081C7E /* PlanNewTrip.swift */,
 				74B5E0532D84FA7E00BE0B5B /* Fonts */,
 				74FB19472D5FDCCE005E31C9 /* TripManager.swift */,
@@ -368,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74FB19482D5FDCCE005E31C9 /* TripManager.swift in Sources */,
+				74210BD02DB45B05004AED02 /* DuplicatePlanButton.swift in Sources */,
 				7454CBD02D98AE3900081C7E /* PlanNewTrip.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
