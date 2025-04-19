@@ -17,11 +17,13 @@ struct TripSummaryView: View {
     @Binding var selectedTab: Int
     var trip: Trip
     // var allMeals: [MealEntry]
-    @Query private var allMealEntries: [MealEntry]
+    // @Query private var allMealEntries: [MealEntry]
+    @State private var filteredMeals: [MealEntry] = []
+    var allMeals: [MealEntry]
 
-    var filteredMeals: [MealEntry] {
-        allMealEntries.filter { $0.tripName == trip.name }
-    }
+//    var filteredMeals: [MealEntry] {
+//        allMealEntries.filter { $0.tripName == trip.name }
+//    }
 
     var onDone: () -> Void
     @Binding var isPresented: Bool
@@ -114,6 +116,10 @@ struct TripSummaryView: View {
             .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
             .padding(.bottom)
         }
+        .onAppear {
+            filteredMeals = allMeals.filter { $0.tripName == trip.name }
+        }
+
     }
     private var summaryStats: some View {
         let totalCalories = filteredMeals.reduce(0) { $0 + $1.totalCalories }

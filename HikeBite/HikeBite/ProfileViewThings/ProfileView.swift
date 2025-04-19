@@ -135,7 +135,7 @@ struct ProfileView: View {
                 selectedTrip: $selectedTrip,
                 selectedTab: $selectedTab,
                 trip: trip,
-                //allMeals: entries,
+                allMeals: entries,
                 onDone: {
                     summaryTrip = nil
                 },

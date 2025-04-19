@@ -30,6 +30,7 @@ struct PlansView: View {
     @State private var selectedMealEntry: MealEntry?
     @State private var selectedRecipe: Result?
     @Binding var shouldNavigateToPlans: Bool
+    @State private var shouldShowSummary = false
     private var tripMeals: [MealEntry] {
         mealEntries.filter { $0.tripName == selectedTrip?.name }
     }
@@ -56,17 +57,12 @@ struct PlansView: View {
                     }
                 VStack(alignment: .center, spacing: 16) {
                     snackToggle
-                    DuplicatePlanButton {
-                        showDuplicatePlanSheet = true
-                    }
+                    DuplicatePlanButton { showDuplicatePlanSheet = true }
                 }
                 .padding().background(Color.white).cornerRadius(12).shadow(radius: 8).frame(width: 240)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                ).position(x: UIScreen.main.bounds.width - 50, y: 100)
-            }
-        }
-        .padding(0)
+                ).position(x: UIScreen.main.bounds.width - 50, y: 100)}}.padding(0)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) { Button { isShowingPopover.toggle() } label: { Image(systemName: "gearshape.fill").foregroundColor(.gray) } }
         }
@@ -139,15 +135,17 @@ struct PlansView: View {
                     .offset(y: -10)
                 Text("Total Calories: \(calculateTotals().calories) | Total Weight: \(calculateTotals().grams) g")
                 scrollViewContent
-                Button("Summarize Trip", action: { isShowingSummary = true })
-                    .padding(.horizontal, 30)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(Color("AccentColor"))
-                    )
-                    .foregroundColor(.white)
-                    .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
+                Button("Summarize Trip") {
+                    shouldShowSummary = true
+                        fetchMeals()
+                    
+                }.padding(.horizontal, 30).padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(Color("AccentColor"))
+                )
+                .foregroundColor(.white)
+                .font(Font.custom("FONTSPRINGDEMO-FieldsDisplayMediumRegular", size: 16))
                 Text("All trips are automatically saved for offline use.")
                     .font(.caption)
             }
@@ -328,7 +326,7 @@ struct PlansView: View {
                 selectedTrip: $selectedTrip,
                 selectedTab: $selectedTab,
                 trip: trip,
-                // allMeals: mealEntriesState,
+                allMeals: mealEntriesState,
                 onDone: {
                     isShowingSummary = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -346,29 +344,51 @@ struct PlansView: View {
             Text("No trip selected.")
         }
     }
-
     func fetchMeals() {
-        // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync { try modelContext.fetch(FetchDescriptor<MealEntry>()) }
+                let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync {
+                    try modelContext.fetch(FetchDescriptor<MealEntry>())
+                }
                 DispatchQueue.main.async {
-                    let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
-                    DispatchQueue.main.async {
-                        // print("🔄 Clearing UI meals before loading new ones...")
-                        self.mealEntriesState.removeAll()
-
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self.mealEntriesState = filteredMeals
-                           // print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+                    let filteredMeals = fetchedMeals.filter {
+                        $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+                    self.mealEntriesState.removeAll()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.mealEntriesState = filteredMeals
+                        if shouldShowSummary {
+                            isShowingSummary = true
+                            shouldShowSummary = false
                         }
                     }
                 }
             } catch {
-                DispatchQueue.main.async { print("❌ Failed to load meals: \(error.localizedDescription)") }
-            }
-        }
-    }
+                DispatchQueue.main.async {
+                    print("❌ Failed to load meals: \(error.localizedDescription)")
+                } } } }
+
+//    func fetchMeals() {
+//        // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            do {
+//                let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync { try modelContext.fetch(FetchDescriptor<MealEntry>()) }
+//                DispatchQueue.main.async {
+//                    let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
+//                    DispatchQueue.main.async {
+//                        // print("🔄 Clearing UI meals before loading new ones...")
+//                        self.mealEntriesState.removeAll()
+//
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//                            self.mealEntriesState = filteredMeals
+//                           // print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
+//                        }
+//                    }
+//                }
+//            } catch {
+//                DispatchQueue.main.async { print("❌ Failed to load meals: \(error.localizedDescription)") }
+//            }
+//        }
+//    }
     func getResultForMeal(_ meal: MealEntry) -> Result? {
         for recipe in tripManager.allRecipes {
             // print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")
