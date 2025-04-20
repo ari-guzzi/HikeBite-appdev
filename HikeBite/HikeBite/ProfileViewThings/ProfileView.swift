@@ -92,7 +92,6 @@ struct ProfileView: View {
                         ScrollView {
                             upcomingTripsSection
                             createNewTripPlanView
-                                .padding(.top, 100)
                                 .padding(.top, upcomingTrips.isEmpty ? 0 : 100)
                             ZStack {
                                 treesPictureView

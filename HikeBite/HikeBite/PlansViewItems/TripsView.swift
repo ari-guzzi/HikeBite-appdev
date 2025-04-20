@@ -234,6 +234,7 @@ struct TripsView: View {
                                 .font(Font.custom("Area Normal", size: 24).weight(.bold))
                                 .foregroundColor(Color(red: 0.17, green: 0.17, blue: 0.17))
                                 .padding(.leading, 30)
+                                .padding(.bottom, 10)
                             Spacer()
                         }
                         .padding(0)

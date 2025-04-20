@@ -29,6 +29,8 @@ struct TripSummaryView: View {
     @Binding var isPresented: Bool
     @Binding var shouldNavigateToPlans: Bool
     var body: some View {
+        ZStack {
+            BackgroundGradient()
         VStack {
             ScrollView {
                 VStack(spacing: 16) {
@@ -53,27 +55,28 @@ struct TripSummaryView: View {
                             }
                         }) {
                             Image(systemName: "square.and.pencil")
+                                .font(.system(size: 24))
                         }
                     }
                     Text("Duration: \(trip.days) days")
                         .font(.subheadline)
                         .foregroundColor(.gray)
-
+                    
                     summaryStats
-
+                    
                     Divider()
-
+                    
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Meals by Day")
                             .font(.headline)
                             .padding(.bottom, 5)
-
+                        
                         ForEach(groupedMeals.keys.sorted(), id: \.self) { day in
                             VStack(alignment: .leading) {
                                 Text(day)
                                     .font(.subheadline)
                                     .fontWeight(.bold)
-
+                                
                                 ForEach(groupedMeals[day] ?? []) { meal in
                                     Text("• \(meal.meal): \(meal.recipeTitle) (\(meal.servings)x)")
                                         .font(.caption)
@@ -86,11 +89,11 @@ struct TripSummaryView: View {
                 }
                 .padding()
             }
-
-//            Button("Close") {
-//                dismiss()
-//                onDone()
-//            }
+            
+            //            Button("Close") {
+            //                dismiss()
+            //                onDone()
+            //            }
             Button("Close") {
                 switch source {
                 case .plansView:
@@ -105,7 +108,7 @@ struct TripSummaryView: View {
                 }
                 onDone() // always call the completion handler
             }
-
+            
             .padding(.horizontal, 30)
             .padding(.vertical, 12)
             .background(
@@ -119,7 +122,7 @@ struct TripSummaryView: View {
         .onAppear {
             filteredMeals = allMeals.filter { $0.tripName == trip.name }
         }
-
+    }
     }
     private var summaryStats: some View {
         let totalCalories = filteredMeals.reduce(0) { $0 + $1.totalCalories }
