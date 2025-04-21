@@ -1,6 +1,6 @@
 # HikeBite
-For my capstone project, I worked with Will Labeaux and Wolfgang Loudenburg to create HikeBite.<br />
-HikeBite is an iOS app designed to assist beginner backpackers with meal planning. The app allows users to create trips and populate them with meal ideas, either from a pre-made template (provided by the CU Hiking Club) or by hand-selecting meals from our database. Each meal plan is entirely customizable by the user. The user can also upload their own meals if they create an account!<br />
+For my capstone project, I worked with Will Labeaux and Wolfgang Loudenburg to create HikeBite.<br /><br />
+HikeBite is an iOS app designed to assist beginner backpackers with meal planning. The app allows users to create trips and populate them with meal ideas, either from a pre-made template (provided by the CU Hiking Club) or by hand-selecting meals from our database. Each meal plan is entirely customizable by the user. The user can also upload their own meals if they create an account!<br /><br />
 I was the sole app developer on this project. I built the app on SwiftUI with Xcode. I used Firebase to create the backend, utilizing Firebase Storage to store our photos, Firebase Authentication to authorize our users, and the Firestore Database to store meal ideas, templates, and users' information. I used Swift Data for offline use. Will created the UI design and conducted user research. Wolfgang conducted user testing and populated our database with meal ideas and templates from his research.",
 
 ## License and Use
