@@ -192,14 +192,6 @@ struct PlansView: View {
     private func updateAndPrintSnacks() {
         if showSnacksConsolidated {
             consolidatedSnacks = viewModel.mealEntries.filter { $0.meal.lowercased() == "snacks" }
-//            if consolidatedSnacks.isEmpty {
-//                print("No snacks found.")
-//            } else {
-//                consolidatedSnacks.forEach { snack in
-//                    print("Snack: \(snack.recipeTitle), Day: \(snack.day)")
-//                }
-//            }
-//            print("Consolidated snacks updated: \(consolidatedSnacks.count) found")
         } else {
             consolidatedSnacks = []
             print("Snacks consolidation is off.")
@@ -294,7 +286,7 @@ struct PlansView: View {
                 showCreatePlanSheet = false
             }
         } catch {
-            print("❌ Failed to save trip: \(error.localizedDescription)")
+            print("Failed to save trip: \(error.localizedDescription)")
         }
     }
     private func deleteMeal(_ meal: MealEntry) {
@@ -366,29 +358,6 @@ struct PlansView: View {
                 DispatchQueue.main.async {
                     print("❌ Failed to load meals: \(error.localizedDescription)")
                 } } } }
-
-//    func fetchMeals() {
-//        // print("🧐 Fetching meals for trip: \(selectedTrip?.name ?? "None")")
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            do {
-//                let fetchedMeals: [MealEntry] = try DispatchQueue.main.sync { try modelContext.fetch(FetchDescriptor<MealEntry>()) }
-//                DispatchQueue.main.async {
-//                    let filteredMeals = fetchedMeals.filter { $0.tripName == selectedTrip?.name ?? "Unknown Trip" }
-//                    DispatchQueue.main.async {
-//                        // print("🔄 Clearing UI meals before loading new ones...")
-//                        self.mealEntriesState.removeAll()
-//
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-//                            self.mealEntriesState = filteredMeals
-//                           // print("✅ Meals successfully loaded into state: \(filteredMeals.count)")
-//                        }
-//                    }
-//                }
-//            } catch {
-//                DispatchQueue.main.async { print("❌ Failed to load meals: \(error.localizedDescription)") }
-//            }
-//        }
-//    }
     func getResultForMeal(_ meal: MealEntry) -> Result? {
         for recipe in tripManager.allRecipes {
             // print("🔍 Comparing recipe.id \(recipe.id ?? "nil") to meal.recipeID \(meal.recipeID)")

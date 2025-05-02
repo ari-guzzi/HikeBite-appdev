@@ -85,23 +85,12 @@ struct TripsView: View {
                         .frame(width: UIScreen.main.bounds.width)
                 }
             }
-//            .onAppear {
-//                print("🔄 Tripsview appeared. Fetching trips...")
-//                tripManager.fetchTrips(modelContext: modelContext)
-//                if let trip = selectedTrip, !tripManager.hasNavigatedForSelectedTrip {
-//                    print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
-//                    tripManager.hasNavigatedForSelectedTrip = true
-//                    shouldNavigateToPlans = true
-//                } else {
-//                    print("🛑 Skipping auto-navigation, already navigated for selected trip")
-//                }
-//            }
             .onAppear {
                 print("🔄 Tripsview appeared. Fetching trips...")
                 tripManager.fetchTrips(modelContext: modelContext)
                 fetchMeals()
                 if let trip = selectedTrip, trip.id != tripManager.lastNavigatedTripID {
-                    print("🚀 selectedTrip is \(trip.name), navigating to PlansView")
+                    print("SelectedTrip is \(trip.name), navigating to PlansView")
                     tripManager.lastNavigatedTripID = trip.id
                     shouldNavigateToPlans = true
                 }
@@ -116,12 +105,6 @@ struct TripsView: View {
                 tripManager.fetchTrips(modelContext: modelContext)
             }
         }
-//        .onChange(of: selectedTrip) { newValue in
-//            guard let trip = newValue else { return }
-//            print("✳️ selectedTrip changed to \(trip.name)")
-//            tripManager.hasNavigatedForSelectedTrip = true
-//            shouldNavigateToPlans = true
-//        }
         .onChange(of: selectedTrip) { newValue in
             guard let trip = newValue else { return }
             
@@ -130,11 +113,9 @@ struct TripsView: View {
                 tripManager.lastNavigatedTripID = trip.id
                 shouldNavigateToPlans = true
             } else {
-                print("🟡 selectedTrip is same as last navigated. Not navigating.")
+                print("SelectedTrip is same as last navigated. Not navigating.")
             }
         }
-
-
     } // body
     private var header: some View {
         HStack {
